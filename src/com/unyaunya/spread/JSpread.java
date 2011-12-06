@@ -13,7 +13,6 @@ import java.awt.Rectangle;
 import javax.swing.BorderFactory;
 import javax.swing.CellRendererPane;
 import javax.swing.JPanel;
-import javax.swing.SizeSequence;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.table.TableModel;
@@ -28,11 +27,9 @@ public class JSpread extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 	public static final Color DEFAULT_HEADER_BACKGROUND_COLOR = new Color(0xf0,0xf0,0xf0);
-	private SizeSequence rowSizes = new SizeSequence();
-	private SizeSequence colSizes = new SizeSequence();
+	private SizeModel rowModel = new SizeModel();
+	private SizeModel colModel = new SizeModel();
 	private CellRendererPane rendererPane = new CellRendererPane();
-	private int leftMostColumn = 0;
-	private int topMostRow = 0;
 	
 	protected SpreadModel model = new SpreadModel();
 	protected ICellRenderer defaultCellRenderer = new DefaultCellRenderer();
@@ -51,9 +48,9 @@ public class JSpread extends JPanel {
 			model = new SpreadModel(model);
 		}
 		this.model = (SpreadModel)model;
-		rowSizes.insertEntries(0, model.getRowCount(), 20);
-		colSizes.insertEntries(0, model.getColumnCount(), 80);
-		colSizes.insertEntries(0, 1, 40);
+		rowModel.insertEntries(0, model.getRowCount(), 20);
+		colModel.insertEntries(0, model.getColumnCount(), 80);
+		colModel.insertEntries(0, 1, 40);
 	}
 	public SpreadModel getModel() {
 		return model;
@@ -72,19 +69,31 @@ public class JSpread extends JPanel {
 		}
 		Point upperLeft = clip.getLocation();
 	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
+		upperLeft = translate(upperLeft);
+	    lowerRight = translate(lowerRight);
 		paintCells(g, rowAtPoint(upperLeft), rowAtPoint(lowerRight), columnAtPoint(upperLeft), columnAtPoint(lowerRight));
 	}
 
+	private Point translate(Point pt) {
+		return new Point(colModel.translate(pt.x), rowModel.translate(pt.y));
+	}
+	private Rectangle untranslate(Rectangle rect) {
+		return new Rectangle(
+				colModel.untranslate(rect.x),
+				rowModel.untranslate(rect.y),
+				rect.width, rect.height);
+	}
+	
 	private void paintCells(Graphics g, int rMin, int rMax, int cMin, int cMax) {
 		SpreadModel m = getModel();
 		String s;
 		Rectangle cellRect = new Rectangle();
 		for(int row = rMin; row <= rMax; row++) {
-			cellRect.y = rowSizes.getPosition(row);
-			cellRect.height = rowSizes.getSize(row);
+			cellRect.y = rowModel.getPosition(row);
+			cellRect.height = rowModel.getSize(row);
 			for(int col = cMin; col <= cMax; col++) {
-				cellRect.x = colSizes.getPosition(col);
-				cellRect.width = colSizes.getSize(col);
+				cellRect.x = colModel.getPosition(col);
+				cellRect.width = colModel.getSize(col);
 				Object o = m.getValueAt(row, col);
 				if(o == null) {
 					s = "null";
@@ -92,7 +101,7 @@ public class JSpread extends JPanel {
 				else {
 					s = o.toString();
 				}
-				paintCell(g, cellRect, s, row, col);
+				paintCell(g, untranslate(cellRect), s, row, col);
 			}
 		}
 	}
@@ -138,48 +147,34 @@ public class JSpread extends JPanel {
 
 	public Rectangle getCellRect(int rowIndex, int colIndex) {
 		return new Rectangle(
-					colSizes.getPosition(colIndex),
-					rowSizes.getPosition(rowIndex),
-					colSizes.getSize(colIndex),
-					rowSizes.getSize(rowIndex));
+					colModel.getPosition(colIndex),
+					rowModel.getPosition(rowIndex),
+					colModel.getSize(colIndex),
+					rowModel.getSize(rowIndex));
 	}
 
 	public int rowAtPoint(Point pt) {
-		int top = rowSizes.getPosition(this.getTopMostRow());
-		int rslt = rowSizes.getIndex(top+pt.y);
-		if(rslt >= getModel().getRowCount()) {
-			return -1;
-		}
-		else {
-			return rslt;
-		}
+		return rowModel.getIndex(pt.y, getModel().getRowCount());
 	}
 	public int columnAtPoint(Point pt) {
-		int left = colSizes.getPosition(this.getLeftMostColumn());
-		int rslt = colSizes.getIndex(left+pt.x);
-		if(rslt >= getModel().getColumnCount()) {
-			return -1;
-		}
-		else {
-			return rslt;
-		}
+		return colModel.getIndex(pt.x, getModel().getColumnCount());
 	}
 	
 	public Dimension getPreferredSize() {
-		return new Dimension(colSizes.getPosition(getModel().getColumnCount()), rowSizes.getPosition(getModel().getRowCount()));
+		return new Dimension(colModel.getPosition(getModel().getColumnCount()), rowModel.getPosition(getModel().getRowCount()));
 	}
 	public void setLeftMostColumn(int leftMostColumn) {
-		this.leftMostColumn = leftMostColumn;
+		this.colModel.setReference(leftMostColumn);
 		repaint();
 	}
 	public int getLeftMostColumn() {
-		return leftMostColumn;
+		return colModel.getReference();
 	}
 	public void setTopMostRow(int topMostRow) {
-		this.topMostRow = topMostRow;
+		this.rowModel.setReference(topMostRow);
 		repaint();
 	}
 	public int getTopMostRow() {
-		return topMostRow;
+		return rowModel.getReference();
 	}
 }
