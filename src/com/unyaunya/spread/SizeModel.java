@@ -3,8 +3,6 @@
  */
 package com.unyaunya.spread;
 
-import java.awt.Point;
-
 import javax.swing.SizeSequence;
 
 /**
@@ -12,18 +10,21 @@ import javax.swing.SizeSequence;
  *
  */
 class SizeModel extends SizeSequence {
-	private int reference = 0;
+	private int length = 0;
 
 	/**
 	 * 
 	 */
-	public SizeModel() {}
+	public SizeModel() {
+		this.length = 0;
+	}
 
 	/**
 	 * @param numEntries
 	 */
 	public SizeModel(int numEntries) {
 		super(numEntries);
+		this.length = numEntries;
 	}
 
 	/**
@@ -31,6 +32,7 @@ class SizeModel extends SizeSequence {
 	 */
 	public SizeModel(int[] sizes) {
 		super(sizes);
+		this.length = sizes.length;
 	}
 
 	/**
@@ -39,30 +41,20 @@ class SizeModel extends SizeSequence {
 	 */
 	public SizeModel(int numEntries, int value) {
 		super(numEntries, value);
+		this.length = numEntries;
 	}
 
-	public int getIndex(int position, int maxCount) {
-		int rslt = this.getIndex(position);
-		if(rslt >= maxCount) {
-			return -1;
-		}
-		else {
-			return rslt;
-		}
+	public int getLength() {
+		return this.length;
 	}
 
-	public int translate(int position) {
-		return position + this.getPosition(reference);
-	}
-	public int untranslate(int position) {
-		return position - this.getPosition(reference);
-	}
-
-	public int getReference() {
-		return reference;
+	@Override
+	public void setSizes(int[] sizes) {
+		super.setSizes(sizes);
+		this.length = sizes.length;
 	}
 
-	public void setReference(int reference) {
-		this.reference = reference;
+	public int getPreferredSize() {
+		return getPosition(getLength());
 	}
 }

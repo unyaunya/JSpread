@@ -13,6 +13,7 @@ import java.awt.Rectangle;
 import javax.swing.BorderFactory;
 import javax.swing.CellRendererPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.table.TableModel;
@@ -29,6 +30,8 @@ public class JSpread extends JPanel {
 	public static final Color DEFAULT_HEADER_BACKGROUND_COLOR = new Color(0xf0,0xf0,0xf0);
 	private SizeModel rowModel = new SizeModel();
 	private SizeModel colModel = new SizeModel();
+	private ScrollModel horizontalScrollModel = new ScrollModel(colModel);
+	private ScrollModel verticalScrollModel = new ScrollModel(rowModel);
 	private CellRendererPane rendererPane = new CellRendererPane();
 	
 	protected SpreadModel model = new SpreadModel();
@@ -50,7 +53,7 @@ public class JSpread extends JPanel {
 		this.model = (SpreadModel)model;
 		rowModel.insertEntries(0, model.getRowCount(), 20);
 		colModel.insertEntries(0, model.getColumnCount(), 80);
-		colModel.insertEntries(0, 1, 40);
+		colModel.setSize(0, 40);
 	}
 	public SpreadModel getModel() {
 		return model;
@@ -75,12 +78,12 @@ public class JSpread extends JPanel {
 	}
 
 	private Point translate(Point pt) {
-		return new Point(colModel.translate(pt.x), rowModel.translate(pt.y));
+		return new Point(this.horizontalScrollModel.translate(pt.x), verticalScrollModel.translate(pt.y));
 	}
 	private Rectangle untranslate(Rectangle rect) {
 		return new Rectangle(
-				colModel.untranslate(rect.x),
-				rowModel.untranslate(rect.y),
+				horizontalScrollModel.untranslate(rect.x),
+				verticalScrollModel.untranslate(rect.y),
 				rect.width, rect.height);
 	}
 	
@@ -88,6 +91,8 @@ public class JSpread extends JPanel {
 		SpreadModel m = getModel();
 		String s;
 		Rectangle cellRect = new Rectangle();
+		rMax = Math.min(rMax, m.getRowCount()-1);
+		cMax = Math.min(cMax, m.getColumnCount()-1);
 		for(int row = rMin; row <= rMax; row++) {
 			cellRect.y = rowModel.getPosition(row);
 			cellRect.height = rowModel.getSize(row);
@@ -154,27 +159,64 @@ public class JSpread extends JPanel {
 	}
 
 	public int rowAtPoint(Point pt) {
-		return rowModel.getIndex(pt.y, getModel().getRowCount());
+		return rowModel.getIndex(pt.y);
 	}
 	public int columnAtPoint(Point pt) {
-		return colModel.getIndex(pt.x, getModel().getColumnCount());
+		return colModel.getIndex(pt.x);
 	}
 	
 	public Dimension getPreferredSize() {
-		return new Dimension(colModel.getPosition(getModel().getColumnCount()), rowModel.getPosition(getModel().getRowCount()));
+		return new Dimension(colModel.getPreferredSize(), rowModel.getPreferredSize());
 	}
+	
 	public void setLeftMostColumn(int leftMostColumn) {
-		this.colModel.setReference(leftMostColumn);
+		horizontalScrollModel.setValue(leftMostColumn);
 		repaint();
 	}
 	public int getLeftMostColumn() {
-		return colModel.getReference();
+		return horizontalScrollModel.getValue();
 	}
 	public void setTopMostRow(int topMostRow) {
-		this.rowModel.setReference(topMostRow);
+		verticalScrollModel.setValue(topMostRow);
 		repaint();
 	}
 	public int getTopMostRow() {
-		return rowModel.getReference();
+		return verticalScrollModel.getValue();
+	}
+
+	public void setScrollBarPosition(JScrollBar horizontalBar, JScrollBar verticalBar) {
+		Rectangle bounds = this.getBounds();
+		SpreadModel model = this.getModel();
+		
+		horizontalScrollModel.setComponentSize(bounds.width);
+		verticalScrollModel.setComponentSize(bounds.height);
+		horizontalBar.setMaximum(horizontalScrollModel.getMaximum());
+		horizontalBar.setVisibleAmount(horizontalScrollModel.getExtent());
+		horizontalBar.setValue(horizontalScrollModel.getValue());
+		verticalBar.setMaximum(verticalScrollModel.getMaximum());
+		verticalBar.setVisibleAmount(verticalScrollModel.getExtent());
+		verticalBar.setValue(verticalScrollModel.getValue());
+
+		System.out.println(bounds);
+		System.out.println(colModel.getPreferredSize());
+		System.out.println(rowModel.getPreferredSize());
+		System.out.println(colModel.getLength());
+		System.out.println(rowModel.getLength());
+		System.out.println(this.getModel().getColumnCount());
+		System.out.println(this.getModel().getRowCount());
+		System.out.println(horizontalScrollModel.getMaximum());
+		System.out.println(verticalScrollModel.getMaximum());
+		System.out.println("[horizontalBar]");
+		System.out.println(horizontalBar.getMaximum());
+		System.out.println(horizontalBar.getVisibleAmount());
+		System.out.println(horizontalBar.getValue());
+		System.out.println("[verticalBar]");
+		System.out.println(verticalBar.getMaximum());
+		System.out.println(verticalBar.getVisibleAmount());
+		System.out.println(verticalBar.getValue());
+		//System.out.println(colModel.getScrollMax(bounds.width));
+		//System.out.println(rowModel.getScrollMax(bounds.height));
+		//horizontalBar.setValue(0);
+		//verticalBar.setValue(0);
 	}
 }
