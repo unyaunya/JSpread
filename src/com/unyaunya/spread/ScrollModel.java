@@ -3,7 +3,10 @@
  */
 package com.unyaunya.spread;
 
+import java.util.ArrayList;
+
 import javax.swing.BoundedRangeModel;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 /**
@@ -14,6 +17,8 @@ class ScrollModel implements BoundedRangeModel {
 	private SizeModel sizeModel;
 	private int componentSize;
 	private int value;
+	private ArrayList<ChangeListener> changeListenerList = new ArrayList<ChangeListener>();
+	private ChangeEvent event = new ChangeEvent(this);
 	
 	ScrollModel(SizeModel sizeModel) {
 		this.sizeModel = sizeModel;
@@ -21,6 +26,14 @@ class ScrollModel implements BoundedRangeModel {
 	
 	public void setComponentSize(int componentSize) {
 		this.componentSize = componentSize;
+		fireChangeEvent();
+	}
+
+	protected void fireChangeEvent() {
+		System.out.println("fireChangeEvent");
+		for(ChangeListener l: changeListenerList) {
+			l.stateChanged(event);
+		}
 	}
 	public int getComponentSize() {
 		return this.componentSize;
@@ -36,10 +49,20 @@ class ScrollModel implements BoundedRangeModel {
 	 * @see javax.swing.BoundedRangeModel#addChangeListener(javax.swing.event.ChangeListener)
 	 */
 	@Override
-	public void addChangeListener(ChangeListener arg0) {
-		// TODO Auto-generated method stub
+	public void addChangeListener(ChangeListener l) {
+		System.out.println("ScrollModel.addChangeListener is called");
+		System.out.println(l);
+		changeListenerList.add(l);
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.swing.BoundedRangeModel#removeChangeListener(javax.swing.event.ChangeListener)
+	 */
+	@Override
+	public void removeChangeListener(ChangeListener l) {
+		changeListenerList.remove(l);
+	}
+	
 	/* (non-Javadoc)
 	 * @see javax.swing.BoundedRangeModel#getExtent()
 	 */
@@ -88,31 +111,31 @@ class ScrollModel implements BoundedRangeModel {
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#removeChangeListener(javax.swing.event.ChangeListener)
-	 */
-	@Override
-	public void removeChangeListener(ChangeListener arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/* (non-Javadoc)
 	 * @see javax.swing.BoundedRangeModel#setExtent(int)
 	 */
 	@Override
-	public void setExtent(int arg0) {}
+	public void setExtent(int arg0) {
+		System.out.println("setExtent(" + arg0 + ")");
+		fireChangeEvent();
+	}
 
 	/* (non-Javadoc)
 	 * @see javax.swing.BoundedRangeModel#setMaximum(int)
 	 */
 	@Override
-	public void setMaximum(int arg0) {}
+	public void setMaximum(int arg0) {
+		System.out.println("setMaximum(" + arg0 + ")");
+		fireChangeEvent();
+	}
 
 	/* (non-Javadoc)
 	 * @see javax.swing.BoundedRangeModel#setMinimum(int)
 	 */
 	@Override
-	public void setMinimum(int arg0) {}
+	public void setMinimum(int arg0) {
+		System.out.println("setMinimum(" + arg0 + ")");
+		fireChangeEvent();
+	}
 
 	/* (non-Javadoc)
 	 * @see javax.swing.BoundedRangeModel#setRangeProperties(int, int, int, int, boolean)
@@ -120,8 +143,8 @@ class ScrollModel implements BoundedRangeModel {
 	@Override
 	public void setRangeProperties(int arg0, int arg1, int arg2, int arg3,
 			boolean arg4) {
-		// TODO Auto-generated method stub
-
+		System.out.println("setRangeProperties(" + arg0 + ", " + arg1 + ", " + arg2 + ", " + arg3 + ")");
+		fireChangeEvent();
 	}
 
 	/* (non-Javadoc)
@@ -133,6 +156,8 @@ class ScrollModel implements BoundedRangeModel {
 			value = getMaximum() - getExtent();
 		}
 		this.value = value;
+		System.out.println("setValue(" + value + ")");
+		fireChangeEvent();
 	}
 
 	/* (non-Javadoc)
@@ -141,5 +166,6 @@ class ScrollModel implements BoundedRangeModel {
 	@Override
 	public void setValueIsAdjusting(boolean arg0) {
 		// TODO Auto-generated method stub
+		fireChangeEvent();
 	}
 }

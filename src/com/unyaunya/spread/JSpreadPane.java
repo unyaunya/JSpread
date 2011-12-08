@@ -5,8 +5,7 @@ package com.unyaunya.spread;
 
 import java.awt.Adjustable;
 import java.awt.BorderLayout;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
+import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
@@ -31,21 +30,14 @@ public class JSpreadPane extends JPanel {
 		this.add(this.spread, BorderLayout.CENTER);
 		this.add(this.horizontalBar, BorderLayout.SOUTH);
 		this.add(this.verticalBar, BorderLayout.EAST);
-		//
-		this.horizontalBar.addAdjustmentListener(new AdjustmentListener() {
-			@Override
-			public void adjustmentValueChanged(AdjustmentEvent e) {
-				JSpreadPane.this.getSpread().setLeftMostColumn(e.getValue());
-			}});
-		this.verticalBar.addAdjustmentListener(new AdjustmentListener() {
-			@Override
-			public void adjustmentValueChanged(AdjustmentEvent e) {
-				JSpreadPane.this.getSpread().setTopMostRow(e.getValue());
-			}});
+		this.horizontalBar.setModel(getSpread().getScrollModel(JSpread.HORIZONTAL));
+		this.verticalBar.setModel(getSpread().getScrollModel(JSpread.VERTICAL));
 		getSpread().addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				JSpreadPane.this.getSpread().setScrollBarPosition(horizontalBar, verticalBar);
+				Rectangle rect = e.getComponent().getBounds();
+				getSpread().getScrollModel(JSpread.HORIZONTAL).setComponentSize(rect.width);
+				getSpread().getScrollModel(JSpread.VERTICAL).setComponentSize(rect.height);
 			}
 		});
 		
