@@ -17,7 +17,7 @@ import org.junit.Test;
  */
 public class ScrollModelTest {
 	SizeModel sizeModel;
-	ScrollModel scrollModel;
+	RangeModel scrollModel;
 
 	/**
 	 * @throws java.lang.Exception
@@ -39,7 +39,7 @@ public class ScrollModelTest {
 	@Before
 	public void setUp() throws Exception {
 		sizeModel = new SizeModel(10, 10);
-		scrollModel = new ScrollModel(sizeModel);
+		scrollModel = new RangeModel(sizeModel);
 	}
 
 	/**

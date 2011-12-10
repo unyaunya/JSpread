@@ -13,7 +13,6 @@ import java.awt.Rectangle;
 import javax.swing.BorderFactory;
 import javax.swing.CellRendererPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
@@ -31,14 +30,13 @@ public class JSpread extends JPanel {
 	public static final int HORIZONTAL = 0;
 	public static final int VERTICAL = 1;
 	
-	private static final long serialVersionUID = 1L;
 	public static final Color DEFAULT_HEADER_BACKGROUND_COLOR = new Color(0xf0,0xf0,0xf0);
-	private SizeModel rowModel = new SizeModel();
-	private SizeModel colModel = new SizeModel();
-	private ScrollModel scrollModel[]={new ScrollModel(colModel), new ScrollModel(rowModel)};
-	private CellRendererPane rendererPane = new CellRendererPane();
-	
+
+	private static final long serialVersionUID = 1L;
 	protected SpreadModel model = new SpreadModel();
+	private ScrollModel scrollModel = new ScrollModel();
+
+	private CellRendererPane rendererPane = new CellRendererPane();
 	protected ICellRenderer defaultCellRenderer = new DefaultCellRenderer();
 	protected Border borderForHeader = BorderFactory.createMatteBorder(0,0,1,1,Color.GRAY);
 	protected Border defaultBorder = BorderFactory.createMatteBorder(0,0,1,1,Color.GRAY);;
@@ -46,13 +44,13 @@ public class JSpread extends JPanel {
 	public JSpread() {
 		this.add(rendererPane);
 		defaultCellRenderer.setBorder(defaultBorder);
-		getScrollModel(HORIZONTAL).addChangeListener(new ChangeListener() {
+		getRangeModel(HORIZONTAL).addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				repaint();
 			}
 		});		
-		getScrollModel(VERTICAL).addChangeListener(new ChangeListener() {
+		getRangeModel(VERTICAL).addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				repaint();
@@ -67,9 +65,9 @@ public class JSpread extends JPanel {
 			model = new SpreadModel(model);
 		}
 		this.model = (SpreadModel)model;
-		rowModel.insertEntries(0, model.getRowCount(), 20);
-		colModel.insertEntries(0, model.getColumnCount(), 80);
-		colModel.setSize(0, 40);
+		scrollModel.getSizeModel(VERTICAL).insertEntries(0, model.getRowCount(), 20);
+		scrollModel.getSizeModel(HORIZONTAL).insertEntries(0, model.getColumnCount(), 80);
+		scrollModel.getSizeModel(HORIZONTAL).setSize(0, 40);
 	}
 	public SpreadModel getModel() {
 		return model;
@@ -88,19 +86,10 @@ public class JSpread extends JPanel {
 		}
 		Point upperLeft = clip.getLocation();
 	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
-		upperLeft = translate(upperLeft);
-	    lowerRight = translate(lowerRight);
-		paintCells(g, rowAtPoint(upperLeft), rowAtPoint(lowerRight), columnAtPoint(upperLeft), columnAtPoint(lowerRight));
-	}
-
-	private Point translate(Point pt) {
-		return new Point(this.getScrollModel(HORIZONTAL).translate(pt.x), getScrollModel(VERTICAL).translate(pt.y));
-	}
-	private Rectangle untranslate(Rectangle rect) {
-		return new Rectangle(
-				getScrollModel(HORIZONTAL).untranslate(rect.x),
-				getScrollModel(VERTICAL).untranslate(rect.y),
-				rect.width, rect.height);
+		paintCells(g,	scrollModel.rowAtPoint(upperLeft),
+						scrollModel.rowAtPoint(lowerRight),
+						scrollModel.columnAtPoint(upperLeft),
+						scrollModel.columnAtPoint(lowerRight));
 	}
 	
 	private void paintCells(Graphics g, int rMin, int rMax, int cMin, int cMax) {
@@ -110,11 +99,11 @@ public class JSpread extends JPanel {
 		rMax = Math.min(rMax, m.getRowCount()-1);
 		cMax = Math.min(cMax, m.getColumnCount()-1);
 		for(int row = rMin; row <= rMax; row++) {
-			cellRect.y = rowModel.getPosition(row);
-			cellRect.height = rowModel.getSize(row);
+			cellRect.y = scrollModel.getRowPosition(row);
+			cellRect.height = scrollModel.getRowHeight(row);
 			for(int col = cMin; col <= cMax; col++) {
-				cellRect.x = colModel.getPosition(col);
-				cellRect.width = colModel.getSize(col);
+				cellRect.x = scrollModel.getColumnPosition(col);
+				cellRect.width = scrollModel.getColumnWidth(col);
 				Object o = m.getValueAt(row, col);
 				if(o == null) {
 					s = "null";
@@ -122,7 +111,7 @@ public class JSpread extends JPanel {
 				else {
 					s = o.toString();
 				}
-				paintCell(g, untranslate(cellRect), s, row, col);
+				paintCell(g, cellRect, s, row, col);
 			}
 		}
 	}
@@ -167,35 +156,25 @@ public class JSpread extends JPanel {
     }
 
 	public Rectangle getCellRect(int rowIndex, int colIndex) {
-		return new Rectangle(
-					colModel.getPosition(colIndex),
-					rowModel.getPosition(rowIndex),
-					colModel.getSize(colIndex),
-					rowModel.getSize(rowIndex));
+		return scrollModel.getCellRect(rowIndex, colIndex);
 	}
 
 	public int rowAtPoint(Point pt) {
-		return rowModel.getIndex(pt.y);
+		return scrollModel.rowAtPoint(pt);
 	}
 	
 	public int columnAtPoint(Point pt) {
-		return colModel.getIndex(pt.x);
+		return scrollModel.columnAtPoint(pt);
 	}
 	
 	public Dimension getPreferredSize() {
-		return new Dimension(colModel.getPreferredSize(), rowModel.getPreferredSize());
+		return scrollModel.getPreferredSize();
 	}
 	
 	/**
 	 * @return the scrollModel
 	 */
-	public ScrollModel getScrollModel(int direction) {
-		switch(direction) {
-		case HORIZONTAL:
-		case VERTICAL:
-			return scrollModel[direction];
-		default:
-			throw new RuntimeException("illegal direction value.");
-		}
+	public RangeModel getRangeModel(int direction) {
+		return scrollModel.getRangeModel(direction);
 	}
 }

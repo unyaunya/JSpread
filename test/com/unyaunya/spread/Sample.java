@@ -40,8 +40,8 @@ class MyMouseListener extends MouseAdapter {
 	public void mouseClicked(MouseEvent e) {
 		Point pt = e.getPoint();
 		System.out.println(
-				"("+Integer.toString(spread.rowAtPoint(pt))+
-				","+Integer.toString(spread.columnAtPoint(pt))+
+				//"("+Integer.toString(spread.rowAtPoint(pt))+
+				//","+Integer.toString(spread.columnAtPoint(pt))+
 				")");
 	}
 }

@@ -1,190 +1,82 @@
-/**
- * 
- */
 package com.unyaunya.spread;
 
-import java.util.ArrayList;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 
-import javax.swing.BoundedRangeModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+public class ScrollModel {
+	private SizeModel colSizeModel;
+	private SizeModel rowSizeModel;
+	private RangeModel colRangeModel;
+	private RangeModel rowRangeModel;
 
-/**
- * @author wata
- *
- */
-class ScrollModel implements BoundedRangeModel {
-	private SizeModel sizeModel;
-	private int componentSize;
-	private int value;
-	private ArrayList<ChangeListener> changeListenerList = new ArrayList<ChangeListener>();
-	private ChangeEvent event = new ChangeEvent(this);
-	private int extent = 1;
-	
-	ScrollModel(SizeModel sizeModel) {
-		this.sizeModel = sizeModel;
-	}
-	
-	public void setComponentSize(int componentSize) {
-		this.componentSize = componentSize;
-		setExtent(calcExtent());
-		setValue(getValue());
-		fireChangeEvent();
+	public ScrollModel() {
+		this.rowSizeModel = new SizeModel();
+		this.colSizeModel = new SizeModel();
+		this.rowRangeModel = new RangeModel(rowSizeModel);
+		this.colRangeModel = new RangeModel(colSizeModel);
 	}
 
-	protected void fireChangeEvent() {
-		System.out.println("fireChangeEvent");
-		for(ChangeListener l: changeListenerList) {
-			l.stateChanged(event);
+	/**
+	 * @return the rangeModel
+	 */
+	public RangeModel getRangeModel(int direction) {
+		switch(direction) {
+		case JSpread.HORIZONTAL:
+			return colRangeModel;
+		case JSpread.VERTICAL:
+			return rowRangeModel;
+		default:
+			throw new RuntimeException("illegal direction value.");
 		}
 	}
-	public int getComponentSize() {
-		return this.componentSize;
-	}
-	public int translate(int position) {
-		return position + sizeModel.getPosition(getValue());
-	}
-	public int untranslate(int position) {
-		return position - sizeModel.getPosition(getValue());
-	}
-	
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#addChangeListener(javax.swing.event.ChangeListener)
+
+	/**
+	 * @return the sizeModel
 	 */
-	@Override
-	public void addChangeListener(ChangeListener l) {
-		System.out.println("ScrollModel.addChangeListener is called");
-		System.out.println(l);
-		changeListenerList.add(l);
+	public SizeModel getSizeModel(int direction) {
+		switch(direction) {
+		case JSpread.HORIZONTAL:
+			return colSizeModel;
+		case JSpread.VERTICAL:
+			return rowSizeModel;
+		default:
+			throw new RuntimeException("illegal direction value.");
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#removeChangeListener(javax.swing.event.ChangeListener)
-	 */
-	@Override
-	public void removeChangeListener(ChangeListener l) {
-		changeListenerList.remove(l);
+	public Rectangle getCellRect(int rowIndex, int colIndex) {
+		return new Rectangle(
+					colSizeModel.getPosition(colIndex),
+					rowSizeModel.getPosition(rowIndex),
+					colSizeModel.getSize(colIndex),
+					rowSizeModel.getSize(rowIndex));
 	}
 	
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#getExtent()
-	 */
-	@Override
-	public int getExtent() {
-		return this.extent;
+	public Dimension getPreferredSize() {
+		return new Dimension(
+				colSizeModel.getPreferredSize(),
+				rowSizeModel.getPreferredSize());
 	}
 
-	int  calcExtent() {
-		if(componentSize <= 0) {
-			return 1;
-		}
-		else if(componentSize >= sizeModel.getPreferredSize()) {
-			return sizeModel.getLength();
-		}
-		else {
-			int startPos = sizeModel.getPosition(getValue());
-			int endPos = startPos + componentSize;
-			if(endPos > sizeModel.getPreferredSize()) {
-				endPos = sizeModel.getPreferredSize();
-				startPos = endPos - componentSize;
-				return Math.max(1, sizeModel.getLength() - (sizeModel.getIndex(startPos) + 1));
-			}
-			else {
-				return Math.max(1, sizeModel.getIndex(endPos) - getValue());
-			}
-		}
+	public int getRowPosition(int rowIndex) {
+		return rowRangeModel.untranslate(rowSizeModel.getPosition(rowIndex));
 	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#getMaximum()
-	 */
-	@Override
-	public int getMaximum() {
-		return sizeModel.getLength();
+	public int getRowHeight(int rowIndex) {
+		return rowSizeModel.getSize(rowIndex);
 	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#getMinimum()
-	 */
-	@Override
-	public int getMinimum() {
-		return 0;
+	public int getColumnPosition(int columnIndex) {
+		return colRangeModel.untranslate(colSizeModel.getPosition(columnIndex));
 	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#getValue()
-	 */
-	@Override
-	public int getValue() {
-		return value;
+	public int getColumnWidth(int columnIndex) {
+		return colSizeModel.getSize(columnIndex);
 	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#getValueIsAdjusting()
-	 */
-	@Override
-	public boolean getValueIsAdjusting() {
-		// TODO Auto-generated method stub
-		return false;
+	
+	public int rowAtPoint(Point pt) {
+		return rowSizeModel.getIndex(rowRangeModel.translate(pt.y));
 	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#setExtent(int)
-	 */
-	@Override
-	public void setExtent(int extent) {
-		System.out.println("setExtent(" + extent + ")");
-		this.extent = extent;
-		fireChangeEvent();
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#setMaximum(int)
-	 */
-	@Override
-	public void setMaximum(int arg0) {
-		System.out.println("setMaximum(" + arg0 + ")");
-		fireChangeEvent();
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#setMinimum(int)
-	 */
-	@Override
-	public void setMinimum(int arg0) {
-		System.out.println("setMinimum(" + arg0 + ")");
-		fireChangeEvent();
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#setRangeProperties(int, int, int, int, boolean)
-	 */
-	@Override
-	public void setRangeProperties(int arg0, int arg1, int arg2, int arg3,
-			boolean arg4) {
-		System.out.println("setRangeProperties(" + arg0 + ", " + arg1 + ", " + arg2 + ", " + arg3 + ")");
-		fireChangeEvent();
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#setValue(int)
-	 */
-	@Override
-	public void setValue(int value) {
-		if(value > (getMaximum() - getExtent())) {
-			value = getMaximum() - getExtent();
-		}
-		this.value = value;
-		System.out.println("setValue(" + value + ")");
-		fireChangeEvent();
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.BoundedRangeModel#setValueIsAdjusting(boolean)
-	 */
-	@Override
-	public void setValueIsAdjusting(boolean arg0) {
-		// TODO Auto-generated method stub
-		fireChangeEvent();
+	
+	public int columnAtPoint(Point pt) {
+		return colSizeModel.getIndex(colRangeModel.translate(pt.x));
 	}
 }

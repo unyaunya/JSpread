@@ -11,6 +11,7 @@ import javax.swing.SizeSequence;
  */
 class SizeModel extends SizeSequence {
 	private int length = 0;
+	private int defaultSize = 20;
 
 	/**
 	 * 
@@ -23,8 +24,7 @@ class SizeModel extends SizeSequence {
 	 * @param numEntries
 	 */
 	public SizeModel(int numEntries) {
-		super(numEntries);
-		this.length = numEntries;
+		this(numEntries, 0);
 	}
 
 	/**
@@ -56,5 +56,13 @@ class SizeModel extends SizeSequence {
 
 	public int getPreferredSize() {
 		return getPosition(getLength());
+	}
+
+	public void setDefaultSize(int defaultSize) {
+		this.defaultSize = defaultSize;
+	}
+
+	public int getDefaultSize() {
+		return defaultSize;
 	}
 }

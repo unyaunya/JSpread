@@ -30,14 +30,14 @@ public class JSpreadPane extends JPanel {
 		this.add(this.spread, BorderLayout.CENTER);
 		this.add(this.horizontalBar, BorderLayout.SOUTH);
 		this.add(this.verticalBar, BorderLayout.EAST);
-		this.horizontalBar.setModel(getSpread().getScrollModel(JSpread.HORIZONTAL));
-		this.verticalBar.setModel(getSpread().getScrollModel(JSpread.VERTICAL));
+		this.horizontalBar.setModel(getSpread().getRangeModel(JSpread.HORIZONTAL));
+		this.verticalBar.setModel(getSpread().getRangeModel(JSpread.VERTICAL));
 		getSpread().addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				Rectangle rect = e.getComponent().getBounds();
-				getSpread().getScrollModel(JSpread.HORIZONTAL).setComponentSize(rect.width);
-				getSpread().getScrollModel(JSpread.VERTICAL).setComponentSize(rect.height);
+				getSpread().getRangeModel(JSpread.HORIZONTAL).setComponentSize(rect.width);
+				getSpread().getRangeModel(JSpread.VERTICAL).setComponentSize(rect.height);
 			}
 		});
 		
