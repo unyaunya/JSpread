@@ -54,6 +54,11 @@ class SizeModel extends SizeSequence {
 		this.length = sizes.length;
 	}
 
+	public void removeAll() {
+		int sizes[] = {};
+		this.setSizes(sizes);
+	}
+
 	public int getPreferredSize() {
 		return getPosition(getLength());
 	}

@@ -4,7 +4,10 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-public class ScrollModel {
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+
+public class ScrollModel implements TableModelListener {
 	private SizeModel colSizeModel;
 	private SizeModel rowSizeModel;
 	private RangeModel colRangeModel;
@@ -78,5 +81,11 @@ public class ScrollModel {
 	
 	public int columnAtPoint(Point pt) {
 		return colSizeModel.getIndex(colRangeModel.translate(pt.x));
+	}
+
+	@Override
+	public void tableChanged(TableModelEvent e) {
+		// TODO Auto-generated method stub
+		System.out.println(e);
 	}
 }

@@ -34,13 +34,13 @@ public class JSpread extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	protected SpreadModel model = new SpreadModel();
-	private ScrollModel scrollModel = new ScrollModel();
-
-	private CellRendererPane rendererPane = new CellRendererPane();
 	protected ICellRenderer defaultCellRenderer = new DefaultCellRenderer();
 	protected Border borderForHeader = BorderFactory.createMatteBorder(0,0,1,1,Color.GRAY);
 	protected Border defaultBorder = BorderFactory.createMatteBorder(0,0,1,1,Color.GRAY);;
 
+	private ScrollModel scrollModel = new ScrollModel();
+	private CellRendererPane rendererPane = new CellRendererPane();
+	
 	public JSpread() {
 		this.add(rendererPane);
 		defaultCellRenderer.setBorder(defaultBorder);
@@ -55,7 +55,7 @@ public class JSpread extends JPanel {
 			public void stateChanged(ChangeEvent e) {
 				repaint();
 			}
-		});		
+		});
 	}
 	public void setModel(TableModel model) {
 		if(model == null) {
@@ -65,9 +65,13 @@ public class JSpread extends JPanel {
 			model = new SpreadModel(model);
 		}
 		this.model = (SpreadModel)model;
+		scrollModel.getSizeModel(VERTICAL).removeAll();
 		scrollModel.getSizeModel(VERTICAL).insertEntries(0, model.getRowCount(), 20);
+		scrollModel.getSizeModel(HORIZONTAL).removeAll();
 		scrollModel.getSizeModel(HORIZONTAL).insertEntries(0, model.getColumnCount(), 80);
 		scrollModel.getSizeModel(HORIZONTAL).setSize(0, 40);
+		model.addTableModelListener(scrollModel);
+		repaint();
 	}
 	public SpreadModel getModel() {
 		return model;
@@ -172,7 +176,7 @@ public class JSpread extends JPanel {
 	}
 	
 	/**
-	 * @return the scrollModel
+	 * @return the rangeModel
 	 */
 	public RangeModel getRangeModel(int direction) {
 		return scrollModel.getRangeModel(direction);
