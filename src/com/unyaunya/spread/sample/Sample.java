@@ -1,4 +1,4 @@
-package com.unyaunya.spread;
+package com.unyaunya.spread.sample;
 
 import java.awt.BorderLayout;
 import java.awt.Point;
@@ -17,6 +17,11 @@ import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 
+import com.unyaunya.spread.CSVReader;
+import com.unyaunya.spread.CsvTable;
+import com.unyaunya.spread.JSpread;
+import com.unyaunya.spread.JSpreadPane;
+
 //import com.unyaunya.spread.JSpread;
 
 class SampleTable extends AbstractTableModel {
@@ -34,31 +39,6 @@ class SampleTable extends AbstractTableModel {
 	@Override
 	public Object getValueAt(int row, int col) {
 		return "(" + Integer.toString(row) + "," + Integer.toString(col) +")";
-	}
-}
-
-class CsvTable extends AbstractTableModel {
-	private CSVReader csv;
-	
-	public CsvTable(CSVReader csv) {
-		this.csv = csv;
-		System.out.println("CSVTable:row=" + getRowCount());
-		System.out.println("CSVTable:col=" + getColumnCount());
-	}
-
-	@Override
-	public int getColumnCount() {
-		return csv.getTitleArrayList().size();
-	}
-
-	@Override
-	public int getRowCount() {
-		return csv.getRowArrayList().size();
-	}
-
-	@Override
-	public Object getValueAt(int row, int col) {
-		return csv.getRowArrayList().get(row).get(col);
 	}
 }
 
@@ -134,7 +114,8 @@ class MyFrame extends JFrame {
 		    	System.out.println("You chose to open this file: " +
 		    			fc.getSelectedFile().getName());
 		    	try {
-		    		CSVReader csv = new CSVReader(fc.getSelectedFile(), false);
+		    		CSVReader csv = new CSVReader(false);
+		    		csv.read(fc.getSelectedFile());
 		    		getSpread().setModel(new CsvTable(csv));
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
@@ -143,7 +124,6 @@ class MyFrame extends JFrame {
 				}
 		    }
 		}
-		
 	}
 }
 

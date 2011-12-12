@@ -10,17 +10,22 @@ import java.util.ArrayList;
 public class CSVReader {
     private ArrayList<ArrayList<String>> rowArrayList;
     private ArrayList<String> titleArrayList;
+    private boolean colTitleSource = false;
     
-    /** Creates a new instance of CSVReader */
-    public CSVReader(
-    	File csvFile,
-        boolean colTitleSource // whether or not to read the first line of CSV as column titles
-    ) throws FileNotFoundException, IOException {
-        this.rowArrayList = new ArrayList<ArrayList<String>>();
-        this.titleArrayList = new ArrayList<String>();
-        read(csvFile, colTitleSource);
+    /** Creates a new instance of CSVReader
+	 * @param colTitleSource  whether or not to read the first line of CSV as column titles
+	 */
+    public CSVReader(boolean colTitleSource) {
+    	this.colTitleSource = colTitleSource;
     }
 
+    public CSVReader() {
+    	this(false);
+    }
+
+    public boolean getColTitleSource() {
+    	return this.colTitleSource;
+    }
     public ArrayList<String> getTitleArrayList() {
     	return this.titleArrayList;
     }
@@ -29,14 +34,21 @@ public class CSVReader {
     }
     
     /* Read File */
-    private void read(File csvFile, boolean colTitleSource) throws FileNotFoundException, IOException {
+    public void read(File csvFile) throws FileNotFoundException, IOException {
         BufferedReader bReader = new BufferedReader( new FileReader( csvFile ) );
-        ArrayList<String> colArrayList = new ArrayList<String>();
+        read(bReader);
+        bReader.close();
+    }
+
+    public void read(BufferedReader bReader)
+			throws IOException {
+        this.rowArrayList = new ArrayList<ArrayList<String>>();
+        this.titleArrayList = new ArrayList<String>();
+		ArrayList<String> colArrayList = new ArrayList<String>();
         String line;
         
         line = bReader.readLine();
-        
-        if( colTitleSource == true ) {
+        if( this.colTitleSource == true ) {
             digestLine(line, titleArrayList ); // Get the title from a CSV File (first line)
         }
         else {
@@ -44,7 +56,7 @@ public class CSVReader {
             for( int i = 0; i < colArrayList.size(); i++ ) // Empty Title
                 titleArrayList.add( null );
         }
-        
+       
         line = bReader.readLine();
         
         /* Read through each line of CSV File */
@@ -58,9 +70,7 @@ public class CSVReader {
             
             line = bReader.readLine();
         }
-        
-        bReader.close();
-    }
+	}
 
     /* Read each line of CSV File */
     private void digestLine(
