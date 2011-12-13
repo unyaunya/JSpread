@@ -59,7 +59,7 @@ public class SpreadModel extends AbstractTableModel {
 		if(columnIndex == 0) {
 			return Integer.valueOf(rowIndex);
 		}
-		return tableModel.getValueAt(rowIndex+1, columnIndex-1);
+		return tableModel.getValueAt(rowIndex-1, columnIndex-1);
 	}
 
 }

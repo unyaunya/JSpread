@@ -55,6 +55,7 @@ public class CSVReader {
             digestLine(line, colArrayList ); // Treat the first line of CSV as the first line of data
             for( int i = 0; i < colArrayList.size(); i++ ) // Empty Title
                 titleArrayList.add( null );
+            rowArrayList.add( colArrayList );
         }
        
         line = bReader.readLine();
