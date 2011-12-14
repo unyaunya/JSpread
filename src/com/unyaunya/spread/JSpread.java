@@ -65,12 +65,7 @@ public class JSpread extends JPanel {
 			model = new SpreadModel(model);
 		}
 		this.model = (SpreadModel)model;
-		scrollModel.getSizeModel(VERTICAL).removeAll();
-		scrollModel.getSizeModel(VERTICAL).insertEntries(0, model.getRowCount(), 20);
-		scrollModel.getSizeModel(HORIZONTAL).removeAll();
-		scrollModel.getSizeModel(HORIZONTAL).insertEntries(0, model.getColumnCount(), 80);
-		scrollModel.getSizeModel(HORIZONTAL).setSize(0, 40);
-		model.addTableModelListener(scrollModel);
+		scrollModel.setTableModel(model);
 		this.repaint(this.getBounds());
 	}
 	public SpreadModel getModel() {

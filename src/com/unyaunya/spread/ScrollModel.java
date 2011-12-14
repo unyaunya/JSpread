@@ -6,20 +6,54 @@ import java.awt.Rectangle;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.TableModel;
 
 public class ScrollModel implements TableModelListener {
 	private SizeModel colSizeModel;
 	private SizeModel rowSizeModel;
 	private RangeModel colRangeModel;
 	private RangeModel rowRangeModel;
+	private TableModel tableModel;
 
 	public ScrollModel() {
+		this(16, 60);
+	}
+
+	public ScrollModel(int defaultRowHeight, int defaultColumnWidth) {
 		this.rowSizeModel = new SizeModel();
 		this.colSizeModel = new SizeModel();
 		this.rowRangeModel = new RangeModel(rowSizeModel);
 		this.colRangeModel = new RangeModel(colSizeModel);
+		this.setDefaultRowHeight(defaultRowHeight);
+		this.setDefaultColumnWidth(defaultColumnWidth);
 	}
 
+	/**
+	 * @return the tableModel
+	 */
+	public TableModel getTableModel() {
+		return tableModel;
+	}
+
+	/**
+	 * @param tableModel the tableModel to set
+	 */
+	public void setTableModel(TableModel tableModel) {
+		this.tableModel = tableModel;
+		rowSizeModel.removeAll();
+		rowSizeModel.insertEntries(0, tableModel.getRowCount(), rowSizeModel.getDefaultSize());
+		colSizeModel.removeAll();
+		colSizeModel.insertEntries(0, tableModel.getColumnCount(), colSizeModel.getDefaultSize());
+		colSizeModel.setSize(0, 40);
+		tableModel.addTableModelListener(this);
+	}
+
+	@Override
+	public void tableChanged(TableModelEvent e) {
+		// TODO Auto-generated method stub
+		System.out.println(e);
+	}
+	
 	/**
 	 * @return the rangeModel
 	 */
@@ -65,6 +99,18 @@ public class ScrollModel implements TableModelListener {
 	public int getRowPosition(int rowIndex) {
 		return rowRangeModel.untranslate(rowSizeModel.getPosition(rowIndex));
 	}
+	public int getDefaultRowHeight() {
+		return rowSizeModel.getDefaultSize();
+	}
+	public void setDefaultRowHeight(int height) {
+		rowSizeModel.setDefaultSize(height);
+	}
+	public int getDefaultColumnWidth() {
+		return colSizeModel.getDefaultSize();
+	}
+	public void setDefaultColumnWidth(int width) {
+		colSizeModel.setDefaultSize(width);
+	}
 	public int getRowHeight(int rowIndex) {
 		return rowSizeModel.getSize(rowIndex);
 	}
@@ -81,11 +127,5 @@ public class ScrollModel implements TableModelListener {
 	
 	public int columnAtPoint(Point pt) {
 		return colSizeModel.getIndex(colRangeModel.translate(pt.x));
-	}
-
-	@Override
-	public void tableChanged(TableModelEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println(e);
 	}
 }
