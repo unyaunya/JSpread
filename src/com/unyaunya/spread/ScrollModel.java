@@ -26,6 +26,7 @@ public class ScrollModel implements TableModelListener {
 		this.colRangeModel = new RangeModel(colSizeModel);
 		this.setDefaultRowHeight(defaultRowHeight);
 		this.setDefaultColumnWidth(defaultColumnWidth);
+		
 	}
 
 	/**
@@ -40,18 +41,19 @@ public class ScrollModel implements TableModelListener {
 	 */
 	public void setTableModel(TableModel tableModel) {
 		this.tableModel = tableModel;
+		tableModel.addTableModelListener(this);
+		tableChanged(new TableModelEvent(tableModel));
+	}
+
+	@Override
+	public void tableChanged(TableModelEvent e) {
 		rowSizeModel.removeAll();
 		rowSizeModel.insertEntries(0, tableModel.getRowCount(), rowSizeModel.getDefaultSize());
 		colSizeModel.removeAll();
 		colSizeModel.insertEntries(0, tableModel.getColumnCount(), colSizeModel.getDefaultSize());
 		colSizeModel.setSize(0, 40);
-		tableModel.addTableModelListener(this);
-	}
-
-	@Override
-	public void tableChanged(TableModelEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println(e);
+		this.rowRangeModel.setValue(0);
+		this.colRangeModel.setValue(0);
 	}
 	
 	/**

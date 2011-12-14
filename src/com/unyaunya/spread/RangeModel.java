@@ -32,7 +32,7 @@ class RangeModel implements BoundedRangeModel {
 		fireChangeEvent();
 	}
 
-	protected void fireChangeEvent() {
+	public void fireChangeEvent() {
 		System.out.println("fireChangeEvent");
 		for(ChangeListener l: changeListenerList) {
 			l.stateChanged(event);
@@ -173,6 +173,9 @@ class RangeModel implements BoundedRangeModel {
 	public void setValue(int value) {
 		if(value > (getMaximum() - getExtent())) {
 			value = getMaximum() - getExtent();
+		}
+		if(value < 0) {
+			value = 0;
 		}
 		this.value = value;
 		System.out.println("setValue(" + value + ")");
