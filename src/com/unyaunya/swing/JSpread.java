@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.unyaunya.spread;
+package com.unyaunya.swing;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -18,6 +18,12 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.TableModel;
+
+import com.unyaunya.spread.DefaultCellRenderer;
+import com.unyaunya.spread.ICellRenderer;
+import com.unyaunya.spread.RangeModel;
+import com.unyaunya.spread.ScrollModel;
+import com.unyaunya.spread.SpreadModel;
 
 /**
  * @author wata

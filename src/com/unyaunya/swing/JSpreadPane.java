@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.unyaunya.spread;
+package com.unyaunya.swing;
 
 import java.awt.Adjustable;
 import java.awt.BorderLayout;
@@ -11,6 +11,8 @@ import java.awt.event.ComponentEvent;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
+
+import com.unyaunya.spread.Layout;
 
 /**
  * @author wata

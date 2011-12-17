@@ -19,8 +19,8 @@ import javax.swing.table.AbstractTableModel;
 
 import com.unyaunya.spread.CSVReader;
 import com.unyaunya.spread.CsvTable;
-import com.unyaunya.spread.JSpread;
-import com.unyaunya.spread.JSpreadPane;
+import com.unyaunya.swing.JSpread;
+import com.unyaunya.swing.JSpreadPane;
 
 //import com.unyaunya.spread.JSpread;
 

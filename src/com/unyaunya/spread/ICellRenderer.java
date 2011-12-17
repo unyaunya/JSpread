@@ -5,6 +5,8 @@ import java.awt.Component;
 
 import javax.swing.border.Border;
 
+import com.unyaunya.swing.JSpread;
+
 public interface ICellRenderer {
 	public Component getCellRendererComponent(JSpread spread, Object value, boolean isSelected, boolean hasFocus, int row, int column);
 	public void setBorder(Border border);
