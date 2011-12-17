@@ -13,7 +13,7 @@ import javax.swing.event.ChangeListener;
  * @author wata
  *
  */
-class RangeModel implements BoundedRangeModel {
+public class RangeModel implements BoundedRangeModel {
 	private SizeModel sizeModel;
 	private int componentSize;
 	private int value;
