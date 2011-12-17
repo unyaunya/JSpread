@@ -8,6 +8,8 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
+import com.unyaunya.swing.JSpread;
+
 public class ScrollModel implements TableModelListener {
 	private SizeModel colSizeModel;
 	private SizeModel rowSizeModel;

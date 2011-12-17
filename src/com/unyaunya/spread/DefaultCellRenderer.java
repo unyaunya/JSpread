@@ -11,6 +11,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import com.unyaunya.spread.ICellRenderer;
+import com.unyaunya.swing.JSpread;
 
 /**
  * @author wata

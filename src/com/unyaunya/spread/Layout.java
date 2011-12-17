@@ -10,6 +10,8 @@ import java.awt.Dimension;
 
 import javax.swing.JScrollBar;
 
+import com.unyaunya.swing.JSpread;
+
 /**
  * @author wata
  *
