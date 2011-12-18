@@ -23,6 +23,7 @@ public class DefaultCellRenderer extends JLabel implements ICellRenderer {
 	 */
 	private static final long serialVersionUID = 1L;
 	protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
+	protected static Border focusBorder = new EmptyBorder(2, 2, 2, 2);
 	private static final Border SAFE_NO_FOCUS_BORDER = new EmptyBorder(1, 1, 1, 1);
 
 	public DefaultCellRenderer() {
@@ -47,6 +48,19 @@ public class DefaultCellRenderer extends JLabel implements ICellRenderer {
 		Rectangle r = spread.getCellRect(row, column);
 		setBounds(r);
 		setText(value.toString());
+		if(isSelected) {
+			super.setBackground(spread.getSelectionBackground());
+			super.setForeground(spread.getSelectionForeground());
+		}
+		else {
+			
+		}
+		if(hasFocus) {
+			this.setBorder(spread.getFocusBorder());
+		}
+		else {
+			this.setBorder(getNoFocusBorder());
+		}
 		return this;
 	}
 }
