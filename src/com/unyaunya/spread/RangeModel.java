@@ -59,8 +59,6 @@ public class RangeModel implements BoundedRangeModel {
 	 */
 	@Override
 	public void addChangeListener(ChangeListener l) {
-		System.out.println("ScrollModel.addChangeListener is called");
-		System.out.println(l);
 		changeListenerList.add(l);
 	}
 

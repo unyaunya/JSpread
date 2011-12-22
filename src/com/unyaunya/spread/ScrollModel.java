@@ -157,16 +157,6 @@ public class ScrollModel implements TableModelListener {
 	}
 
 	public void scrollToVisible(int rowIndex, int columnIndex) {
-		/*
-		Rectangle rect = this.getCellRect(rowIndex, columnIndex);
-		System.out.println("cellRect:"+rect);
-		Rectangle bounds = getSpread().getBounds();
-		System.out.println("bounds:"+bounds);
-		if(bounds.contains(rect)) {
-			return;
-		}
-		*/
-		System.out.println("oops!");
 		colRangeModel.scrollToVisible(columnIndex);
 		rowRangeModel.scrollToVisible(rowIndex);
 	}
