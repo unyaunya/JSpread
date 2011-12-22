@@ -9,15 +9,12 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.KeyAdapter;
 
 import javax.swing.BorderFactory;
 import javax.swing.CellRendererPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.table.TableModel;
 
 import com.unyaunya.spread.DefaultCellRenderer;
@@ -37,47 +34,43 @@ public class JSpread extends JPanel {
 	/**
 	 * 
 	 */
-	public static final int HORIZONTAL = 0;
-	public static final int VERTICAL = 1;
-	
+	private static final long serialVersionUID = 1L;
+
 	public static final Color DEFAULT_HEADER_BACKGROUND_COLOR = new Color(0xf0,0xf0,0xf0);
 	public static final Color DEFAULT_SELECTION_BACKGROUND_COLOR = new Color(0xe0,0xe0,0xff);
 	public static final Color DEFAULT_FOREGROUND_COLOR = new Color(0x00,0x00,0x00);
-	public static final Border DEFAULT_FOCUS_BORDER = BorderFactory.createMatteBorder(0,0,2,2,Color.BLACK);
+	public static final Border DEFAULT_FOCUS_BORDER = BorderFactory.createMatteBorder(1,1,2,2,Color.BLACK);
 
-	private static final long serialVersionUID = 1L;
-	protected SpreadModel model = new SpreadModel();
-	protected ICellRenderer defaultCellRenderer = new DefaultCellRenderer();
 	protected Border borderForHeader = BorderFactory.createMatteBorder(0,0,1,1,Color.GRAY);
 	protected Border defaultBorder = BorderFactory.createMatteBorder(0,0,1,1,Color.GRAY);
 	protected Color selectionBackground = DEFAULT_SELECTION_BACKGROUND_COLOR;
 	protected Color selectionForeground = DEFAULT_FOREGROUND_COLOR;
+	protected static ICellRenderer defaultCellRenderer = new DefaultCellRenderer();
 
-	private ScrollModel scrollModel = new ScrollModel();
-	private CellRendererPane rendererPane = new CellRendererPane();
-	private SelectionModel selectionModel = new SelectionModel();
-	private FocusModel focusModel = new FocusModel(this);
-	private KeyAdapter keyAdapter;
+	private CellRendererPane rendererPane;
+	private SpreadModel model;
+	private ScrollModel scrollModel;
+	private SelectionModel selectionModel;
+	private FocusModel focusModel;
 	
+	/*
+	 * constructor
+	 */
 	public JSpread() {
 		this.setFocusable(true);
+		this.rendererPane = new CellRendererPane();
 		this.add(rendererPane);
-		defaultCellRenderer.setBorder(defaultBorder);
-		getRangeModel(HORIZONTAL).addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				repaint();
-			}
-		});		
-		getRangeModel(VERTICAL).addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				repaint();
-			}
-		});
-		this.keyAdapter = new DefaultKeyAdapter(this);
+
+		this.model = new SpreadModel();
+		this.scrollModel = new ScrollModel(this);
+		this.selectionModel = new SelectionModel();
+		this.focusModel = new FocusModel(this);
+		this.addKeyListener(new DefaultKeyAdapter(this));
 	}
 	
+	/*
+	 * methods set/get various models.
+	 */
 	public void setModel(TableModel model) {
 		if(model == null) {
 			model = new SpreadModel();
@@ -94,7 +87,25 @@ public class JSpread extends JPanel {
 	public SpreadModel getModel() {
 		return model;
 	}
-	
+
+	/**
+	 * @return the rangeModel
+	 */
+	public RangeModel getRangeModel(int direction) {
+		return scrollModel.getRangeModel(direction);
+	}
+
+	public SelectionModel getSelectionModel() {
+		return this.selectionModel;
+	}
+
+	public FocusModel getFocusModel() {
+		return this.focusModel;
+	}
+
+	/*
+	 * methods delegating to TableModel
+	 */
 	public int getRowCount() {
 		return getModel().getRowCount();
 	}
@@ -102,11 +113,90 @@ public class JSpread extends JPanel {
 	public int getColumnCount() {
 		return getModel().getColumnCount();
 	}
-	
-	public FocusModel getFocusModel() {
-		return this.focusModel;
+
+	/*
+	 * methods delegating to ScrollModel
+	 */
+	public Rectangle getCellRect(int rowIndex, int colIndex) {
+		return scrollModel.getCellRect(rowIndex, colIndex);
+	}
+
+	public int rowAtPoint(Point pt) {
+		return scrollModel.rowAtPoint(pt);
 	}
 	
+	public int columnAtPoint(Point pt) {
+		return scrollModel.columnAtPoint(pt);
+	}
+	
+	public Dimension getPreferredSize() {
+		return scrollModel.getPreferredSize();
+	}
+	
+	public void scrollToVisible(int rowIndex, int columnIndex) {
+		scrollModel.scrollToVisible(rowIndex, columnIndex);
+	}
+
+	/*
+	 * methods related to UI appearance
+	 */
+	public Border getFocusBorder() {
+    	return DEFAULT_FOCUS_BORDER;
+    }
+
+    public Border getNoFocusBorder() {
+    	return defaultBorder;
+    }
+
+    public Border getHeaderBorder() {
+    	return borderForHeader;
+    }
+
+    protected Border getCellBorder(int row, int column) {
+    	if(row <= 0 || column <= 0) {
+    		return borderForHeader;
+    	}
+    	else {
+    		return defaultBorder;
+    	}
+    }
+
+    protected Color getCellBackground(int row, int column) {
+    	if(row <= 0 || column <= 0) {
+    		return DEFAULT_HEADER_BACKGROUND_COLOR;
+    	}
+    	else {
+    		return Color.WHITE;
+    	}
+    }
+    protected int getHorizontalAlignment(int row, int column) {
+    	if(row <= 0 || column <= 0) {
+    		return SwingConstants.CENTER;
+    	}
+    	else {
+    		return SwingConstants.LEFT;
+    	}
+    }
+
+	public Color getSelectionBackground() {
+		return this.selectionBackground;
+	}
+	public void setSelectionBackground(Color color) {
+		this.selectionBackground = color;
+		repaint();
+	}
+	public Color getSelectionForeground() {
+		return this.selectionForeground;
+		
+	}
+	public void setSelectionForeground(Color color) {
+		this.selectionForeground = color;
+		repaint();
+	}
+
+	/*
+	 * methods implementing to paint
+	 */
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
 		SpreadModel m = getModel();
@@ -140,7 +230,7 @@ public class JSpread extends JPanel {
 				cellRect.width = scrollModel.getColumnWidth(col);
 				Object o = m.getValueAt(row, col);
 				if(o == null) {
-					s = "null";
+					s = "";
 				}
 				else {
 					s = o.toString();
@@ -169,78 +259,4 @@ public class JSpread extends JPanel {
     	r.setHorizontalAlignment(this.getHorizontalAlignment(row, column));
 		return r;
     }
-
-    public Border getFocusBorder() {
-    	return DEFAULT_FOCUS_BORDER;
-    }
-
-    protected Border getCellBorder(int row, int column) {
-    	if(row <= 0 || column <= 0) {
-    		return borderForHeader;
-    	}
-    	else {
-    		return defaultBorder;
-    	}
-    }
-
-    protected Color getCellBackground(int row, int column) {
-    	if(row <= 0 || column <= 0) {
-    		return DEFAULT_HEADER_BACKGROUND_COLOR;
-    	}
-    	else {
-    		return Color.WHITE;
-    	}
-    }
-    protected int getHorizontalAlignment(int row, int column) {
-    	if(row <= 0 || column <= 0) {
-    		return SwingConstants.CENTER;
-    	}
-    	else {
-    		return SwingConstants.LEFT;
-    	}
-    }
-
-	public Rectangle getCellRect(int rowIndex, int colIndex) {
-		return scrollModel.getCellRect(rowIndex, colIndex);
-	}
-
-	public int rowAtPoint(Point pt) {
-		return scrollModel.rowAtPoint(pt);
-	}
-	
-	public int columnAtPoint(Point pt) {
-		return scrollModel.columnAtPoint(pt);
-	}
-	
-	public Dimension getPreferredSize() {
-		return scrollModel.getPreferredSize();
-	}
-	
-	/**
-	 * @return the rangeModel
-	 */
-	public RangeModel getRangeModel(int direction) {
-		return scrollModel.getRangeModel(direction);
-	}
-
-	public SelectionModel getSelectionModel() {
-		return this.selectionModel;
-	}
-
-	public Color getSelectionBackground() {
-		return this.selectionBackground;
-	}
-	public void setSelectionBackground(Color color) {
-		this.selectionBackground = color;
-		repaint();
-	}
-	public Color getSelectionForeground() {
-		return this.selectionForeground;
-		
-	}
-	public void setSelectionForeground(Color color) {
-		this.selectionForeground = color;
-		repaint();
-	}
-
 }

@@ -3,6 +3,7 @@
  */
 package com.unyaunya.spread;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import javax.swing.BoundedRangeModel;
@@ -41,6 +42,11 @@ public class RangeModel implements BoundedRangeModel {
 	public int getComponentSize() {
 		return this.componentSize;
 	}
+
+	public int getPosition(int index) {
+		return untranslate(sizeModel.getPosition(index));
+	}
+
 	public int translate(int position) {
 		return position + sizeModel.getPosition(getValue());
 	}
@@ -189,5 +195,30 @@ public class RangeModel implements BoundedRangeModel {
 	public void setValueIsAdjusting(boolean arg0) {
 		// TODO Auto-generated method stub
 		fireChangeEvent();
+	}
+
+	public void scrollToVisible(int index) {
+		int bounds_x = 0; //TODO
+		int position = this.getPosition(index);
+		int size = sizeModel.getSize(index);
+		System.out.println("scrollToVisible("+index+"):position="+position+",size="+size);
+		if(getComponentSize() <= size) {
+			System.out.println("scrollToVisible:getComponentSize() <= size");
+			setValue(index);
+		}
+		else if(bounds_x > position) {
+			System.out.println("scrollToVisible:bounds_x < position");
+			setValue(index);
+		}
+		else {
+			int gap = (bounds_x+getComponentSize()) - (position+size);
+			System.out.println("scrollToVisible:(bounds_x+getComponentSize()) - (position+size) = " + gap);
+			int n = 0;
+			while(gap < 0) {
+				gap += sizeModel.getSize(getValue()+n);
+				n++;
+			}
+			setValue(getValue()+n);
+		}
 	}
 }

@@ -18,11 +18,6 @@ public class DefaultKeyAdapter extends KeyAdapter {
 	public DefaultKeyAdapter(JSpread spread) {
 		assert(spread != null);
 		this.spread = spread;
-		this.spread.addKeyListener(this);
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
 	}
 
 	@Override
@@ -45,5 +40,4 @@ public class DefaultKeyAdapter extends KeyAdapter {
 			break;
 		}
 	}
-
 }
