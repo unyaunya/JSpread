@@ -31,8 +31,9 @@ public class DefaultCellRenderer extends JLabel implements ICellRenderer {
 	 */
 	@Override
 	public Component getCellRendererComponent(JSpread spread, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-		Rectangle r = spread.getCellRect(row, column);
-		setBounds(r);
+		if(value == null) {
+			value = "";
+		}
 		setText(value.toString());
 		if(isSelected) {
 			super.setBackground(spread.getSelectionBackground());

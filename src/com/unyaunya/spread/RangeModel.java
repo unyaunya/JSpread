@@ -3,7 +3,6 @@
  */
 package com.unyaunya.spread;
 
-import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import javax.swing.BoundedRangeModel;
@@ -21,6 +20,7 @@ public class RangeModel implements BoundedRangeModel {
 	private ArrayList<ChangeListener> changeListenerList = new ArrayList<ChangeListener>();
 	private ChangeEvent event = new ChangeEvent(this);
 	private int extent = 1;
+	private int fixedPartNum = 1;
 	
 	RangeModel(SizeModel sizeModel) {
 		this.sizeModel = sizeModel;
@@ -43,8 +43,21 @@ public class RangeModel implements BoundedRangeModel {
 		return this.componentSize;
 	}
 
+	public int getScrollPartSize() {
+		return getComponentSize() - getFixedPartSize();
+	}
+	
+	public int getFixedPartSize() {
+		return sizeModel.getPosition(getFixedPartNum());
+	}
+
 	public int getPosition(int index) {
-		return untranslate(sizeModel.getPosition(index));
+		if(index < getFixedPartNum()) {
+			return sizeModel.getPosition(index);
+		}
+		else {
+			return untranslate(sizeModel.getPosition(index));
+		}
 	}
 
 	public int translate(int position) {
@@ -59,8 +72,6 @@ public class RangeModel implements BoundedRangeModel {
 	 */
 	@Override
 	public void addChangeListener(ChangeListener l) {
-		System.out.println("ScrollModel.addChangeListener is called");
-		System.out.println(l);
 		changeListenerList.add(l);
 	}
 
@@ -81,18 +92,20 @@ public class RangeModel implements BoundedRangeModel {
 	}
 
 	int  calcExtent() {
-		if(componentSize <= 0) {
+		int scrollPartSize = getScrollPartSize();
+		int scrollPartPreferredSize = sizeModel.getPreferredSize() - getFixedPartSize(); 
+		if(scrollPartSize <= 0) {
 			return 1;
 		}
-		else if(componentSize >= sizeModel.getPreferredSize()) {
-			return sizeModel.getLength();
+		else if(scrollPartSize >= scrollPartPreferredSize) {
+			return sizeModel.getLength() - getFixedPartNum();
 		}
 		else {
 			int startPos = sizeModel.getPosition(getValue());
-			int endPos = startPos + componentSize;
-			if(endPos > sizeModel.getPreferredSize()) {
-				endPos = sizeModel.getPreferredSize();
-				startPos = endPos - componentSize;
+			int endPos = startPos + scrollPartSize;
+			if(endPos > scrollPartPreferredSize) {
+				endPos = scrollPartPreferredSize;
+				startPos = endPos - scrollPartSize;
 				return Math.max(1, sizeModel.getLength() - (sizeModel.getIndex(startPos) + 1));
 			}
 			else {
@@ -114,7 +127,7 @@ public class RangeModel implements BoundedRangeModel {
 	 */
 	@Override
 	public int getMinimum() {
-		return 0;
+		return getFixedPartNum();
 	}
 
 	/* (non-Javadoc)
@@ -220,5 +233,16 @@ public class RangeModel implements BoundedRangeModel {
 			}
 			setValue(getValue()+n);
 		}
+	}
+
+	public void setFixedPartNum(int fixPartNum) {
+		if(fixPartNum < 0) {
+			fixPartNum = 0;
+		}
+		this.fixedPartNum = fixPartNum;
+	}
+
+	public int getFixedPartNum() {
+		return fixedPartNum;
 	}
 }

@@ -109,6 +109,7 @@ public class ScrollModel implements TableModelListener {
 		}
 	}
 
+/*
 	public Rectangle getCellRect(int rowIndex, int colIndex) {
 		return new Rectangle(
 					colSizeModel.getPosition(colIndex),
@@ -116,6 +117,7 @@ public class ScrollModel implements TableModelListener {
 					colSizeModel.getSize(colIndex),
 					rowSizeModel.getSize(rowIndex));
 	}
+*/
 	
 	public Dimension getPreferredSize() {
 		return new Dimension(
@@ -156,17 +158,23 @@ public class ScrollModel implements TableModelListener {
 		return colSizeModel.getIndex(colRangeModel.translate(pt.x));
 	}
 
+	public int getFixedRowNum() {
+		return rowRangeModel.getFixedPartNum();
+	}
+
+	public int getFixedColumnNum() {
+		return colRangeModel.getFixedPartNum();
+	}
+
+	public int getFixedRowSize() {
+		return rowRangeModel.getFixedPartSize();
+	}
+
+	public int getFixedColumnSize() {
+		return colRangeModel.getFixedPartSize();
+	}
+
 	public void scrollToVisible(int rowIndex, int columnIndex) {
-		/*
-		Rectangle rect = this.getCellRect(rowIndex, columnIndex);
-		System.out.println("cellRect:"+rect);
-		Rectangle bounds = getSpread().getBounds();
-		System.out.println("bounds:"+bounds);
-		if(bounds.contains(rect)) {
-			return;
-		}
-		*/
-		System.out.println("oops!");
 		colRangeModel.scrollToVisible(columnIndex);
 		rowRangeModel.scrollToVisible(rowIndex);
 	}

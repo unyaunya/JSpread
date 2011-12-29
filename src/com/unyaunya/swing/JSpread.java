@@ -3,6 +3,7 @@
  */
 package com.unyaunya.swing;
 
+import java.awt.Adjustable;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -117,6 +118,8 @@ public class JSpread extends JPanel {
 	/*
 	 * methods delegating to ScrollModel
 	 */
+	
+	/*
 	public Rectangle getCellRect(int rowIndex, int colIndex) {
 		return scrollModel.getCellRect(rowIndex, colIndex);
 	}
@@ -128,6 +131,7 @@ public class JSpread extends JPanel {
 	public int columnAtPoint(Point pt) {
 		return scrollModel.columnAtPoint(pt);
 	}
+	*/
 	
 	public Dimension getPreferredSize() {
 		return scrollModel.getPreferredSize();
@@ -200,14 +204,73 @@ public class JSpread extends JPanel {
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
 		SpreadModel m = getModel();
+		if (m.getRowCount() <= 0 || m.getColumnCount() <= 0) {
+			return;
+		}
 		Rectangle clip = g.getClipBounds();
 		Rectangle bounds = this.getBounds();
 		bounds.x = bounds.y = 0;
-		if (m.getRowCount() <= 0 || m.getColumnCount() <= 0 || !bounds.intersects(clip)) {
+		if (!bounds.intersects(clip)) {
             // this check prevents us from painting the entire table
             // when the clip doesn't intersect our bounds at all
 			return;
 		}
+		Rectangle rect = new Rectangle(bounds);
+		RangeModel colRangeModel = this.getRangeModel(Adjustable.HORIZONTAL);
+		RangeModel rowRangeModel = this.getRangeModel(Adjustable.VERTICAL);
+		//
+		
+		rect.x = bounds.x;
+		rect.y = bounds.y;
+		rect.width = colRangeModel.getFixedPartSize();
+		rect.height = rowRangeModel.getFixedPartSize();
+		paintUpperLeftPart(g, rect.intersection(clip));
+		//
+		rect.x = bounds.x + colRangeModel.getFixedPartSize();
+		rect.y = bounds.y;
+		rect.width = colRangeModel.getScrollPartSize();
+		rect.height = rowRangeModel.getFixedPartSize();
+		paintUpperRightPart(g, rect.intersection(clip));
+		//
+		rect.x = bounds.x;
+		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
+		rect.width = colRangeModel.getFixedPartSize();
+		rect.height = rowRangeModel.getScrollPartSize();
+		paintLowerLeftPart(g, rect.intersection(clip));
+		//
+		rect.x = bounds.x + colRangeModel.getFixedPartSize();
+		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
+		rect.width = colRangeModel.getScrollPartSize();
+		rect.height = rowRangeModel.getScrollPartSize();
+		paintLowerRightPart(g, rect.intersection(clip));
+	}
+
+	private void paintUpperLeftPart(Graphics g, Rectangle clip){
+		int rMin = 0;
+		int rMax = scrollModel.getFixedRowNum()-1;
+		int cMin = 0;
+		int cMax = scrollModel.getFixedColumnNum()-1;
+		paintCells(g, rMin, rMax, cMin, cMax);
+	}
+	
+	private void paintUpperRightPart(Graphics g, Rectangle clip){
+	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
+		int rMin = 0;
+		int rMax = scrollModel.getFixedRowNum()-1;
+		int cMin = scrollModel.getFixedColumnNum();
+		int cMax = scrollModel.columnAtPoint(lowerRight);
+		paintCells(g, rMin, rMax, cMin, cMax);
+	}
+	private void paintLowerLeftPart(Graphics g, Rectangle clip){
+	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
+		int rMin = scrollModel.getFixedRowNum();
+		int rMax = scrollModel.rowAtPoint(lowerRight);
+		int cMin = 0;
+		int cMax = scrollModel.getFixedColumnNum()-1;
+		paintCells(g, rMin, rMax, cMin, cMax);
+	}
+
+	private void paintLowerRightPart(Graphics g, Rectangle clip){
 		Point upperLeft = clip.getLocation();
 	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
 		paintCells(g,	scrollModel.rowAtPoint(upperLeft),
@@ -218,7 +281,6 @@ public class JSpread extends JPanel {
 	
 	private void paintCells(Graphics g, int rMin, int rMax, int cMin, int cMax) {
 		SpreadModel m = getModel();
-		String s;
 		Rectangle cellRect = new Rectangle();
 		rMax = Math.min(rMax, m.getRowCount()-1);
 		cMax = Math.min(cMax, m.getColumnCount()-1);
@@ -228,23 +290,16 @@ public class JSpread extends JPanel {
 			for(int col = cMin; col <= cMax; col++) {
 				cellRect.x = scrollModel.getColumnPosition(col);
 				cellRect.width = scrollModel.getColumnWidth(col);
-				Object o = m.getValueAt(row, col);
-				if(o == null) {
-					s = "";
-				}
-				else {
-					s = o.toString();
-				}
-				paintCell(g, cellRect, s, row, col);
+				paintCell(g, cellRect, m.getValueAt(row, col), row, col);
 			}
 		}
 	}
 
-	public void repaintCell(int row, int column) {
-		repaint(getCellRect(row, column));
-	}
+	//public void repaintCell(int row, int column) {
+		//repaint(getCellRect(row, column));
+	//}
 
-	protected void paintCell(Graphics g, Rectangle cellRect, String s, int row, int col) {
+	protected void paintCell(Graphics g, Rectangle cellRect, Object s, int row, int col) {
 		ICellRenderer tcr = getCellRenderer(row,col);
 		boolean isSelected = this.getSelectionModel().isSelected(row, col);
 		boolean hasFocus = this.getFocusModel().hasFocus(row, col);
