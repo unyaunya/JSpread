@@ -224,25 +224,29 @@ public class JSpread extends JPanel {
 		rect.y = bounds.y;
 		rect.width = colRangeModel.getFixedPartSize();
 		rect.height = rowRangeModel.getFixedPartSize();
-		paintUpperLeftPart(g, rect.intersection(clip));
+		//paintUpperLeftPart(g, rect.intersection(clip));
+		paintCells(g, rect.intersection(clip));
 		//
 		rect.x = bounds.x + colRangeModel.getFixedPartSize();
 		rect.y = bounds.y;
 		rect.width = colRangeModel.getScrollPartSize();
 		rect.height = rowRangeModel.getFixedPartSize();
-		paintUpperRightPart(g, rect.intersection(clip));
+		//paintUpperRightPart(g, rect.intersection(clip));
+		paintCells(g, rect.intersection(clip));
 		//
 		rect.x = bounds.x;
 		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
 		rect.width = colRangeModel.getFixedPartSize();
 		rect.height = rowRangeModel.getScrollPartSize();
-		paintLowerLeftPart(g, rect.intersection(clip));
+		//paintLowerLeftPart(g, rect.intersection(clip));
+		paintCells(g, rect.intersection(clip));
 		//
 		rect.x = bounds.x + colRangeModel.getFixedPartSize();
 		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
 		rect.width = colRangeModel.getScrollPartSize();
 		rect.height = rowRangeModel.getScrollPartSize();
-		paintLowerRightPart(g, rect.intersection(clip));
+		//paintLowerRightPart(g, rect.intersection(clip));
+		paintCells(g, rect.intersection(clip));
 	}
 
 	private void paintUpperLeftPart(Graphics g, Rectangle clip){
@@ -252,7 +256,7 @@ public class JSpread extends JPanel {
 		int cMax = scrollModel.getFixedColumnNum()-1;
 		paintCells(g, rMin, rMax, cMin, cMax);
 	}
-	
+
 	private void paintUpperRightPart(Graphics g, Rectangle clip){
 	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
 		int rMin = 0;
@@ -271,6 +275,10 @@ public class JSpread extends JPanel {
 	}
 
 	private void paintLowerRightPart(Graphics g, Rectangle clip){
+		paintCells(g, clip);
+	}
+	
+	private void paintCells(Graphics g, Rectangle clip){
 		Point upperLeft = clip.getLocation();
 	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
 		paintCells(g,	scrollModel.rowAtPoint(upperLeft),
@@ -278,7 +286,7 @@ public class JSpread extends JPanel {
 						scrollModel.columnAtPoint(upperLeft),
 						scrollModel.columnAtPoint(lowerRight));
 	}
-	
+
 	private void paintCells(Graphics g, int rMin, int rMax, int cMin, int cMax) {
 		SpreadModel m = getModel();
 		Rectangle cellRect = new Rectangle();

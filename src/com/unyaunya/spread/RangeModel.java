@@ -26,6 +26,17 @@ public class RangeModel implements BoundedRangeModel {
 		this.sizeModel = sizeModel;
 	}
 	
+	public void setFixedPartNum(int fixedPartNum) {
+		if(fixedPartNum < 0) {
+			fixedPartNum = 0;
+		}
+		this.fixedPartNum = fixedPartNum;
+	}
+
+	public int getFixedPartNum() {
+		return fixedPartNum;
+	}
+
 	public void setComponentSize(int componentSize) {
 		this.componentSize = componentSize;
 		setExtent(calcExtent());
@@ -43,29 +54,54 @@ public class RangeModel implements BoundedRangeModel {
 		return this.componentSize;
 	}
 
-	public int getScrollPartSize() {
-		return getComponentSize() - getFixedPartSize();
-	}
-	
-	public int getFixedPartSize() {
+	public int getPreferredFixedPartSize() {
 		return sizeModel.getPosition(getFixedPartNum());
 	}
 
+	public int getFixedPartSize() {
+		return Math.min(getComponentSize(), getPreferredFixedPartSize());
+	}
+	
+	public int getScrollPartSize() {
+		return getComponentSize() - getFixedPartSize();
+	}
+
+	public int getPreferredScrollPartSize() {
+		return sizeModel.getPreferredSize() - getPreferredFixedPartSize();
+	}
+	
+	//
 	public int getPosition(int index) {
 		if(index < getFixedPartNum()) {
 			return sizeModel.getPosition(index);
 		}
 		else {
-			return untranslate(sizeModel.getPosition(index));
+			return getFixedPartSize() + (sizeModel.getPosition(index) - sizeModel.getPosition(getFixedPartNum()+getValue()));
 		}
 	}
 
+	public int getIndexFromDeviceCoord(int deviceCoord) {
+		if(deviceCoord > getFixedPartSize()) {
+			deviceCoord = this.translate(deviceCoord);
+		}
+		return sizeModel.getIndex(deviceCoord);
+	}
+	
+	/*
+	 * デバイス座標→論理座標
+	 */
 	public int translate(int position) {
 		return position + sizeModel.getPosition(getValue());
 	}
+
+	/*
+	 * 論理座標→デバイス座標
+	 */
+	/*
 	public int untranslate(int position) {
 		return position - sizeModel.getPosition(getValue());
 	}
+	*/
 	
 	/* (non-Javadoc)
 	 * @see javax.swing.BoundedRangeModel#addChangeListener(javax.swing.event.ChangeListener)
@@ -91,25 +127,39 @@ public class RangeModel implements BoundedRangeModel {
 		return this.extent;
 	}
 
+	/**
+	 * extentの最低値は１
+	 * 
+	 * @return
+	 */
 	int  calcExtent() {
+		return Math.max(1, _calcExtent());
+	}
+	
+	int  _calcExtent() {
 		int scrollPartSize = getScrollPartSize();
-		int scrollPartPreferredSize = sizeModel.getPreferredSize() - getFixedPartSize(); 
+		int preferredScrollPartSize = getPreferredScrollPartSize();
+
+		//可変部分のサイズがゼロの場合
 		if(scrollPartSize <= 0) {
-			return 1;
+			return 0;
 		}
-		else if(scrollPartSize >= scrollPartPreferredSize) {
+		//スクロール量を考慮せずに、可変部分のサイズが必要なサイズよりも大きい場合
+		else if(scrollPartSize >= preferredScrollPartSize) {
 			return sizeModel.getLength() - getFixedPartNum();
 		}
+		//可変部分のサイズが必要なサイズよりも小さい
 		else {
-			int startPos = sizeModel.getPosition(getValue());
+			//可変部分上端の論理位置：
+			int startPos = sizeModel.getPosition(this.getFixedPartNum()+getValue()) - sizeModel.getPosition(this.getFixedPartNum());
 			int endPos = startPos + scrollPartSize;
-			if(endPos > scrollPartPreferredSize) {
-				endPos = scrollPartPreferredSize;
+			if(endPos > preferredScrollPartSize) {
+				endPos = preferredScrollPartSize;
 				startPos = endPos - scrollPartSize;
-				return Math.max(1, sizeModel.getLength() - (sizeModel.getIndex(startPos) + 1));
+				return sizeModel.getLength() - (sizeModel.getIndex(startPos) + 1);
 			}
 			else {
-				return Math.max(1, sizeModel.getIndex(endPos) - getValue());
+				return sizeModel.getIndex(endPos) - getValue();
 			}
 		}
 	}
@@ -119,7 +169,7 @@ public class RangeModel implements BoundedRangeModel {
 	 */
 	@Override
 	public int getMaximum() {
-		return sizeModel.getLength();
+		return Math.max(0, sizeModel.getLength() - getFixedPartNum());
 	}
 
 	/* (non-Javadoc)
@@ -127,7 +177,7 @@ public class RangeModel implements BoundedRangeModel {
 	 */
 	@Override
 	public int getMinimum() {
-		return getFixedPartNum();
+		return 0;
 	}
 
 	/* (non-Javadoc)
@@ -211,38 +261,30 @@ public class RangeModel implements BoundedRangeModel {
 	}
 
 	public void scrollToVisible(int index) {
-		int bounds_x = 0; //TODO
-		int position = this.getPosition(index);
-		int size = sizeModel.getSize(index);
-		System.out.println("scrollToVisible("+index+"):position="+position+",size="+size);
-		if(getComponentSize() <= size) {
-			System.out.println("scrollToVisible:getComponentSize() <= size");
+		//固定領域が指定されたら、setValue(0)
+		if(index < getFixedPartNum()) {
+			setValue(0);
+		}
+		//指定された箇所が可変領域の前にある場合
+		else if(index < (getFixedPartNum()+getValue())) {
+			System.out.println("scrollToVisible:getFixedPartNum()");
 			setValue(index);
 		}
-		else if(bounds_x > position) {
-			System.out.println("scrollToVisible:bounds_x < position");
+		//可変領域のサイズが、セル自体のサイズよりも小さい場合
+		else if(getScrollPartSize() <= sizeModel.getSize(index)) {
+			System.out.println("getScrollPartSize() <= size");
 			setValue(index);
 		}
+		//指定された箇所が可変領域の後にある場合
 		else {
-			int gap = (bounds_x+getComponentSize()) - (position+size);
-			System.out.println("scrollToVisible:(bounds_x+getComponentSize()) - (position+size) = " + gap);
+			int gap = getScrollPartSize() - (sizeModel.getPosition(index+1) - sizeModel.getPosition(getFixedPartNum() + getValue()));
+			System.out.println("scrollToVisible:getScrollPartSize() - (sizeModel.getPosition(index+1) - sizeModel.getPosition(getFixedPartNum() + getValue())) = " + gap);
 			int n = 0;
 			while(gap < 0) {
-				gap += sizeModel.getSize(getValue()+n);
+				gap += sizeModel.getSize(getFixedPartNum() + getValue()+n);
 				n++;
 			}
 			setValue(getValue()+n);
 		}
-	}
-
-	public void setFixedPartNum(int fixPartNum) {
-		if(fixPartNum < 0) {
-			fixPartNum = 0;
-		}
-		this.fixedPartNum = fixPartNum;
-	}
-
-	public int getFixedPartNum() {
-		return fixedPartNum;
 	}
 }

@@ -3,7 +3,6 @@ package com.unyaunya.spread;
 import java.awt.Adjustable;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -126,7 +125,7 @@ public class ScrollModel implements TableModelListener {
 	}
 
 	public int getRowPosition(int rowIndex) {
-		return rowRangeModel.untranslate(rowSizeModel.getPosition(rowIndex));
+		return rowRangeModel.getPosition(rowIndex);
 	}
 	public int getDefaultRowHeight() {
 		return rowSizeModel.getDefaultSize();
@@ -144,18 +143,18 @@ public class ScrollModel implements TableModelListener {
 		return rowSizeModel.getSize(rowIndex);
 	}
 	public int getColumnPosition(int columnIndex) {
-		return colRangeModel.untranslate(colSizeModel.getPosition(columnIndex));
+		return colRangeModel.getPosition(columnIndex);
 	}
 	public int getColumnWidth(int columnIndex) {
 		return colSizeModel.getSize(columnIndex);
 	}
 	
 	public int rowAtPoint(Point pt) {
-		return rowSizeModel.getIndex(rowRangeModel.translate(pt.y));
+		return rowRangeModel.getIndexFromDeviceCoord(pt.y);
 	}
 	
 	public int columnAtPoint(Point pt) {
-		return colSizeModel.getIndex(colRangeModel.translate(pt.x));
+		return colRangeModel.getIndexFromDeviceCoord(pt.x);
 	}
 
 	public int getFixedRowNum() {
