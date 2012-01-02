@@ -81,17 +81,17 @@ public class RangeModel implements BoundedRangeModel {
 	}
 
 	public int getIndexFromDeviceCoord(int deviceCoord) {
-		if(deviceCoord > getFixedPartSize()) {
-			deviceCoord = this.translate(deviceCoord);
-		}
-		return sizeModel.getIndex(deviceCoord);
+		return sizeModel.getIndex(this.translate(deviceCoord));
 	}
 	
 	/*
 	 * デバイス座標→論理座標
 	 */
-	public int translate(int position) {
-		return position + sizeModel.getPosition(getValue());
+	public int translate(int deviceCoord) {
+		if(deviceCoord < getFixedPartSize()) {
+			return deviceCoord;
+		}
+		return sizeModel.getPosition(getFixedPartNum()+getValue()) + (deviceCoord - getFixedPartSize());
 	}
 
 	/*
@@ -146,20 +146,22 @@ public class RangeModel implements BoundedRangeModel {
 		}
 		//スクロール量を考慮せずに、可変部分のサイズが必要なサイズよりも大きい場合
 		else if(scrollPartSize >= preferredScrollPartSize) {
-			return sizeModel.getLength() - getFixedPartNum();
+			return getMaximum();
 		}
 		//可変部分のサイズが必要なサイズよりも小さい
 		else {
 			//可変部分上端の論理位置：
-			int startPos = sizeModel.getPosition(this.getFixedPartNum()+getValue()) - sizeModel.getPosition(this.getFixedPartNum());
+			int startPos = sizeModel.getPosition(this.getFixedPartNum()+getValue());
+			//- sizeModel.getPosition(this.getFixedPartNum());
+			//可変部分下端の論理位置：
 			int endPos = startPos + scrollPartSize;
-			if(endPos > preferredScrollPartSize) {
-				endPos = preferredScrollPartSize;
+			if(endPos > sizeModel.getPreferredSize()) {
+				endPos = sizeModel.getPreferredSize();
 				startPos = endPos - scrollPartSize;
-				return sizeModel.getLength() - (sizeModel.getIndex(startPos) + 1);
+				return getMaximum() - (sizeModel.getIndex(startPos) + 0);
 			}
 			else {
-				return sizeModel.getIndex(endPos) - getValue();
+				return sizeModel.getIndex(endPos) - getFixedPartNum() - getValue();
 			}
 		}
 	}

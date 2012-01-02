@@ -15,7 +15,7 @@ import org.junit.Test;
  * @author wata
  *
  */
-public class ScrollModelTest {
+public class RangeModelTest {
 	SizeModel sizeModel;
 	RangeModel rangeModel;
 
@@ -50,18 +50,23 @@ public class ScrollModelTest {
 	}
 
 	@Test
-	public void testScrollModel() {
+	public void testRangeModel() {
 		assertEquals(0, rangeModel.getComponentSize());
+		assertEquals(0, rangeModel.getFixedPartSize());
 		assertEquals(0, rangeModel.getValue());
 		assertEquals(1, rangeModel.getExtent());
 		assertEquals(0, rangeModel.getMinimum());
 		assertEquals(9, rangeModel.getMaximum());
+		assertEquals(1, rangeModel.getFixedPartNum());
 	}
 
 	@Test
 	public void testSetComponentSize() {
-		rangeModel.setComponentSize(25);
-		assertEquals(25, rangeModel.getComponentSize());
+		sizeModel = new SizeModel(201, 16);
+		rangeModel = new RangeModel(sizeModel);
+		rangeModel.setComponentSize(524);
+		assertEquals(524, rangeModel.getComponentSize());
+		assertEquals(16, rangeModel.getFixedPartSize());
 	}
 
 	@Test
@@ -113,28 +118,54 @@ public class ScrollModelTest {
 		assertEquals(3, rangeModel.getExtent());
 		rangeModel.setComponentSize(55);
 		assertEquals(4, rangeModel.getExtent());
+		
 		rangeModel.setComponentSize(65);
 		assertEquals(5, rangeModel.getExtent());
 		assertEquals(3, rangeModel.getValue());
 		rangeModel.setComponentSize(75);
 		assertEquals(6, rangeModel.getExtent());
 		assertEquals(3, rangeModel.getValue());
+		
 		rangeModel.setComponentSize(85);
 		assertEquals(7, rangeModel.calcExtent());
 		assertEquals(7, rangeModel.getExtent());
-		assertEquals(3, rangeModel.getValue());
+		assertEquals(2, rangeModel.getValue());
 		rangeModel.setComponentSize(95);
 		assertEquals(8, rangeModel.getExtent());
-		assertEquals(2, rangeModel.getValue());
+		assertEquals(1, rangeModel.getValue());
 		rangeModel.setComponentSize(105);
 		assertEquals(9, rangeModel.getExtent());
-		assertEquals(1, rangeModel.getValue());
+		assertEquals(0, rangeModel.getValue());
 		rangeModel.setComponentSize(110);
-		assertEquals(10, rangeModel.getExtent());
+		assertEquals(9, rangeModel.getExtent());
 		assertEquals(0, rangeModel.getValue());
 		rangeModel.setComponentSize(111);
-		assertEquals(10, rangeModel.getExtent());
+		assertEquals(9, rangeModel.getExtent());
 		assertEquals(0, rangeModel.getValue());
+	}
+
+	@Test
+	public void testGetIndexFromDeviceCoord() {
+		sizeModel = new SizeModel(201, 16);
+		rangeModel = new RangeModel(sizeModel);
+		rangeModel.setComponentSize(524);
+		assertEquals(0, rangeModel.getIndexFromDeviceCoord(0));
+		assertEquals(0, rangeModel.getIndexFromDeviceCoord(15));
+		assertEquals(1, rangeModel.getIndexFromDeviceCoord(16));
+		assertEquals(32, rangeModel.getIndexFromDeviceCoord(523));
+	}
+
+	@Test
+	public void testTranslate() {
+		sizeModel = new SizeModel(201, 16);
+		rangeModel = new RangeModel(sizeModel);
+		rangeModel.setComponentSize(524);
+		assertEquals(0, rangeModel.translate(0));
+		assertEquals(15, rangeModel.translate(15));
+		assertEquals(16, rangeModel.translate(16));
+		assertEquals(31, rangeModel.translate(31));
+		assertEquals(32, rangeModel.translate(32));
+		assertEquals(523, rangeModel.translate(523));
 	}
 
 	@Test
