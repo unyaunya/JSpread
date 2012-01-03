@@ -177,4 +177,19 @@ public class ScrollModel implements TableModelListener {
 		colRangeModel.scrollToVisible(columnIndex);
 		rowRangeModel.scrollToVisible(rowIndex);
 	}
+
+	public boolean arePanesFreezed() {
+		return (this.getFixedRowNum()!=1 || this.getFixedColumnNum()!=1);
+	}
+
+	public void freezePanes(int rowIndex, int columnIndex) {
+		colRangeModel.setFixedPartNum(columnIndex);
+		rowRangeModel.setFixedPartNum(rowIndex);
+	}
+
+	public void unfreezePanes() {
+		colRangeModel.setFixedPartNum(1);
+		rowRangeModel.setFixedPartNum(1);
+	}
+
 }

@@ -270,12 +270,12 @@ public class RangeModel implements BoundedRangeModel {
 		//指定された箇所が可変領域の前にある場合
 		else if(index < (getFixedPartNum()+getValue())) {
 			System.out.println("scrollToVisible:getFixedPartNum()");
-			setValue(index);
+			setValue(index - getFixedPartNum());
 		}
 		//可変領域のサイズが、セル自体のサイズよりも小さい場合
 		else if(getScrollPartSize() <= sizeModel.getSize(index)) {
 			System.out.println("getScrollPartSize() <= size");
-			setValue(index);
+			setValue(index - getFixedPartNum());
 		}
 		//指定された箇所が可変領域の後にある場合
 		else {

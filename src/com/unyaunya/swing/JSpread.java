@@ -141,6 +141,17 @@ public class JSpread extends JPanel {
 		scrollModel.scrollToVisible(rowIndex, columnIndex);
 	}
 
+	public boolean arePanesFreezed() {
+		return scrollModel.arePanesFreezed();
+	}
+	
+	public void freezePanes() {
+		scrollModel.freezePanes(focusModel.getRowIndex()-1, focusModel.getColumnIndex()-1);
+	}
+	public void unfreezePanes() {
+		scrollModel.unfreezePanes();
+	}
+
 	/*
 	 * methods related to UI appearance
 	 */

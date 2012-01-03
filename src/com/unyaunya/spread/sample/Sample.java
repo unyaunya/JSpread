@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -89,10 +90,15 @@ class MyFrame extends JFrame {
 	}
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
-		JMenu menu = new JMenu("File");
+		//File menu
+		JMenu menu = new JMenu("ファイル");
 		menu.add(new JMenuItem(new OpenAction()));
 		menu.add(new JMenuItem("bbb"));
 		menu.add(new JMenuItem("ccc"));
+		menuBar.add(menu);
+		//Window menu
+		menu = new JMenu("ウィンドウ");
+		menu.add(new JMenuItem(new FreezePanesAction()));
 		menuBar.add(menu);
 		return menuBar;
 	}
@@ -125,6 +131,48 @@ class MyFrame extends JFrame {
 					e.printStackTrace();
 				}
 		    }
+		}
+	}
+
+	class FreezePanesAction extends AbstractAction {
+		private boolean flag = true;
+		public FreezePanesAction() {
+			super("ウィンドウ枠の固定");
+		}
+
+		@Override
+		public Object getValue(String key) {
+			if(Action.NAME.equals(key)) {
+				return getActionName();
+			}
+			else {
+				return super.getValue(key);
+			}
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			if(spread.arePanesFreezed()) {
+				spread.unfreezePanes();
+			}
+			else {
+				spread.freezePanes();
+			}
+			boolean flag = spread.arePanesFreezed();
+			firePropertyChange(Action.NAME, getActionName(!flag), getActionName(flag));
+		}
+
+		private String getActionName() {
+			return this.getActionName(spread.arePanesFreezed());
+		}
+
+		private String getActionName(boolean arePanesFreezed) {
+			if(arePanesFreezed) {
+				return "ウィンドウ枠の固定の解除";
+			}
+			else {
+				return "ウィンドウ枠の固定";
+			}
 		}
 	}
 }
