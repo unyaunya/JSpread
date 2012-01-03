@@ -1,5 +1,7 @@
 package com.unyaunya.spread;
 
+import java.awt.Adjustable;
+
 import com.unyaunya.swing.JSpread;
 
 public class FocusModel {
@@ -75,6 +77,18 @@ public class FocusModel {
 	}
 	public void down() {
 		setFocus(getRowIndex()+1, getColumnIndex());
+	}
+	public void pageLeft() {
+		setFocus(getRowIndex(), getColumnIndex()-spread.getRangeModel(Adjustable.HORIZONTAL).getExtent());
+	}
+	public void pageRight() {
+		setFocus(getRowIndex(), getColumnIndex()+spread.getRangeModel(Adjustable.HORIZONTAL).getExtent());
+	}
+	public void pageUp() {
+		setFocus(getRowIndex()-spread.getRangeModel(Adjustable.VERTICAL).getExtent(), getColumnIndex());
+	}
+	public void pageDown() {
+		setFocus(getRowIndex()+spread.getRangeModel(Adjustable.VERTICAL).getExtent(), getColumnIndex());
 	}
 
 	public boolean hasFocus(int rowIndex, int columnIndex) {

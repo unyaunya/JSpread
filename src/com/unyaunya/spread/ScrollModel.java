@@ -124,6 +124,13 @@ public class ScrollModel implements TableModelListener {
 				rowSizeModel.getPreferredSize());
 	}
 
+	public int getRowExtent() {
+		return rowRangeModel.getExtent();
+	}
+	public int getColumnExtent() {
+		return colRangeModel.getExtent();
+	}
+
 	public int getRowPosition(int rowIndex) {
 		return rowRangeModel.getPosition(rowIndex);
 	}

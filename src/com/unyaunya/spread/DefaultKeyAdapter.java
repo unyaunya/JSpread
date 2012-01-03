@@ -35,6 +35,12 @@ public class DefaultKeyAdapter extends KeyAdapter {
 		case KeyEvent.VK_DOWN:
 			spread.getFocusModel().down();
 			break;
+		case KeyEvent.VK_PAGE_DOWN:
+			spread.getFocusModel().pageDown();
+			break;
+		case KeyEvent.VK_PAGE_UP:
+			spread.getFocusModel().pageUp();
+			break;
 		default:
 			System.out.println(e);
 			break;
