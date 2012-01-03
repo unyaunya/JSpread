@@ -64,6 +64,7 @@ public class FocusModel {
 			//getSpread().repaintCell(orig_row, orig_col);
 			//getSpread().repaintCell(this.rowIndex, this.columnIndex);
 		}
+		spread.select(rowIndex, columnIndex);
 	}
 
 	public void left() {

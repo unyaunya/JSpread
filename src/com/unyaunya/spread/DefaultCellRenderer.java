@@ -36,17 +36,10 @@ public class DefaultCellRenderer extends JLabel implements ICellRenderer {
 		}
 		setText(value.toString());
 		if(isSelected) {
-			super.setBackground(spread.getSelectionBackground());
 			super.setForeground(spread.getSelectionForeground());
 		}
 		else {
 			
-		}
-		if(hasFocus) {
-			this.setBorder(spread.getFocusBorder());
-		}
-		else {
-			this.setBorder(spread.getNoFocusBorder());
 		}
 		return this;
 	}

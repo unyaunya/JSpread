@@ -150,6 +150,14 @@ public class JSpread extends JPanel {
 		scrollModel.unfreezePanes();
 	}
 
+	
+	/*
+	 * methods delegating to SelectionModel
+	 */
+	public void select(int rowIndex, int columnIndex) {
+		selectionModel.select(rowIndex, columnIndex);
+	}
+
 	/*
 	 * methods related to UI appearance
 	 */
@@ -161,27 +169,29 @@ public class JSpread extends JPanel {
     	return SpreadBorder.defaultBorder;
     }
 
-    public Border getHeaderBorder() {
-    	return SpreadBorder.borderForHeader;
+    public Border getCellBorder(boolean isSelected, boolean hasFocus, int row, int column) {
+		if(hasFocus) {
+			return this.getFocusBorder();
+		}
+		else {
+			return this.getNoFocusBorder();
+		}
+    }
+    
+    protected Color getCellBackground(boolean isSelected, boolean hasFocus, int row, int column) {
+		if(isSelected) {
+			return this.getSelectionBackground();
+		}
+		else {
+	    	if(row <= 0 || column <= 0) {
+	    		return DEFAULT_HEADER_BACKGROUND_COLOR;
+	    	}
+	    	else {
+	    		return Color.WHITE;
+	    	}
+		}
     }
 
-    protected Border getCellBorder(int row, int column) {
-    	if(row <= 0 || column <= 0) {
-    		return getHeaderBorder();
-    	}
-    	else {
-    		return SpreadBorder.defaultBorder;
-    	}
-    }
-
-    protected Color getCellBackground(int row, int column) {
-    	if(row <= 0 || column <= 0) {
-    		return DEFAULT_HEADER_BACKGROUND_COLOR;
-    	}
-    	else {
-    		return Color.WHITE;
-    	}
-    }
     protected int getHorizontalAlignment(int row, int column) {
     	if(row <= 0 || column <= 0) {
     		return SwingConstants.CENTER;
@@ -230,67 +240,31 @@ public class JSpread extends JPanel {
 		RangeModel colRangeModel = this.getRangeModel(Adjustable.HORIZONTAL);
 		RangeModel rowRangeModel = this.getRangeModel(Adjustable.VERTICAL);
 		//
-		
 		rect.x = bounds.x;
 		rect.y = bounds.y;
 		rect.width = colRangeModel.getFixedPartSize();
 		rect.height = rowRangeModel.getFixedPartSize();
-		//paintUpperLeftPart(g, rect.intersection(clip));
 		paintCells(g, clip, rect);
 		//
 		rect.x = bounds.x + colRangeModel.getFixedPartSize();
 		rect.y = bounds.y;
 		rect.width = colRangeModel.getScrollPartSize();
 		rect.height = rowRangeModel.getFixedPartSize();
-		//paintUpperRightPart(g, rect.intersection(clip));
 		paintCells(g, clip, rect);
 		//
 		rect.x = bounds.x;
 		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
 		rect.width = colRangeModel.getFixedPartSize();
 		rect.height = rowRangeModel.getScrollPartSize();
-		//paintLowerLeftPart(g, rect.intersection(clip));
 		paintCells(g, clip, rect);
 		//
 		rect.x = bounds.x + colRangeModel.getFixedPartSize();
 		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
 		rect.width = colRangeModel.getScrollPartSize();
 		rect.height = rowRangeModel.getScrollPartSize();
-		//paintLowerRightPart(g, rect.intersection(clip));
 		paintCells(g, clip, rect);
 		System.out.println("paintComponent():end");
 	}
-
-	/*
-	private void paintUpperLeftPart(Graphics g, Rectangle clip){
-		int rMin = 0;
-		int rMax = scrollModel.getFixedRowNum()-1;
-		int cMin = 0;
-		int cMax = scrollModel.getFixedColumnNum()-1;
-		paintCells(g, rMin, rMax, cMin, cMax);
-	}
-
-	private void paintUpperRightPart(Graphics g, Rectangle clip){
-	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
-		int rMin = 0;
-		int rMax = scrollModel.getFixedRowNum()-1;
-		int cMin = scrollModel.getFixedColumnNum();
-		int cMax = scrollModel.columnAtPoint(lowerRight);
-		paintCells(g, rMin, rMax, cMin, cMax);
-	}
-	private void paintLowerLeftPart(Graphics g, Rectangle clip){
-	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
-		int rMin = scrollModel.getFixedRowNum();
-		int rMax = scrollModel.rowAtPoint(lowerRight);
-		int cMin = 0;
-		int cMax = scrollModel.getFixedColumnNum()-1;
-		paintCells(g, rMin, rMax, cMin, cMax);
-	}
-
-	private void paintLowerRightPart(Graphics g, Rectangle clip){
-		paintCells(g, clip);
-	}
-	*/
 	
 	private void paintCells(Graphics g, Rectangle clipingRect, Rectangle rect){
 		System.out.println("\tpaintCells(clipingRect,rect):");
@@ -335,10 +309,7 @@ public class JSpread extends JPanel {
 	}
 
 	protected ICellRenderer getCellRenderer(int row, int column) {
-    	ICellRenderer r = defaultCellRenderer;
-    	r.setBackground(this.getCellBackground(row, column));
-    	r.setHorizontalAlignment(this.getHorizontalAlignment(row, column));
-		return r;
+		return defaultCellRenderer;
     }
 
 	public Component prepareRenderer(ICellRenderer renderer, int row, int col) {
@@ -346,6 +317,11 @@ public class JSpread extends JPanel {
 		Object s = m.getValueAt(row, col);
 		boolean isSelected = this.getSelectionModel().isSelected(row, col);
 		boolean hasFocus = this.getFocusModel().hasFocus(row, col);
-		return renderer.getCellRendererComponent(this, s, isSelected, hasFocus, row, col);
+		Border border = getCellBorder(isSelected, hasFocus, row, col);
+		renderer.setBorder(border);
+		renderer.setBackground(this.getCellBackground(isSelected, hasFocus, row, col));
+		renderer.setHorizontalAlignment(this.getHorizontalAlignment(row, col));
+		Component c = renderer.getCellRendererComponent(this, s, isSelected, hasFocus, row, col);
+		return c;
 	}
 }
