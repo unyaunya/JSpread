@@ -25,6 +25,7 @@ import com.unyaunya.spread.ICellRenderer;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
 import com.unyaunya.spread.SelectionModel;
+import com.unyaunya.spread.SpreadBorder;
 import com.unyaunya.spread.SpreadModel;
 
 /**
@@ -40,10 +41,7 @@ public class JSpread extends JPanel {
 	public static final Color DEFAULT_HEADER_BACKGROUND_COLOR = new Color(0xf0,0xf0,0xf0);
 	public static final Color DEFAULT_SELECTION_BACKGROUND_COLOR = new Color(0xe0,0xe0,0xff);
 	public static final Color DEFAULT_FOREGROUND_COLOR = new Color(0x00,0x00,0x00);
-	public static final Border DEFAULT_FOCUS_BORDER = BorderFactory.createMatteBorder(1,1,2,2,Color.BLACK);
 
-	protected Border borderForHeader = BorderFactory.createMatteBorder(0,0,1,1,Color.GRAY);
-	protected Border defaultBorder = BorderFactory.createMatteBorder(0,0,1,1,Color.GRAY);
 	protected Color selectionBackground = DEFAULT_SELECTION_BACKGROUND_COLOR;
 	protected Color selectionForeground = DEFAULT_FOREGROUND_COLOR;
 	protected static ICellRenderer defaultCellRenderer = new DefaultCellRenderer();
@@ -156,23 +154,23 @@ public class JSpread extends JPanel {
 	 * methods related to UI appearance
 	 */
 	public Border getFocusBorder() {
-    	return DEFAULT_FOCUS_BORDER;
+    	return SpreadBorder.DEFAULT_FOCUS_BORDER;
     }
 
     public Border getNoFocusBorder() {
-    	return defaultBorder;
+    	return SpreadBorder.defaultBorder;
     }
 
     public Border getHeaderBorder() {
-    	return borderForHeader;
+    	return SpreadBorder.borderForHeader;
     }
 
     protected Border getCellBorder(int row, int column) {
     	if(row <= 0 || column <= 0) {
-    		return borderForHeader;
+    		return getHeaderBorder();
     	}
     	else {
-    		return defaultBorder;
+    		return SpreadBorder.defaultBorder;
     	}
     }
 
@@ -312,16 +310,16 @@ public class JSpread extends JPanel {
 		System.out.println("\t\tpaintCells(int rMin, int rMax, int cMin, int cMax):");
 		System.out.println("\t\t\t(rMin, rMax, cMin, cMax)=("+rMin+","+rMax+","+cMin+","+cMax+")");
 		SpreadModel m = getModel();
-		Rectangle cellRect = new Rectangle();
 		rMax = Math.min(rMax, m.getRowCount()-1);
 		cMax = Math.min(cMax, m.getColumnCount()-1);
+		Rectangle cellRect = new Rectangle();
 		for(int row = rMin; row <= rMax; row++) {
 			cellRect.y = scrollModel.getRowPosition(row) + verticalOffset;
 			cellRect.height = scrollModel.getRowHeight(row);
 			for(int col = cMin; col <= cMax; col++) {
 				cellRect.x = scrollModel.getColumnPosition(col) + horizontalOffset;
 				cellRect.width = scrollModel.getColumnWidth(col);
-				paintCell(g, cellRect, m.getValueAt(row, col), row, col);
+				paintCell(g, cellRect, row, col);
 			}
 		}
 	}
@@ -330,19 +328,24 @@ public class JSpread extends JPanel {
 		//repaint(getCellRect(row, column));
 	//}
 
-	protected void paintCell(Graphics g, Rectangle cellRect, Object s, int row, int col) {
+	protected void paintCell(Graphics g, Rectangle cellRect, int row, int col) {
 		ICellRenderer tcr = getCellRenderer(row,col);
-		boolean isSelected = this.getSelectionModel().isSelected(row, col);
-		boolean hasFocus = this.getFocusModel().hasFocus(row, col);
-		Component c = tcr.getCellRendererComponent(this, s, isSelected, hasFocus, row, col);
+		Component c = prepareRenderer(tcr, row, col);
         rendererPane.paintComponent(g, c, this, cellRect);
 	}
 
 	protected ICellRenderer getCellRenderer(int row, int column) {
     	ICellRenderer r = defaultCellRenderer;
-    	r.setBorder(this.getCellBorder(row, column));
     	r.setBackground(this.getCellBackground(row, column));
     	r.setHorizontalAlignment(this.getHorizontalAlignment(row, column));
 		return r;
     }
+
+	public Component prepareRenderer(ICellRenderer renderer, int row, int col) {
+		SpreadModel m = getModel();
+		Object s = m.getValueAt(row, col);
+		boolean isSelected = this.getSelectionModel().isSelected(row, col);
+		boolean hasFocus = this.getFocusModel().hasFocus(row, col);
+		return renderer.getCellRendererComponent(this, s, isSelected, hasFocus, row, col);
+	}
 }

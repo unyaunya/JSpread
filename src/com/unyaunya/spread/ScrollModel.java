@@ -21,7 +21,7 @@ public class ScrollModel implements TableModelListener {
 	private TableModel tableModel;
 
 	public ScrollModel(JSpread spread) {
-		this(spread, 16, 60);
+		this(spread, 23, 60);
 	}
 
 	public ScrollModel(JSpread spread, int defaultRowHeight, int defaultColumnWidth) {
