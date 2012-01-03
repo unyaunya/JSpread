@@ -15,13 +15,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.unyaunya.io.CSVReader;
+
 /**
  * @author wata
  *
  */
 public class CSVReaderTest {
 	/**
-	 * Test method for {@link com.unyaunya.spread.CSVReader#CSVReader(boolean)}.
+	 * Test method for {@link com.unyaunya.io.CSVReader#CSVReader(boolean)}.
 	 */
 	@Test
 	public void testCSVReader() {
@@ -34,7 +36,7 @@ public class CSVReaderTest {
 	}
 
 	/**
-	 * Test method for {@link com.unyaunya.spread.CSVReader#getTitleArrayList()}.
+	 * Test method for {@link com.unyaunya.io.CSVReader#getTitleArrayList()}.
 	 */
 	@Test
 	public void testGetTitleArrayList() {

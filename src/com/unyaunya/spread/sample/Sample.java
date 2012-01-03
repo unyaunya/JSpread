@@ -18,7 +18,7 @@ import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 
-import com.unyaunya.spread.CSVReader;
+import com.unyaunya.io.CSVReader;
 import com.unyaunya.spread.CsvTable;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.JSpreadPane;

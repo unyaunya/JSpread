@@ -2,6 +2,8 @@ package com.unyaunya.spread;
 
 import javax.swing.table.AbstractTableModel;
 
+import com.unyaunya.io.CSVReader;
+
 public class CsvTable extends AbstractTableModel {
 	private CSVReader csv;
 	
