@@ -8,14 +8,14 @@ import java.awt.Rectangle;
 
 import javax.swing.JLabel;
 
-import com.unyaunya.spread.ICellRenderer;
+import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.swing.JSpread;
 
 /**
  * @author wata
  *
  */
-public class DefaultCellRenderer extends JLabel implements ICellRenderer {
+public class DefaultCellRenderer extends JLabel implements ISpreadCellRenderer {
 	/**
 	 * 
 	 */
@@ -30,23 +30,16 @@ public class DefaultCellRenderer extends JLabel implements ICellRenderer {
 	 * @see com.unyaunya.spread.ICellRenderer#getCellRendererComponent()
 	 */
 	@Override
-	public Component getCellRendererComponent(JSpread spread, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+	public Component getSpreadCellRendererComponent(JSpread spread, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		if(value == null) {
 			value = "";
 		}
 		setText(value.toString());
 		if(isSelected) {
-			super.setBackground(spread.getSelectionBackground());
 			super.setForeground(spread.getSelectionForeground());
 		}
 		else {
 			
-		}
-		if(hasFocus) {
-			this.setBorder(spread.getFocusBorder());
-		}
-		else {
-			this.setBorder(spread.getNoFocusBorder());
 		}
 		return this;
 	}

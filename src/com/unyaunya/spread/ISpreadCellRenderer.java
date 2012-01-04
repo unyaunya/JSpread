@@ -7,8 +7,8 @@ import javax.swing.border.Border;
 
 import com.unyaunya.swing.JSpread;
 
-public interface ICellRenderer {
-	public Component getCellRendererComponent(JSpread spread, Object value, boolean isSelected, boolean hasFocus, int row, int column);
+public interface ISpreadCellRenderer {
+	public Component getSpreadCellRendererComponent(JSpread spread, Object value, boolean isSelected, boolean hasFocus, int row, int column);
 	public void setBorder(Border border);
 	public Border getBorder();
 	public void setBackground(Color color);

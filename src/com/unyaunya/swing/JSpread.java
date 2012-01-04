@@ -10,18 +10,26 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
+import java.util.EventObject;
 
-import javax.swing.BorderFactory;
 import javax.swing.CellRendererPane;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.TableModel;
 
+import com.unyaunya.spread.DefaultCellEditor;
 import com.unyaunya.spread.DefaultCellRenderer;
 import com.unyaunya.spread.DefaultKeyAdapter;
+import com.unyaunya.spread.DefaultSpreadCellEditor;
 import com.unyaunya.spread.FocusModel;
-import com.unyaunya.spread.ICellRenderer;
+import com.unyaunya.spread.ISpreadCellEditor;
+import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
 import com.unyaunya.spread.SelectionModel;
@@ -32,7 +40,7 @@ import com.unyaunya.spread.SpreadModel;
  * @author wata
  *
  */
-public class JSpread extends JPanel {
+public class JSpread extends JPanel implements CellEditorListener {
 	/**
 	 * 
 	 */
@@ -44,14 +52,20 @@ public class JSpread extends JPanel {
 
 	protected Color selectionBackground = DEFAULT_SELECTION_BACKGROUND_COLOR;
 	protected Color selectionForeground = DEFAULT_FOREGROUND_COLOR;
-	protected static ICellRenderer defaultCellRenderer = new DefaultCellRenderer();
+	protected static ISpreadCellRenderer defaultCellRenderer = new DefaultCellRenderer();
 
-	private CellRendererPane rendererPane;
+	transient private CellRendererPane rendererPane;
 	private SpreadModel model;
 	private ScrollModel scrollModel;
 	private SelectionModel selectionModel;
 	private FocusModel focusModel;
 	
+	transient ISpreadCellEditor defaultCellEditor = new DefaultCellEditor();
+	transient ISpreadCellEditor cellEditor = null;
+	transient private Component editorComponent;
+	transient protected int editingColumn;
+	transient protected int editingRow;
+
 	/*
 	 * constructor
 	 */
@@ -117,10 +131,10 @@ public class JSpread extends JPanel {
 	 * methods delegating to ScrollModel
 	 */
 	
-	/*
 	public Rectangle getCellRect(int rowIndex, int colIndex) {
 		return scrollModel.getCellRect(rowIndex, colIndex);
 	}
+	/*
 
 	public int rowAtPoint(Point pt) {
 		return scrollModel.rowAtPoint(pt);
@@ -150,6 +164,14 @@ public class JSpread extends JPanel {
 		scrollModel.unfreezePanes();
 	}
 
+	
+	/*
+	 * methods delegating to SelectionModel
+	 */
+	public void select(int rowIndex, int columnIndex) {
+		selectionModel.select(rowIndex, columnIndex);
+	}
+
 	/*
 	 * methods related to UI appearance
 	 */
@@ -161,27 +183,29 @@ public class JSpread extends JPanel {
     	return SpreadBorder.defaultBorder;
     }
 
-    public Border getHeaderBorder() {
-    	return SpreadBorder.borderForHeader;
+    public Border getCellBorder(boolean isSelected, boolean hasFocus, int row, int column) {
+		if(hasFocus) {
+			return this.getFocusBorder();
+		}
+		else {
+			return this.getNoFocusBorder();
+		}
+    }
+    
+    protected Color getCellBackground(boolean isSelected, boolean hasFocus, int row, int column) {
+		if(isSelected) {
+			return this.getSelectionBackground();
+		}
+		else {
+	    	if(row <= 0 || column <= 0) {
+	    		return DEFAULT_HEADER_BACKGROUND_COLOR;
+	    	}
+	    	else {
+	    		return Color.WHITE;
+	    	}
+		}
     }
 
-    protected Border getCellBorder(int row, int column) {
-    	if(row <= 0 || column <= 0) {
-    		return getHeaderBorder();
-    	}
-    	else {
-    		return SpreadBorder.defaultBorder;
-    	}
-    }
-
-    protected Color getCellBackground(int row, int column) {
-    	if(row <= 0 || column <= 0) {
-    		return DEFAULT_HEADER_BACKGROUND_COLOR;
-    	}
-    	else {
-    		return Color.WHITE;
-    	}
-    }
     protected int getHorizontalAlignment(int row, int column) {
     	if(row <= 0 || column <= 0) {
     		return SwingConstants.CENTER;
@@ -230,67 +254,31 @@ public class JSpread extends JPanel {
 		RangeModel colRangeModel = this.getRangeModel(Adjustable.HORIZONTAL);
 		RangeModel rowRangeModel = this.getRangeModel(Adjustable.VERTICAL);
 		//
-		
 		rect.x = bounds.x;
 		rect.y = bounds.y;
 		rect.width = colRangeModel.getFixedPartSize();
 		rect.height = rowRangeModel.getFixedPartSize();
-		//paintUpperLeftPart(g, rect.intersection(clip));
 		paintCells(g, clip, rect);
 		//
 		rect.x = bounds.x + colRangeModel.getFixedPartSize();
 		rect.y = bounds.y;
 		rect.width = colRangeModel.getScrollPartSize();
 		rect.height = rowRangeModel.getFixedPartSize();
-		//paintUpperRightPart(g, rect.intersection(clip));
 		paintCells(g, clip, rect);
 		//
 		rect.x = bounds.x;
 		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
 		rect.width = colRangeModel.getFixedPartSize();
 		rect.height = rowRangeModel.getScrollPartSize();
-		//paintLowerLeftPart(g, rect.intersection(clip));
 		paintCells(g, clip, rect);
 		//
 		rect.x = bounds.x + colRangeModel.getFixedPartSize();
 		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
 		rect.width = colRangeModel.getScrollPartSize();
 		rect.height = rowRangeModel.getScrollPartSize();
-		//paintLowerRightPart(g, rect.intersection(clip));
 		paintCells(g, clip, rect);
 		System.out.println("paintComponent():end");
 	}
-
-	/*
-	private void paintUpperLeftPart(Graphics g, Rectangle clip){
-		int rMin = 0;
-		int rMax = scrollModel.getFixedRowNum()-1;
-		int cMin = 0;
-		int cMax = scrollModel.getFixedColumnNum()-1;
-		paintCells(g, rMin, rMax, cMin, cMax);
-	}
-
-	private void paintUpperRightPart(Graphics g, Rectangle clip){
-	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
-		int rMin = 0;
-		int rMax = scrollModel.getFixedRowNum()-1;
-		int cMin = scrollModel.getFixedColumnNum();
-		int cMax = scrollModel.columnAtPoint(lowerRight);
-		paintCells(g, rMin, rMax, cMin, cMax);
-	}
-	private void paintLowerLeftPart(Graphics g, Rectangle clip){
-	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
-		int rMin = scrollModel.getFixedRowNum();
-		int rMax = scrollModel.rowAtPoint(lowerRight);
-		int cMin = 0;
-		int cMax = scrollModel.getFixedColumnNum()-1;
-		paintCells(g, rMin, rMax, cMin, cMax);
-	}
-
-	private void paintLowerRightPart(Graphics g, Rectangle clip){
-		paintCells(g, clip);
-	}
-	*/
 	
 	private void paintCells(Graphics g, Rectangle clipingRect, Rectangle rect){
 		System.out.println("\tpaintCells(clipingRect,rect):");
@@ -329,23 +317,165 @@ public class JSpread extends JPanel {
 	//}
 
 	protected void paintCell(Graphics g, Rectangle cellRect, int row, int col) {
-		ICellRenderer tcr = getCellRenderer(row,col);
+		ISpreadCellRenderer tcr = getCellRenderer(row,col);
 		Component c = prepareRenderer(tcr, row, col);
         rendererPane.paintComponent(g, c, this, cellRect);
 	}
 
-	protected ICellRenderer getCellRenderer(int row, int column) {
-    	ICellRenderer r = defaultCellRenderer;
-    	r.setBackground(this.getCellBackground(row, column));
-    	r.setHorizontalAlignment(this.getHorizontalAlignment(row, column));
-		return r;
+	public ISpreadCellRenderer getCellRenderer(int row, int column) {
+		return defaultCellRenderer;
     }
 
-	public Component prepareRenderer(ICellRenderer renderer, int row, int col) {
+	public Component prepareRenderer(ISpreadCellRenderer renderer, int row, int col) {
 		SpreadModel m = getModel();
 		Object s = m.getValueAt(row, col);
 		boolean isSelected = this.getSelectionModel().isSelected(row, col);
 		boolean hasFocus = this.getFocusModel().hasFocus(row, col);
-		return renderer.getCellRendererComponent(this, s, isSelected, hasFocus, row, col);
+		Border border = getCellBorder(isSelected, hasFocus, row, col);
+		renderer.setBorder(border);
+		renderer.setBackground(this.getCellBackground(isSelected, hasFocus, row, col));
+		renderer.setHorizontalAlignment(this.getHorizontalAlignment(row, col));
+		Component c = renderer.getSpreadCellRendererComponent(this, s, isSelected, hasFocus, row, col);
+		return c;
+	}
+
+
+	/*
+	 * methods related to cell editing 
+	 */
+	public ISpreadCellEditor getCellEditor(int row, int col) {
+		ISpreadCellEditor editor = getCellEditor();
+		if(editor == null) {
+			editor = getDefaultCellEditor();
+		}
+		return editor;
+	}
+
+	/**
+	 * Returns the active cell editor 
+	 * @return
+	 */
+	public ISpreadCellEditor getCellEditor() {
+		return cellEditor;
+	}
+
+	public void setCellEditor(ISpreadCellEditor cellEditor) {
+		this.cellEditor = cellEditor;
+	}
+
+	public ISpreadCellEditor getDefaultCellEditor() {
+		return defaultCellEditor;
+	}
+
+	private Component getEditorComponent() {
+		return editorComponent;
+	}
+
+	public boolean editCellAt(int row, int column) {
+		return editCellAt(row, column, null);
+	}
+
+	public boolean editCellAt(int row, int column, EventObject e){
+		if (row < 0 || row >= getRowCount() || column < 0 || column >= getColumnCount()) {
+			return false;
+		}
+		ISpreadCellEditor editor = getCellEditor(row, column);
+		editorComponent = prepareEditor(editor, row, column);
+		editorComponent.setBounds(getCellRect(row, column));
+		add(editorComponent);
+		editorComponent.validate();
+		
+		setCellEditor(editor);
+		editor.addCellEditorListener(this);
+		return true;
+	}
+
+	public Component prepareEditor(ISpreadCellEditor editor, int row, int column) {
+		Object value = getModel().getValueAt(row, column);
+		boolean hasFocus = getFocusModel().isCellFocused(row, column);
+		Component comp = editor.getCellEditorComponent(this, value, hasFocus, row, column);
+		/*
+		if (comp instanceof JComponent) {
+			JComponent jComp = (JComponent)comp;
+			if (jComp.getNextFocusableComponent() == null) {
+				jComp.setNextFocusableComponent(this);			}
+		}
+		*/
+		return comp;
+	}
+
+	public void removeEditor() {
+		ISpreadCellEditor editor = getCellEditor();
+		if(editor != null) {
+			editor.removeCellEditorListener(this);
+		}
+		if (editorComponent != null) {
+			remove(editorComponent);
+			//Rectangle cellRect = getCellRect(editingRow, editingColumn, false);
+			setCellEditor(null);
+			//setEditingColumn(-1);
+			//setEditingRow(-1);
+			editorComponent = null;
+			//repaint(cellRect);
+		}
+	}
+	
+	@Override
+	protected boolean processKeyBinding(KeyStroke ks,
+            KeyEvent e,
+            int condition,
+            boolean pressed){
+		boolean retValue = super.processKeyBinding(ks, e, condition, pressed);
+		if (!retValue && condition == WHEN_ANCESTOR_OF_FOCUSED_COMPONENT &&
+				isFocusOwner()) {
+			Component editorComponent = getEditorComponent();
+			if(editorComponent == null) {
+				// Only attempt to install the editor on a KEY_PRESSED,
+				if (e == null || e.getID() != KeyEvent.KEY_PRESSED) {
+					return false;
+				}
+				// Don't start when just a modifier is pressed
+				int code = e.getKeyCode();
+				if (code == KeyEvent.VK_SHIFT || code == KeyEvent.VK_CONTROL || code == KeyEvent.VK_ALT) {
+					return false;
+				}
+				// Try to install the editor
+				
+				//int leadRow = getSelectionModel().getLeadSelectionIndex();
+				//int leadColumn = getColumnModel().getSelectionModel().getLeadSelectionIndex();
+				//if (leadRow != -1 && leadColumn != -1 && !isEditing()) {
+				int row = getFocusModel().getRowIndex();
+				int col = getFocusModel().getColumnIndex();
+				if (!editCellAt(row, col)) {
+					return false;
+				}
+				editorComponent = getEditorComponent();
+				if (editorComponent == null) {
+					return false;
+				}
+			}
+			if (editorComponent instanceof JComponent) {
+				//retValue = ((JComponent)editorComponent).processKeyBinding(ks, e, WHEN_FOCUSED, pressed);
+				//if (getSurrendersFocusOnKeystroke()) {
+				editorComponent.requestFocus();
+				//}
+			}
+		}
+		return retValue;
+	}
+
+	@Override
+	public void editingCanceled(ChangeEvent arg0) {
+		removeEditor();
+	}
+
+	@Override
+	public void editingStopped(ChangeEvent arg0) {
+		ISpreadCellEditor editor = getCellEditor();
+		if (editor != null) {
+			Object value = editor.getCellEditorValue();
+			getModel().setValueAt(value, editingRow, editingColumn);
+			removeEditor();
+		}
 	}
 }

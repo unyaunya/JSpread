@@ -26,6 +26,10 @@ public class FocusModel {
 		return rowIndex;
 	}
 
+	public boolean isCellFocused(int rowIndex, int columnIndex) {
+		return (rowIndex == getRowIndex() && columnIndex == getColumnIndex());
+	}
+
 	public void setColumnIndex(int columnIndex) {
 		this.setFocus(getRowIndex(), columnIndex);
 	}
@@ -64,6 +68,7 @@ public class FocusModel {
 			//getSpread().repaintCell(orig_row, orig_col);
 			//getSpread().repaintCell(this.rowIndex, this.columnIndex);
 		}
+		spread.select(rowIndex, columnIndex);
 	}
 
 	public void left() {

@@ -3,6 +3,7 @@ package com.unyaunya.spread;
 import java.awt.Adjustable;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -108,15 +109,13 @@ public class ScrollModel implements TableModelListener {
 		}
 	}
 
-/*
 	public Rectangle getCellRect(int rowIndex, int colIndex) {
 		return new Rectangle(
-					colSizeModel.getPosition(colIndex),
-					rowSizeModel.getPosition(rowIndex),
+					colRangeModel.getPosition(colIndex),
+					rowRangeModel.getPosition(rowIndex),
 					colSizeModel.getSize(colIndex),
 					rowSizeModel.getSize(rowIndex));
 	}
-*/
 	
 	public Dimension getPreferredSize() {
 		return new Dimension(
