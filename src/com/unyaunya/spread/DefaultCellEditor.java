@@ -4,14 +4,29 @@
 package com.unyaunya.spread;
 
 import java.awt.Component;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 
 import com.unyaunya.swing.JSpread;
 
 import com.unyaunya.spread.ISpreadCellEditor;
+
+class TextField extends JTextField {
+	public TextField() {
+		super();
+	}
+
+	public boolean _processKeyBinding(KeyStroke ks,
+            KeyEvent e,
+            int condition,
+            boolean pressed){
+		return super.processKeyBinding(ks, e, condition, pressed);
+	}
+}
 
 /**
  * @author wata
@@ -19,12 +34,12 @@ import com.unyaunya.spread.ISpreadCellEditor;
  */
 public class DefaultCellEditor extends javax.swing.DefaultCellEditor  implements
 		ISpreadCellEditor {
-	
+
 	/**
 	 * 
 	 */
 	public DefaultCellEditor() {
-		super(new JTextField());
+		super(new TextField());
 	}
 
 	/* (non-Javadoc)

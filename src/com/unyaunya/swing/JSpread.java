@@ -3,17 +3,13 @@
  */
 package com.unyaunya.swing;
 
-import java.awt.Adjustable;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.util.EventObject;
 
-import javax.swing.CellRendererPane;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
@@ -26,7 +22,6 @@ import javax.swing.table.TableModel;
 import com.unyaunya.spread.DefaultCellEditor;
 import com.unyaunya.spread.DefaultCellRenderer;
 import com.unyaunya.spread.DefaultKeyAdapter;
-import com.unyaunya.spread.DefaultSpreadCellEditor;
 import com.unyaunya.spread.FocusModel;
 import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.spread.ISpreadCellRenderer;
@@ -35,6 +30,7 @@ import com.unyaunya.spread.ScrollModel;
 import com.unyaunya.spread.SelectionModel;
 import com.unyaunya.spread.SpreadBorder;
 import com.unyaunya.spread.SpreadModel;
+import com.unyaunya.swing.plaf.SpreadUI;
 
 /**
  * @author wata
@@ -54,7 +50,6 @@ public class JSpread extends JPanel implements CellEditorListener {
 	protected Color selectionForeground = DEFAULT_FOREGROUND_COLOR;
 	protected static ISpreadCellRenderer defaultCellRenderer = new DefaultCellRenderer();
 
-	transient private CellRendererPane rendererPane;
 	private SpreadModel model;
 	private ScrollModel scrollModel;
 	private SelectionModel selectionModel;
@@ -71,14 +66,13 @@ public class JSpread extends JPanel implements CellEditorListener {
 	 */
 	public JSpread() {
 		this.setFocusable(true);
-		this.rendererPane = new CellRendererPane();
-		this.add(rendererPane);
 
 		this.model = new SpreadModel();
 		this.scrollModel = new ScrollModel(this);
 		this.selectionModel = new SelectionModel();
 		this.focusModel = new FocusModel(this);
 		this.addKeyListener(new DefaultKeyAdapter(this));
+		setUI(new SpreadUI());
 	}
 	
 	/*
@@ -99,6 +93,10 @@ public class JSpread extends JPanel implements CellEditorListener {
 	
 	public SpreadModel getModel() {
 		return model;
+	}
+
+	public ScrollModel getScrollModel() {
+		return scrollModel;
 	}
 
 	/**
@@ -234,93 +232,9 @@ public class JSpread extends JPanel implements CellEditorListener {
 	/*
 	 * methods implementing to paint
 	 */
-	protected void paintComponent(Graphics g){
-		super.paintComponent(g);
-		SpreadModel m = getModel();
-		if (m.getRowCount() <= 0 || m.getColumnCount() <= 0) {
-			return;
-		}
-		Rectangle clip = g.getClipBounds();
-		Rectangle bounds = this.getBounds();
-		bounds.x = bounds.y = 0;
-		if (!bounds.intersects(clip)) {
-            // this check prevents us from painting the entire table
-            // when the clip doesn't intersect our bounds at all
-			return;
-		}
-		System.out.println("paintComponent():start");
-		System.out.println("\tclipingRect:"+clip);
-		Rectangle rect = new Rectangle(bounds);
-		RangeModel colRangeModel = this.getRangeModel(Adjustable.HORIZONTAL);
-		RangeModel rowRangeModel = this.getRangeModel(Adjustable.VERTICAL);
-		//
-		rect.x = bounds.x;
-		rect.y = bounds.y;
-		rect.width = colRangeModel.getFixedPartSize();
-		rect.height = rowRangeModel.getFixedPartSize();
-		paintCells(g, clip, rect);
-		//
-		rect.x = bounds.x + colRangeModel.getFixedPartSize();
-		rect.y = bounds.y;
-		rect.width = colRangeModel.getScrollPartSize();
-		rect.height = rowRangeModel.getFixedPartSize();
-		paintCells(g, clip, rect);
-		//
-		rect.x = bounds.x;
-		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
-		rect.width = colRangeModel.getFixedPartSize();
-		rect.height = rowRangeModel.getScrollPartSize();
-		paintCells(g, clip, rect);
-		//
-		rect.x = bounds.x + colRangeModel.getFixedPartSize();
-		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
-		rect.width = colRangeModel.getScrollPartSize();
-		rect.height = rowRangeModel.getScrollPartSize();
-		paintCells(g, clip, rect);
-		System.out.println("paintComponent():end");
-	}
-	
-	private void paintCells(Graphics g, Rectangle clipingRect, Rectangle rect){
-		System.out.println("\tpaintCells(clipingRect,rect):");
-		System.out.println("\t\trect:"+clipingRect);
-		Rectangle clip = rect.intersection(clipingRect);
-		System.out.println("\t\tclip:"+clip);
-		Point upperLeft = clip.getLocation();
-	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
-		paintCells(g,	scrollModel.rowAtPoint(upperLeft),
-						scrollModel.rowAtPoint(lowerRight),
-						scrollModel.columnAtPoint(upperLeft),
-						scrollModel.columnAtPoint(lowerRight),
-						0,0);
-	}
-
-	private void paintCells(Graphics g, int rMin, int rMax, int cMin, int cMax, int horizontalOffset, int verticalOffset) {
-		System.out.println("\t\tpaintCells(int rMin, int rMax, int cMin, int cMax):");
-		System.out.println("\t\t\t(rMin, rMax, cMin, cMax)=("+rMin+","+rMax+","+cMin+","+cMax+")");
-		SpreadModel m = getModel();
-		rMax = Math.min(rMax, m.getRowCount()-1);
-		cMax = Math.min(cMax, m.getColumnCount()-1);
-		Rectangle cellRect = new Rectangle();
-		for(int row = rMin; row <= rMax; row++) {
-			cellRect.y = scrollModel.getRowPosition(row) + verticalOffset;
-			cellRect.height = scrollModel.getRowHeight(row);
-			for(int col = cMin; col <= cMax; col++) {
-				cellRect.x = scrollModel.getColumnPosition(col) + horizontalOffset;
-				cellRect.width = scrollModel.getColumnWidth(col);
-				paintCell(g, cellRect, row, col);
-			}
-		}
-	}
-
 	//public void repaintCell(int row, int column) {
 		//repaint(getCellRect(row, column));
 	//}
-
-	protected void paintCell(Graphics g, Rectangle cellRect, int row, int col) {
-		ISpreadCellRenderer tcr = getCellRenderer(row,col);
-		Component c = prepareRenderer(tcr, row, col);
-        rendererPane.paintComponent(g, c, this, cellRect);
-	}
 
 	public ISpreadCellRenderer getCellRenderer(int row, int column) {
 		return defaultCellRenderer;
