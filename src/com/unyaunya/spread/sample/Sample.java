@@ -17,6 +17,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 
 import com.unyaunya.io.CSVReader;
 import com.unyaunya.spread.CsvTable;
@@ -25,21 +26,14 @@ import com.unyaunya.swing.JSpreadPane;
 
 //import com.unyaunya.spread.JSpread;
 
-class SampleTable extends AbstractTableModel {
-	public SampleTable() {}
-	@Override
-	public int getColumnCount() {
-		return 100;
-	}
-
-	@Override
-	public int getRowCount() {
-		return 200;
-	}
-
-	@Override
-	public Object getValueAt(int row, int col) {
-		return "(" + Integer.toString(row) + "," + Integer.toString(col) +")";
+class SampleTable extends DefaultTableModel {
+	public SampleTable() {
+		super(200, 100);
+		for(int i = 0; i < getRowCount(); i++) {
+			for(int j = 0; j < getColumnCount(); j++) {
+				super.setValueAt("(" + Integer.toString(i) + "," + Integer.toString(j) +")", i, j);
+			}
+		}
 	}
 }
 
