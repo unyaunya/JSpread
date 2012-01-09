@@ -5,15 +5,15 @@ package com.unyaunya.swing;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.util.EventObject;
+import java.util.logging.Logger;
 
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.UIDefaults;
 import javax.swing.border.Border;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
@@ -21,7 +21,7 @@ import javax.swing.table.TableModel;
 
 import com.unyaunya.spread.DefaultCellEditor;
 import com.unyaunya.spread.DefaultCellRenderer;
-import com.unyaunya.spread.DefaultKeyAdapter;
+//import com.unyaunya.spread.DefaultKeyAdapter;
 import com.unyaunya.spread.FocusModel;
 import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.spread.ISpreadCellRenderer;
@@ -36,11 +36,19 @@ import com.unyaunya.swing.plaf.SpreadUI;
  * @author wata
  *
  */
-public class JSpread extends JPanel implements CellEditorListener {
+public class JSpread extends JComponent implements CellEditorListener {
+    private static final Logger LOG = Logger.getLogger(JSpread.class.getName());
+    
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	/**
+     * @see #getUIClassID
+     * @see #readObject
+     */
+    private static final String uiClassID = "SpreadUI";
 
 	public static final Color DEFAULT_HEADER_BACKGROUND_COLOR = new Color(0xf0,0xf0,0xf0);
 	public static final Color DEFAULT_SELECTION_BACKGROUND_COLOR = new Color(0xe0,0xe0,0xff);
@@ -71,10 +79,59 @@ public class JSpread extends JPanel implements CellEditorListener {
 		this.scrollModel = new ScrollModel(this);
 		this.selectionModel = new SelectionModel();
 		this.focusModel = new FocusModel(this);
-		this.addKeyListener(new DefaultKeyAdapter(this));
+//		this.addKeyListener(new DefaultKeyAdapter(this));
+		/*
+        setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
+                JComponent.getManagingFocusForwardTraversalKeys());
+        setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,
+                JComponent.getManagingFocusBackwardTraversalKeys());
+		*/
 		setUI(new SpreadUI());
 	}
-	
+
+	//
+	// Managing TableUI
+	//
+
+	/**
+	 * Returns the L&F object that renders this component.
+	 *
+	 * @return the <code>SpreadUI</code> object that renders this component
+	 */
+	public SpreadUI getUI() {
+	    return (SpreadUI)ui;
+	}
+
+	/**
+	 * Sets the L&F object that renders this component and repaints.
+	 *
+	 * @param ui  the TableUI L&F object
+	 * @see UIDefaults#getUI
+	 * @beaninfo
+	 *        bound: true
+	 *       hidden: true
+	 *    attribute: visualUpdate true
+	 *  description: The UI object that implements the Component's LookAndFeel.
+	 */
+	public void setUI(SpreadUI ui) {
+	    if (this.ui != ui) {
+	        super.setUI(ui);
+	        repaint();
+	    }
+	}
+
+	 /**
+     * Returns the suffix used to construct the name of the L&F class used to
+     * render this component.
+     *
+     * @return the string "SpreadUI"
+     * @see JComponent#getUIClassID
+     * @see UIDefaults#getUI
+     */
+    public String getUIClassID() {
+        return uiClassID;
+    }
+
 	/*
 	 * methods set/get various models.
 	 */
@@ -143,10 +200,6 @@ public class JSpread extends JPanel implements CellEditorListener {
 	}
 	*/
 	
-	public Dimension getPreferredSize() {
-		return scrollModel.getPreferredSize();
-	}
-	
 	public void scrollToVisible(int rowIndex, int columnIndex) {
 		scrollModel.scrollToVisible(rowIndex, columnIndex);
 	}
@@ -161,7 +214,6 @@ public class JSpread extends JPanel implements CellEditorListener {
 	public void unfreezePanes() {
 		scrollModel.unfreezePanes();
 	}
-
 	
 	/*
 	 * methods delegating to SelectionModel

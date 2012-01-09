@@ -9,15 +9,27 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.CellRendererPane;
+import javax.swing.InputMap;
 import javax.swing.JComponent;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.plaf.ActionMapUIResource;
 import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.InputMapUIResource;
 
+import com.unyaunya.spread.Actions;
 import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
 import com.unyaunya.spread.SpreadModel;
+import com.unyaunya.spread.Actions.LeftAction;
+import com.unyaunya.spread.Actions.RightAction;
 import com.unyaunya.swing.JSpread;
 
 /**
@@ -25,6 +37,8 @@ import com.unyaunya.swing.JSpread;
  *
  */
 public class SpreadUI extends ComponentUI {
+	private Actions actions;
+	
 	protected JSpread table;
 	protected CellRendererPane rendererPane;
 
@@ -37,16 +51,39 @@ public class SpreadUI extends ComponentUI {
     }
 
 //  Installation
-
     public void installUI(JComponent c) {
         table = (JSpread)c;
-
+        actions = new Actions(table);
         rendererPane = new CellRendererPane();
         table.add(rendererPane);
         //installDefaults();
         //installDefaults2();
         //installListeners();
-        //installKeyboardActions();
+        installKeyboardActions();
+    }
+
+    /**
+     * Register all keyboard actions on the JSpread.
+     */
+    protected void installKeyboardActions() {
+    	InputMap keyMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    	SwingUtilities.replaceUIInputMap(table, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyMap);
+    	ActionMap map = getActionMap();
+        SwingUtilities.replaceUIActionMap(table, map);
+    }
+
+    InputMap getInputMap(int condition) {
+    	if(actions != null) {
+        	return actions.getInputMap(condition);
+    	}
+    	return null;
+    }
+    
+    ActionMap getActionMap() {
+    	if(actions != null) {
+        	return actions.getActionMap();
+    	}
+    	return null;
     }
 
 //  Uninstallation
@@ -158,5 +195,4 @@ public class SpreadUI extends ComponentUI {
 		Component c = table.prepareRenderer(tcr, row, col);
 		rendererPane.paintComponent(g, c, table, cellRect);
 	}
-
 }

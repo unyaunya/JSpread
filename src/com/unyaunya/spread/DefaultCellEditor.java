@@ -11,9 +11,9 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
-import com.unyaunya.swing.JSpread;
 
 import com.unyaunya.spread.ISpreadCellEditor;
+import com.unyaunya.swing.JSpread;
 
 class TextField extends JTextField {
 	public TextField() {

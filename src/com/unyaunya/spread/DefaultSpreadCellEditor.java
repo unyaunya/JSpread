@@ -8,9 +8,9 @@ import java.awt.Component;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JTextField;
 
-import com.unyaunya.swing.JSpread;
 
 import com.unyaunya.spread.ISpreadCellEditor;
+import com.unyaunya.swing.JSpread;
 
 /**
  * @author wata

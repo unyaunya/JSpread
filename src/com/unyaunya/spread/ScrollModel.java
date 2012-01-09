@@ -13,6 +13,7 @@ import javax.swing.table.TableModel;
 
 import com.unyaunya.swing.JSpread;
 
+
 public class ScrollModel implements TableModelListener {
 	private JSpread		spread;
 	private SizeModel colSizeModel;

@@ -4,6 +4,8 @@ import java.awt.Adjustable;
 
 import com.unyaunya.swing.JSpread;
 
+
+
 public class FocusModel {
 	private JSpread spread;
 	private int rowIndex = 1;
