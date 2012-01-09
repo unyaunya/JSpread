@@ -353,6 +353,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		
 		setCellEditor(editor);
 		editor.addCellEditorListener(this);
+		LOG.info("editCellAt("+row+","+column+")");
 		return true;
 	}
 
@@ -433,6 +434,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	@Override
 	public void editingCanceled(ChangeEvent arg0) {
 		removeEditor();
+		LOG.info("editingCanceled");
 	}
 
 	@Override
@@ -443,5 +445,6 @@ public class JSpread extends JComponent implements CellEditorListener {
 			getModel().setValueAt(value, editingRow, editingColumn);
 			removeEditor();
 		}
+		LOG.info("editingStopped");
 	}
 }
