@@ -68,6 +68,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	transient private Component editorComponent;
 	transient protected int editingColumn;
 	transient protected int editingRow;
+	transient protected boolean isProcessingKeyboardEvent;
 
 	/*
 	 * constructor
@@ -337,6 +338,19 @@ public class JSpread extends JComponent implements CellEditorListener {
 		return editorComponent;
 	}
 
+	public int getEditingRow() {
+		return editingRow;
+	}
+	public int getEditingColumn() {
+		return editingColumn;
+	}
+	private void setEditingRow(int row) {
+		editingRow = row;
+	}
+	private void setEditingColumn(int column) {
+		editingColumn = column;
+	}
+	
 	public boolean editCellAt(int row, int column) {
 		return editCellAt(row, column, null);
 	}
@@ -353,6 +367,8 @@ public class JSpread extends JComponent implements CellEditorListener {
 		
 		setCellEditor(editor);
 		editor.addCellEditorListener(this);
+		setEditingRow(row);
+		setEditingColumn(column);
 		LOG.info("editCellAt("+row+","+column+")");
 		return true;
 	}
@@ -380,8 +396,8 @@ public class JSpread extends JComponent implements CellEditorListener {
 			remove(editorComponent);
 			//Rectangle cellRect = getCellRect(editingRow, editingColumn, false);
 			setCellEditor(null);
-			//setEditingColumn(-1);
-			//setEditingRow(-1);
+			setEditingColumn(-1);
+			setEditingRow(-1);
 			editorComponent = null;
 			//repaint(cellRect);
 		}
@@ -393,6 +409,9 @@ public class JSpread extends JComponent implements CellEditorListener {
             int condition,
             boolean pressed){
 		boolean retValue = super.processKeyBinding(ks, e, condition, pressed);
+		if(isProcessingKeyboardEvent) {
+			return false;
+		}
 		if (!retValue && condition == WHEN_ANCESTOR_OF_FOCUSED_COMPONENT &&
 				isFocusOwner()) {
 			Component editorComponent = getEditorComponent();
@@ -423,6 +442,11 @@ public class JSpread extends JComponent implements CellEditorListener {
 			}
 			if (editorComponent instanceof JComponent) {
 				//retValue = ((JComponent)editorComponent).processKeyBinding(ks, e, WHEN_FOCUSED, pressed);
+				KeyEvent ke = new KeyEvent(editorComponent, e.getID(), e.getWhen(), e.getModifiers(), e.getKeyCode(), e.getKeyChar(), e.getKeyLocation());
+				isProcessingKeyboardEvent = true;
+				editorComponent.dispatchEvent(ke);
+				isProcessingKeyboardEvent = false;
+				retValue = true;
 				//if (getSurrendersFocusOnKeystroke()) {
 				editorComponent.requestFocus();
 				//}
@@ -444,7 +468,10 @@ public class JSpread extends JComponent implements CellEditorListener {
 			Object value = editor.getCellEditorValue();
 			getModel().setValueAt(value, editingRow, editingColumn);
 			removeEditor();
+			LOG.info("editingStopped(" + value +  ")");
 		}
-		LOG.info("editingStopped");
+		else {
+			LOG.info("editingStopped():editor = null");
+		}
 	}
 }

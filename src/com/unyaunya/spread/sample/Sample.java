@@ -7,6 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -27,14 +28,25 @@ import com.unyaunya.swing.JSpreadPane;
 //import com.unyaunya.spread.JSpread;
 
 class SampleTable extends DefaultTableModel {
-	public SampleTable() {
+    private static final Logger LOG = Logger.getLogger(SampleTable.class.getName());
+
+    public SampleTable() {
 		super(200, 100);
 		for(int i = 0; i < getRowCount(); i++) {
 			for(int j = 0; j < getColumnCount(); j++) {
-				super.setValueAt("(" + Integer.toString(i) + "," + Integer.toString(j) +")", i, j);
+				setValueAt("(" + Integer.toString(i) + "," + Integer.toString(j) +")", i, j);
 			}
 		}
 	}
+
+    /*
+    public void setValueAt(Object aValue,
+            int row,
+            int column) {
+		//LOG.info("setValueAt(" + aValue + "," + row + "," + column + ")");
+		super.setValueAt(aValue, row, column);
+	}
+	*/
 }
 
 class MyMouseListener extends MouseAdapter {

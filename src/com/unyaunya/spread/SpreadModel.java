@@ -62,4 +62,11 @@ public class SpreadModel extends AbstractTableModel {
 		return tableModel.getValueAt(rowIndex-1, columnIndex-1);
 	}
 
+	@Override
+	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+		if(rowIndex == 0 || columnIndex == 0) {
+			return;
+		}
+		tableModel.setValueAt(aValue, rowIndex-1, columnIndex-1);
+	}
 }
