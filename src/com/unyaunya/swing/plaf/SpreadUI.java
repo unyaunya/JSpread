@@ -53,7 +53,8 @@ public class SpreadUI extends ComponentUI {
 //  Installation
     public void installUI(JComponent c) {
         table = (JSpread)c;
-        actions = new Actions(table);
+        //actions = new Actions(table);
+        actions = table.getActions();
         rendererPane = new CellRendererPane();
         table.add(rendererPane);
         //installDefaults();

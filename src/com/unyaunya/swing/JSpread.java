@@ -22,6 +22,7 @@ import javax.swing.table.TableModel;
 import com.unyaunya.spread.DefaultCellEditor;
 import com.unyaunya.spread.DefaultCellRenderer;
 //import com.unyaunya.spread.DefaultKeyAdapter;
+import com.unyaunya.spread.Actions;
 import com.unyaunya.spread.FocusModel;
 import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.spread.ISpreadCellRenderer;
@@ -62,8 +63,9 @@ public class JSpread extends JComponent implements CellEditorListener {
 	private ScrollModel scrollModel;
 	private SelectionModel selectionModel;
 	private FocusModel focusModel;
+	private Actions actions;
 	
-	transient ISpreadCellEditor defaultCellEditor = new DefaultCellEditor();
+	transient ISpreadCellEditor defaultCellEditor = new DefaultCellEditor(this);
 	transient ISpreadCellEditor cellEditor = null;
 	transient private Component editorComponent;
 	transient protected int editingColumn;
@@ -80,7 +82,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		this.scrollModel = new ScrollModel(this);
 		this.selectionModel = new SelectionModel();
 		this.focusModel = new FocusModel(this);
-//		this.addKeyListener(new DefaultKeyAdapter(this));
+        this.actions = new Actions(this);
 		/*
         setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
                 JComponent.getManagingFocusForwardTraversalKeys());
@@ -157,6 +159,10 @@ public class JSpread extends JComponent implements CellEditorListener {
 		return scrollModel;
 	}
 
+    public Actions getActions() {
+    	return this.actions;
+    }
+	
 	/**
 	 * @return the rangeModel
 	 */
@@ -400,6 +406,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 			setEditingRow(-1);
 			editorComponent = null;
 			//repaint(cellRect);
+			repaint();
 		}
 	}
 	
