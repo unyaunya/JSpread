@@ -6,9 +6,13 @@ package com.unyaunya.spread;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
@@ -38,25 +42,48 @@ class TextField extends JTextField {
 public class DefaultCellEditor extends javax.swing.DefaultCellEditor  implements
 		ISpreadCellEditor {
 
-	private JSpread spread; 
+	private final JSpread spread; 
 	/**
 	 * 
 	 */
 	public DefaultCellEditor(JSpread spread) {
 		super(new TextField());
 		this.spread = spread;
-		Action cancelAction = new AbstractAction("cancel") {
+		JComponent c = (JComponent)getComponent();
+		String key;
+
+		//ESCキーで編集キャンセル
+		key = "edit-cancel";
+		Action editCancelAction = new AbstractAction(key) {
 			@Override
 			public void actionPerformed(ActionEvent ae) {
 				fireEditingCanceled();
 			}
 		};
-		JComponent c = (JComponent)getComponent();
-		Object key = cancelAction.getValue(Action.NAME);
-		c.getActionMap().put(key, cancelAction);
-		c.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0), key);
+		registerKeyAction(c,KeyEvent.VK_ESCAPE, editCancelAction);
+
+		//セル移動のアクションを、登録する。
+		ActionMap actionMap = spread.getActions().getActionMap();
+		for(Object i : actionMap.keys()) {
+			c.getActionMap().put(i, actionMap.get(i));
+		}
+		InputMap inputMap = spread.getActions().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		for(KeyStroke i : inputMap.keys()) {
+			c.getInputMap().put(i, inputMap.get(i));
+			//VK_ENTERは、VK_DOWNと同じアクションを実行する。
+			if(i.getKeyCode() == KeyEvent.VK_DOWN) {
+				c.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0), inputMap.get(i));
+			}
+		}
 	}
 
+	private void registerKeyAction(JComponent c, int key, Action action) {
+		Object actionMapKey = action.getValue(Action.NAME);
+		c.getActionMap().put(actionMapKey, action);
+		c.getInputMap().put(KeyStroke.getKeyStroke(key, 0), actionMapKey);
+	}
+
+	
 	/* (non-Javadoc)
 	 * @see com.unyaunya.spread.ICellEditor#getCellEditorComponent(com.unyaunya.swing.JSpread, java.lang.Object, boolean, int, int)
 	 */

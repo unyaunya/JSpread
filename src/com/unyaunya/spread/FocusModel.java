@@ -66,6 +66,7 @@ public class FocusModel {
 		this.rowIndex = _rowIndex(rowIndex);
 		this.columnIndex = _columnIndex(columnIndex);
 		if(orig_row != this.rowIndex || orig_col != this.columnIndex) {
+			spread.stopEditing();
 			getSpread().scrollToVisible(this.rowIndex, this.columnIndex);
 			//getSpread().repaintCell(orig_row, orig_col);
 			//getSpread().repaintCell(this.rowIndex, this.columnIndex);

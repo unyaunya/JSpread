@@ -65,7 +65,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	private FocusModel focusModel;
 	private Actions actions;
 	
-	transient ISpreadCellEditor defaultCellEditor = new DefaultCellEditor(this);
+	transient ISpreadCellEditor defaultCellEditor;
 	transient ISpreadCellEditor cellEditor = null;
 	transient private Component editorComponent;
 	transient protected int editingColumn;
@@ -83,7 +83,9 @@ public class JSpread extends JComponent implements CellEditorListener {
 		this.selectionModel = new SelectionModel();
 		this.focusModel = new FocusModel(this);
         this.actions = new Actions(this);
-		/*
+    	this.defaultCellEditor = new DefaultCellEditor(this);
+
+        /*
         setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
                 JComponent.getManagingFocusForwardTraversalKeys());
         setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,
@@ -470,6 +472,10 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 	@Override
 	public void editingStopped(ChangeEvent arg0) {
+		stopEditing();
+	}
+
+	public void stopEditing() {
 		ISpreadCellEditor editor = getCellEditor();
 		if (editor != null) {
 			Object value = editor.getCellEditorValue();

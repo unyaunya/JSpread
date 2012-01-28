@@ -103,6 +103,7 @@ public class Actions {
     	addAction(map, KeyEvent.VK_RIGHT, RightAction.class);
     	addAction(map, KeyEvent.VK_UP, UpAction.class);
     	addAction(map, KeyEvent.VK_DOWN, DownAction.class);
+    	addAction(map, KeyEvent.VK_ENTER, DownAction.class);
     	addAction(map, KeyEvent.VK_PAGE_UP, PageUpAction.class);
     	addAction(map, KeyEvent.VK_PAGE_DOWN, PageDownAction.class);
         return map;
