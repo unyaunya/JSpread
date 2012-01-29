@@ -160,12 +160,12 @@ public class RangeModelTest {
 		sizeModel = new SizeModel(201, 16);
 		rangeModel = new RangeModel(sizeModel);
 		rangeModel.setComponentSize(524);
-		assertEquals(0, rangeModel.translate(0));
-		assertEquals(15, rangeModel.translate(15));
-		assertEquals(16, rangeModel.translate(16));
-		assertEquals(31, rangeModel.translate(31));
-		assertEquals(32, rangeModel.translate(32));
-		assertEquals(523, rangeModel.translate(523));
+		assertEquals(0, rangeModel.componentCoord2logicalCoord(0));
+		assertEquals(15, rangeModel.componentCoord2logicalCoord(15));
+		assertEquals(16, rangeModel.componentCoord2logicalCoord(16));
+		assertEquals(31, rangeModel.componentCoord2logicalCoord(31));
+		assertEquals(32, rangeModel.componentCoord2logicalCoord(32));
+		assertEquals(523, rangeModel.componentCoord2logicalCoord(523));
 	}
 
 	@Test

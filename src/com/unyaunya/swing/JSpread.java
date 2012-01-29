@@ -5,8 +5,13 @@ package com.unyaunya.swing;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.EventObject;
 import java.util.logging.Logger;
 
@@ -17,6 +22,7 @@ import javax.swing.UIDefaults;
 import javax.swing.border.Border;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.TableModel;
 
 import com.unyaunya.spread.DefaultCellEditor;
@@ -92,6 +98,8 @@ public class JSpread extends JComponent implements CellEditorListener {
                 JComponent.getManagingFocusBackwardTraversalKeys());
 		*/
 		setUI(new SpreadUI());
+		this.addMouseListener(new MouseInputHandler());
+		this.addMouseMotionListener(new MouseInputHandler());
 	}
 
 	//
@@ -198,7 +206,6 @@ public class JSpread extends JComponent implements CellEditorListener {
 	public Rectangle getCellRect(int rowIndex, int colIndex) {
 		return scrollModel.getCellRect(rowIndex, colIndex);
 	}
-	/*
 
 	public int rowAtPoint(Point pt) {
 		return scrollModel.rowAtPoint(pt);
@@ -207,7 +214,6 @@ public class JSpread extends JComponent implements CellEditorListener {
 	public int columnAtPoint(Point pt) {
 		return scrollModel.columnAtPoint(pt);
 	}
-	*/
 	
 	public void scrollToVisible(int rowIndex, int columnIndex) {
 		scrollModel.scrollToVisible(rowIndex, columnIndex);
@@ -222,6 +228,13 @@ public class JSpread extends JComponent implements CellEditorListener {
 	}
 	public void unfreezePanes() {
 		scrollModel.unfreezePanes();
+	}
+
+	public void setColumnWidth(int colIndex, int width) {
+		scrollModel.setColumnWidth(colIndex, width);
+	}
+	public void setRowHeight(int rowIndex, int height) {
+		scrollModel.setRowHeight(rowIndex, height);
 	}
 	
 	/*
@@ -486,5 +499,137 @@ public class JSpread extends JComponent implements CellEditorListener {
 		else {
 			LOG.info("editingStopped():editor = null");
 		}
+	}
+
+	class MouseInputHandler extends MouseInputAdapter {
+		static final int RESIZE_ZONE_WIDTH = 3;
+		private Cursor COLUMN_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
+		private Cursor ROW_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
+		private Cursor currentCursor = null;
+		private int resizeBorderIndex = 0;
+		
+		private int getNearbyResizeColumnBorderIndex(Point pt, int row, int col) {
+			if(row != 0) {
+				return 0;
+			}
+			if(col == 0) {
+				return 0;
+			}
+			int left = scrollModel.getColumnPosition(col);
+			if((col != 1) && ((pt.x - left) < RESIZE_ZONE_WIDTH)) {
+				return col;
+			}
+			int right = scrollModel.getColumnPosition(col+1);
+			if((right - pt.x) < RESIZE_ZONE_WIDTH) {
+				return col + 1;
+			}
+			return 0;
+		}
+
+		private int getNearbyResizeRowBorderIndex(Point pt, int row, int col) {
+			if(col != 0) {
+				return 0;
+			}
+			if(row == 0) {
+				return 0;
+			}
+			int top = scrollModel.getRowPosition(row);
+			if((row != 1) && ((pt.y - top) < RESIZE_ZONE_WIDTH)) {
+				return row;
+			}
+			int bottom = scrollModel.getRowPosition(row+1);
+			if((bottom - pt.y) < RESIZE_ZONE_WIDTH) {
+				return row+1;
+			}
+			return 0;
+		}
+
+		/*
+		private Cursor getNextCursor(Point pt, int row, int col) {
+			int colIndex = getNearbyResizeColumnBorderIndex(pt, row, col);
+			if(colIndex != 0) {
+				return COLUMN_RESIZE_CURSOR;
+			}
+			int rowIndex = getNearbyResizeRowBorderIndex(pt, row, col);
+			if(rowIndex != 0) {
+				return ROW_RESIZE_CURSOR;
+			}
+			return null;
+		}
+		*/
+		
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			Point pt = e.getPoint();
+			int row = rowAtPoint(pt);
+			int col = columnAtPoint(pt);
+			Cursor nextCursor = null;
+			resizeBorderIndex = 0;
+			int colIndex = getNearbyResizeColumnBorderIndex(pt, row, col);
+			if(colIndex != 0) {
+				nextCursor = COLUMN_RESIZE_CURSOR;
+				resizeBorderIndex = colIndex;
+			}
+			int rowIndex = getNearbyResizeRowBorderIndex(pt, row, col);
+			if(rowIndex != 0) {
+				nextCursor = ROW_RESIZE_CURSOR;
+				resizeBorderIndex = rowIndex;
+			}
+
+			if(currentCursor != nextCursor) {
+				if(nextCursor != null) {
+					setCursor(nextCursor);
+				}
+				else {
+					setCursor(null);
+					//LOG.info("("+row+","+col+")");
+				}
+				currentCursor = nextCursor;
+			}
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if(currentCursor == ROW_RESIZE_CURSOR) {
+				LOG.info("行リサイズ開始");
+			}
+			else if(currentCursor == COLUMN_RESIZE_CURSOR) {
+				LOG.info("列リサイズ開始");
+			}
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			if(currentCursor == ROW_RESIZE_CURSOR) {
+				LOG.info("行リサイズ終了");
+			}
+			else if(currentCursor == COLUMN_RESIZE_CURSOR) {
+				LOG.info("列リサイズ終了");
+			}
+		}
+		
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			if(currentCursor == ROW_RESIZE_CURSOR) {
+				int width = e.getPoint().y - scrollModel.getRowPosition(resizeBorderIndex-1);
+				LOG.info("行リサイズ:"+resizeBorderIndex+"=>"+width);
+				setRowHeight(resizeBorderIndex-1, width);
+				repaint();
+			}
+			else if(currentCursor == COLUMN_RESIZE_CURSOR) {
+				int height = e.getPoint().x - scrollModel.getColumnPosition(resizeBorderIndex-1);
+				LOG.info("列リサイズ:"+resizeBorderIndex+"=>"+height);
+				setColumnWidth(resizeBorderIndex-1, height);
+				repaint();
+			}
+			/*
+			Point pt = e.getPoint();
+			int row = rowAtPoint(pt);
+			int col = columnAtPoint(pt);
+			Cursor nextCursor = getNextCursor(pt, row, col);
+			*/
+			
+		}
+
 	}
 }

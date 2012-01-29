@@ -54,6 +54,14 @@ class SizeModel extends SizeSequence {
 		this.length = sizes.length;
 	}
 
+	@Override
+	public void setSize(int index, int size) {
+		if(size < 0) {
+			size = 0;
+		}
+		super.setSize(index, size);
+	}
+
 	public void removeAll() {
 		int sizes[] = {};
 		this.setSizes(sizes);

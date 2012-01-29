@@ -149,11 +149,18 @@ public class ScrollModel implements TableModelListener {
 	public int getRowHeight(int rowIndex) {
 		return rowSizeModel.getSize(rowIndex);
 	}
+	public void setRowHeight(int rowIndex, int height) {
+		rowSizeModel.setSize(rowIndex, height);
+	}
+
 	public int getColumnPosition(int columnIndex) {
 		return colRangeModel.getPosition(columnIndex);
 	}
 	public int getColumnWidth(int columnIndex) {
 		return colSizeModel.getSize(columnIndex);
+	}
+	public void setColumnWidth(int colIndex, int width) {
+		colSizeModel.setSize(colIndex, width);
 	}
 	
 	public int rowAtPoint(Point pt) {

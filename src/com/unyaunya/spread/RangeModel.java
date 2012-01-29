@@ -81,27 +81,28 @@ public class RangeModel implements BoundedRangeModel {
 	}
 
 	public int getIndexFromDeviceCoord(int deviceCoord) {
-		return sizeModel.getIndex(this.translate(deviceCoord));
+		return sizeModel.getIndex(this.componentCoord2logicalCoord(deviceCoord));
 	}
 	
 	/*
-	 * デバイス座標→論理座標
+	 * コンポーネント座標→論理座標
 	 */
-	public int translate(int deviceCoord) {
-		if(deviceCoord < getFixedPartSize()) {
-			return deviceCoord;
+	public int componentCoord2logicalCoord(int componentCoord) {
+		if(componentCoord < getFixedPartSize()) {
+			return componentCoord;
 		}
-		return sizeModel.getPosition(getFixedPartNum()+getValue()) + (deviceCoord - getFixedPartSize());
+		return sizeModel.getPosition(getFixedPartNum()+getValue()) + (componentCoord - getFixedPartSize());
 	}
 
 	/*
-	 * 論理座標→デバイス座標
+	 * 論理座標→コンポーネント座標
 	 */
-	/*
-	public int untranslate(int position) {
-		return position - sizeModel.getPosition(getValue());
+	public int logicalCoord2componentCoord(int logicalCoord) {
+		if(logicalCoord < getFixedPartSize()) {
+			return logicalCoord;
+		}
+		return logicalCoord - sizeModel.getPosition(getFixedPartNum()+getValue()) + getFixedPartSize();
 	}
-	*/
 	
 	/* (non-Javadoc)
 	 * @see javax.swing.BoundedRangeModel#addChangeListener(javax.swing.event.ChangeListener)
