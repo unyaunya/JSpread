@@ -9,27 +9,19 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.CellRendererPane;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.plaf.ActionMapUIResource;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.InputMapUIResource;
 
 import com.unyaunya.spread.Actions;
 import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
 import com.unyaunya.spread.SpreadModel;
-import com.unyaunya.spread.Actions.LeftAction;
-import com.unyaunya.spread.Actions.RightAction;
 import com.unyaunya.swing.JSpread;
 
 /**

@@ -4,7 +4,6 @@
 package com.unyaunya.spread;
 
 import java.awt.Component;
-import java.awt.Rectangle;
 
 import javax.swing.JLabel;
 

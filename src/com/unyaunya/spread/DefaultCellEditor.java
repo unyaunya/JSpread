@@ -6,8 +6,6 @@ package com.unyaunya.spread;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.Map;
-import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -23,6 +21,7 @@ import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.swing.JSpread;
 
 class TextField extends JTextField {
+	private static final long serialVersionUID = 1L;
 	public TextField() {
 		super();
 	}
@@ -42,19 +41,20 @@ class TextField extends JTextField {
 public class DefaultCellEditor extends javax.swing.DefaultCellEditor  implements
 		ISpreadCellEditor {
 
-	private final JSpread spread; 
+	//private final JSpread spread; 
 	/**
 	 * 
 	 */
 	public DefaultCellEditor(JSpread spread) {
 		super(new TextField());
-		this.spread = spread;
+		//this.spread = spread;
 		JComponent c = (JComponent)getComponent();
 		String key;
 
 		//ESCキーで編集キャンセル
 		key = "edit-cancel";
 		Action editCancelAction = new AbstractAction(key) {
+			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent ae) {
 				fireEditingCanceled();
