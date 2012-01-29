@@ -29,6 +29,10 @@ public class SpreadModel extends AbstractTableModel {
 		tableModel = newModel;
 	}
 
+	public TableModel getTableModel() {
+		return this.tableModel;
+	}
+	
 	/* (non-Javadoc)
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */

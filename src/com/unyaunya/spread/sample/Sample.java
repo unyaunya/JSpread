@@ -55,7 +55,6 @@ class MyFrame extends JFrame {
 
 	static List<String[]> createSampleData() {
 		List<String[]> data = new ArrayList<String[]>();
-		//super(200, 100);
 		for(int i = 0; i < 200; i++) {
 			String[] row = new String[100];
 			for(int j = 0; j < 100; j++) {
@@ -159,12 +158,9 @@ class MyFrame extends JFrame {
 		    	CSVWriter writer;
 				try {
 					writer = new CSVWriter(new FileWriter(fc.getSelectedFile()));
-			        // feed in your array (or convert your data to an array)
-			        String[] entries = "first#second#third".split("#");
-			        writer.writeNext(entries);
+			        writer.writeAll(((CsvTable)spread.getModel().getTableModel()).getData());
 			        writer.close();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 		    }

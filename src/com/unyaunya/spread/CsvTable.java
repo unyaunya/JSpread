@@ -1,5 +1,6 @@
 package com.unyaunya.spread;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -29,5 +30,23 @@ public class CsvTable extends DefaultTableModel {
 			colIds.add(Integer.valueOf(i).toString());
 		}
 		setDataVector(rows, colIds);
+	}
+
+	public List<String[]> getData() {
+		List<String[]> data = new ArrayList<String[]>();
+		for(int i = 0; i < this.getRowCount(); i++) {
+			String[] row = new String[this.getColumnCount()];
+			for(int j = 0; j < this.getColumnCount(); j++) {
+				Object value = this.getValueAt(i, j).toString();
+				if(value != null) {
+					row[j] = value.toString();
+				}
+				else {
+					row[j] = null;
+				}
+			}
+			data.add(row);
+		}
+		return data;
 	}
 }
