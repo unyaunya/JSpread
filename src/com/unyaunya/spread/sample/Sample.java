@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -27,21 +28,6 @@ import au.com.bytecode.opencsv.CSVWriter;
 import com.unyaunya.spread.CsvTable;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.JSpreadPane;
-
-//import com.unyaunya.spread.JSpread;
-
-class SampleTable extends DefaultTableModel {
-    //private static final Logger LOG = Logger.getLogger(SampleTable.class.getName());
-
-    public SampleTable() {
-		super(200, 100);
-		for(int i = 0; i < getRowCount(); i++) {
-			for(int j = 0; j < getColumnCount(); j++) {
-				setValueAt("(" + Integer.toString(i) + "," + Integer.toString(j) +")", i, j);
-			}
-		}
-	}
-}
 
 class MyMouseListener extends MouseAdapter {
 	JSpread spread;
@@ -67,11 +53,24 @@ class MyFrame extends JFrame {
 	private JSpread spread; 
 	private JFileChooser fileChooser;
 
+	static List<String[]> createSampleData() {
+		List<String[]> data = new ArrayList<String[]>();
+		//super(200, 100);
+		for(int i = 0; i < 200; i++) {
+			String[] row = new String[100];
+			for(int j = 0; j < 100; j++) {
+				row[j] = "(" + Integer.toString(i) + "," + Integer.toString(j) +")";
+			}
+			data.add(row);
+		}
+		return data;
+	}
+
 	public MyFrame() {
 		super();
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.spread = new JSpread();
-		getSpread().setModel(new SampleTable());
+		getSpread().setModel(new CsvTable(createSampleData()));
 	}
 
 	public void init() {
