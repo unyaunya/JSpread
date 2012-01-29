@@ -1,12 +1,13 @@
 package com.unyaunya.spread.sample;
 
 import java.awt.BorderLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
@@ -17,10 +18,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 
-import com.unyaunya.io.CSVReader;
+import au.com.bytecode.opencsv.CSVReader;
 import com.unyaunya.spread.CsvTable;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.JSpreadPane;
@@ -28,7 +28,7 @@ import com.unyaunya.swing.JSpreadPane;
 //import com.unyaunya.spread.JSpread;
 
 class SampleTable extends DefaultTableModel {
-    private static final Logger LOG = Logger.getLogger(SampleTable.class.getName());
+    //private static final Logger LOG = Logger.getLogger(SampleTable.class.getName());
 
     public SampleTable() {
 		super(200, 100);
@@ -38,15 +38,6 @@ class SampleTable extends DefaultTableModel {
 			}
 		}
 	}
-
-    /*
-    public void setValueAt(Object aValue,
-            int row,
-            int column) {
-		//LOG.info("setValueAt(" + aValue + "," + row + "," + column + ")");
-		super.setValueAt(aValue, row, column);
-	}
-	*/
 }
 
 class MyMouseListener extends MouseAdapter {
@@ -57,20 +48,21 @@ class MyMouseListener extends MouseAdapter {
 		this.spread = spread;
 		
 	}
+	/*
 	public void mouseClicked(MouseEvent e) {
-		/*
 		Point pt = e.getPoint();
 		System.out.println(
 				"("+Integer.toString(spread.rowAtPoint(pt))+
 				","+Integer.toString(spread.columnAtPoint(pt))+
 				")");
-		*/
 	}
+	*/
 }
 
 class MyFrame extends JFrame {
 	private boolean isInited = false; 
 	private JSpread spread; 
+	private JFileChooser fileChooser;
 
 	public MyFrame() {
 		super();
@@ -99,7 +91,7 @@ class MyFrame extends JFrame {
 		//File menu
 		JMenu menu = new JMenu("ファイル");
 		menu.add(new JMenuItem(new OpenAction()));
-		menu.add(new JMenuItem("bbb"));
+		menu.add(new JMenuItem(new SaveAsAction()));
 		menu.add(new JMenuItem("ccc"));
 		menuBar.add(menu);
 		//Window menu
@@ -113,24 +105,34 @@ class MyFrame extends JFrame {
 		return new JSpreadPane(spread);
 	}
 
+	private JFileChooser getFileChooser() {
+		if(this.fileChooser == null) {
+			this.fileChooser = createFileChooser();
+		}
+		return this.fileChooser;
+
+	}
+	private JFileChooser createFileChooser() {
+		JFileChooser fc = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+		        "CSV & TXT", "csv", "txt");
+		fc.setFileFilter(filter);			
+		return fc;
+	}
+	
 	class OpenAction extends AbstractAction {
 		public OpenAction() {
 			super("開く...");
 		}
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			JFileChooser fc = new JFileChooser();
-			FileNameExtensionFilter filter = new FileNameExtensionFilter(
-				        "CSV & TXT", "csv", "txt");
-			fc.setFileFilter(filter);			
+			JFileChooser fc = getFileChooser();
 			int returnVal = fc.showOpenDialog(MyFrame.this);
 		    if(returnVal == JFileChooser.APPROVE_OPTION) {
-		    	System.out.println("You chose to open this file: " +
-		    			fc.getSelectedFile().getName());
 		    	try {
-		    		CSVReader csv = new CSVReader(false);
-		    		csv.read(fc.getSelectedFile());
-		    		getSpread().setModel(new CsvTable(csv));
+		    		CSVReader reader = new CSVReader(new FileReader(fc.getSelectedFile()));
+		    	    List<String[]> myEntries = reader.readAll();
+		    		getSpread().setModel(new CsvTable(myEntries));
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -140,8 +142,31 @@ class MyFrame extends JFrame {
 		}
 	}
 
+	class SaveAsAction extends AbstractAction {
+		public SaveAsAction() {
+			super("名前をつけて保存...");
+		}
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			JFileChooser fc = getFileChooser();
+			fc.setDialogTitle("名前をつけて保存");
+			int returnVal = fc.showOpenDialog(MyFrame.this);
+		    if(returnVal == JFileChooser.APPROVE_OPTION) {
+		    	System.out.println("You chose to save data in this file: " +
+		    			fc.getSelectedFile().getName());
+		    	/*
+		    	try {
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				*/
+		    }
+		}
+	}
+
 	class FreezePanesAction extends AbstractAction {
-		private boolean flag = true;
 		public FreezePanesAction() {
 			super("ウィンドウ枠の固定");
 		}
