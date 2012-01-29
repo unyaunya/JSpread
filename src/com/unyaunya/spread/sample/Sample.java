@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
@@ -21,6 +22,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVWriter;
+
 import com.unyaunya.spread.CsvTable;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.JSpreadPane;
@@ -153,15 +156,18 @@ class MyFrame extends JFrame {
 			int returnVal = fc.showOpenDialog(MyFrame.this);
 		    if(returnVal == JFileChooser.APPROVE_OPTION) {
 		    	System.out.println("You chose to save data in this file: " +
-		    			fc.getSelectedFile().getName());
-		    	/*
-		    	try {
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
+		    			fc.getSelectedFile());
+		    	CSVWriter writer;
+				try {
+					writer = new CSVWriter(new FileWriter(fc.getSelectedFile()));
+			        // feed in your array (or convert your data to an array)
+			        String[] entries = "first#second#third".split("#");
+			        writer.writeNext(entries);
+			        writer.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
-				*/
 		    }
 		}
 	}

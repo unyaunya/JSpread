@@ -1,34 +1,33 @@
 package com.unyaunya.spread;
 
 import java.util.List;
+import java.util.Vector;
 
-import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 
-
-public class CsvTable extends AbstractTableModel {
-	private List<String[]> csv;
-	
-	public CsvTable(List<String[]> csv) {
-		this.csv = csv;
-		System.out.println("CSVTable:row=" + getRowCount());
-		System.out.println("CSVTable:col=" + getColumnCount());
+public class CsvTable extends DefaultTableModel {
+	public CsvTable(List<String[]> data) {
+		setCsvData(data);
 	}
 
-	@Override
-	public int getColumnCount() {
-		if(csv.isEmpty()) {
-			return 0;
+	private void setCsvData(List<String[]> data) {
+		int colNum = 0;
+		Vector<Vector<String>> rows = new Vector<Vector<String>>();
+		Vector<String> colIds = new Vector<String>();
+		for(int i = 0; i < data.size(); i++) {
+			String[] rowData = data.get(i);
+			if(colNum < rowData.length) {
+				colNum = rowData.length;
+			}
+			Vector<String> row = new Vector<String>();
+			for(int j = 0; j < rowData.length; j++) {
+				row.add(rowData[j]);
+			}
+			rows.add(row);
 		}
-		return csv.get(0).length;
-	}
-
-	@Override
-	public int getRowCount() {
-		return csv.size();
-	}
-
-	@Override
-	public Object getValueAt(int row, int col) {
-		return csv.get(row)[col];
+		for(int i = 0; i < colNum; i++) {
+			colIds.add(Integer.valueOf(i).toString());
+		}
+		setDataVector(rows, colIds);
 	}
 }
