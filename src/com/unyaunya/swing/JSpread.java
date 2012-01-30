@@ -9,9 +9,7 @@ import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.EventObject;
 import java.util.logging.Logger;
 
@@ -34,7 +32,7 @@ import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
-import com.unyaunya.spread.SelectionModel;
+import com.unyaunya.spread.SingleCellSelectionModel;
 import com.unyaunya.spread.SpreadBorder;
 import com.unyaunya.spread.SpreadModel;
 import com.unyaunya.swing.plaf.SpreadUI;
@@ -67,7 +65,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 	private SpreadModel model;
 	private ScrollModel scrollModel;
-	private SelectionModel selectionModel;
+	private SingleCellSelectionModel selectionModel;
 	private FocusModel focusModel;
 	private Actions actions;
 	
@@ -86,7 +84,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 		this.model = new SpreadModel();
 		this.scrollModel = new ScrollModel(this);
-		this.selectionModel = new SelectionModel();
+		this.selectionModel = new SingleCellSelectionModel();
 		this.focusModel = new FocusModel(this);
         this.actions = new Actions(this);
     	this.defaultCellEditor = new DefaultCellEditor(this);
@@ -156,7 +154,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 			model = new SpreadModel(model);
 		}
 		this.model = (SpreadModel)model;
-		this.getSelectionModel().select(1, 1);
+		this.getSelectionModel().selectCell(1, 1);
 		scrollModel.setTableModel(model);
 		this.repaint(this.getBounds());
 	}
@@ -180,7 +178,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		return scrollModel.getRangeModel(direction);
 	}
 
-	public SelectionModel getSelectionModel() {
+	public SingleCellSelectionModel getSelectionModel() {
 		return this.selectionModel;
 	}
 
@@ -241,7 +239,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	 * methods delegating to SelectionModel
 	 */
 	public void select(int rowIndex, int columnIndex) {
-		selectionModel.select(rowIndex, columnIndex);
+		selectionModel.selectCell(rowIndex, columnIndex);
 	}
 
 	/*
@@ -317,7 +315,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	public Component prepareRenderer(ISpreadCellRenderer renderer, int row, int col) {
 		SpreadModel m = getModel();
 		Object s = m.getValueAt(row, col);
-		boolean isSelected = this.getSelectionModel().isSelected(row, col);
+		boolean isSelected = this.getSelectionModel().isCellSelected(row, col);
 		boolean hasFocus = this.getFocusModel().hasFocus(row, col);
 		Border border = getCellBorder(isSelected, hasFocus, row, col);
 		renderer.setBorder(border);

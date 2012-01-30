@@ -1,0 +1,45 @@
+package com.unyaunya.spread;
+
+public class SingleCellSelectionModel implements ICellSelectionModel {
+	private Range selectedCell = new Range();
+	
+	public SingleCellSelectionModel() {
+		clearSelection();
+	}
+
+	@Override
+	public void clearSelection() {
+		selectedCell = Range.NULL;
+	}
+
+	@Override
+	public void selectCell(int rowIndex, int columnIndex) {
+		selectedCell = new Range(rowIndex, columnIndex);
+	}
+
+	@Override
+	public boolean isCellSelected(int rowIndex, int columnIndex) {
+		if(this.selectedCell.getTop() != rowIndex) {
+			return false;
+		}
+		if(this.selectedCell.getLeft() != columnIndex) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean isRowSelected(int row) {
+		return (selectedCell.getTop() == row);
+	}
+
+	@Override
+	public boolean isColumnSelected(int column) {
+		return (selectedCell.getLeft() == column);
+	}
+
+	@Override
+	public Range getLeadCell() {
+		return new Range(selectedCell);
+	}
+}
