@@ -315,7 +315,16 @@ public class JSpread extends JComponent implements CellEditorListener {
 	public Component prepareRenderer(ISpreadCellRenderer renderer, int row, int col) {
 		SpreadModel m = getModel();
 		Object s = m.getValueAt(row, col);
-		boolean isSelected = this.getSelectionModel().isCellSelected(row, col);
+		boolean isSelected;
+		if(row == 0) {
+			isSelected = this.getSelectionModel().isColumnSelected(col);
+		}
+		else if(col == 0) {
+			isSelected = this.getSelectionModel().isRowSelected(row);
+		}
+		else {
+			isSelected = this.getSelectionModel().isCellSelected(row, col);
+		}
 		boolean hasFocus = this.getFocusModel().hasFocus(row, col);
 		Border border = getCellBorder(isSelected, hasFocus, row, col);
 		renderer.setBorder(border);
