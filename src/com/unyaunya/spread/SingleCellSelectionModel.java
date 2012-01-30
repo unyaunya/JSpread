@@ -18,6 +18,11 @@ public class SingleCellSelectionModel implements ISpreadSelectionModel {
 	}
 
 	@Override
+	public void selectRange(Range range) {
+		throw new RuntimeException();
+	}
+
+	@Override
 	public boolean isCellSelected(int rowIndex, int columnIndex) {
 		if(this.selectedCell.getTop() != rowIndex) {
 			return false;

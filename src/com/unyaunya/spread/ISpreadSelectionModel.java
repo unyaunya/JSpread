@@ -5,6 +5,7 @@ public interface ISpreadSelectionModel {
 	public boolean isRowSelected(int row);
 	public boolean isColumnSelected(int column);
 	public void selectCell(int row, int column);
+	public void selectRange(Range range);
 	public void clearSelection();
 	public Range getLeadCell();
 	public int getLeadSelectionRow();
