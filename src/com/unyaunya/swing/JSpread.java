@@ -676,16 +676,26 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 		@Override
 		public void mousePressed(MouseEvent e) {
+			LOG.info("mousePressed");
 			if(currentCursor == ROW_RESIZE_CURSOR) {
 				LOG.info("行リサイズ開始");
 			}
 			else if(currentCursor == COLUMN_RESIZE_CURSOR) {
 				LOG.info("列リサイズ開始");
 			}
+			else {
+				Point pt = e.getPoint();
+				int row = rowAtPoint(pt);
+				int col = columnAtPoint(pt);
+				if(row > 0 && col > 0) {
+					setFocus(row, col);
+				}
+			}
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
+			LOG.info("mouseReleased");
 			if(currentCursor == ROW_RESIZE_CURSOR) {
 				LOG.info("行リサイズ終了");
 			}
@@ -696,6 +706,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		
 		@Override
 		public void mouseDragged(MouseEvent e) {
+			LOG.info("mouseDragged");
 			if(currentCursor == ROW_RESIZE_CURSOR) {
 				int width = e.getPoint().y - scrollModel.getRowPosition(resizeBorderIndex-1);
 				LOG.info("行リサイズ:"+resizeBorderIndex+"=>"+width);
