@@ -29,6 +29,7 @@ import com.unyaunya.spread.DefaultCellRenderer;
 import com.unyaunya.spread.Actions;
 import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.spread.ISpreadCellRenderer;
+import com.unyaunya.spread.ISpreadSelectionModel;
 import com.unyaunya.spread.Range;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
@@ -65,7 +66,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 	private SpreadModel model;
 	private ScrollModel scrollModel;
-	private SingleCellSelectionModel selectionModel;
+	private ISpreadSelectionModel selectionModel;
 	//private FocusModel focusModel;
 	private Actions actions;
 	private Handler handler;
@@ -178,7 +179,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		return scrollModel.getRangeModel(direction);
 	}
 
-	public SingleCellSelectionModel getSelectionModel() {
+	public ISpreadSelectionModel getSelectionModel() {
 		return this.selectionModel;
 	}
 

@@ -1,6 +1,6 @@
 package com.unyaunya.spread;
 
-public class SingleCellSelectionModel implements ICellSelectionModel {
+public class SingleCellSelectionModel implements ISpreadSelectionModel {
 	private Range selectedCell = new Range();
 	
 	public SingleCellSelectionModel() {
