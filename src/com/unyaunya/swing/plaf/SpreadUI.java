@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.logging.Logger;
 
 import javax.swing.ActionMap;
 import javax.swing.CellRendererPane;
@@ -29,7 +30,9 @@ import com.unyaunya.swing.JSpread;
  *
  */
 public class SpreadUI extends ComponentUI {
-	private Actions actions;
+    private static final Logger LOG = Logger.getLogger(SpreadUI.class.getName());
+
+    private Actions actions;
 	
 	protected JSpread table;
 	protected CellRendererPane rendererPane;
@@ -117,8 +120,8 @@ public class SpreadUI extends ComponentUI {
             // when the clip doesn't intersect our bounds at all
 			return;
 		}
-		System.out.println("paintComponent():start");
-		System.out.println("\tclipingRect:"+clip);
+		LOG.info("paintComponent():start");
+		LOG.info("\tclipingRect:"+clip);
 		Rectangle rect = new Rectangle(bounds);
 		RangeModel colRangeModel = table.getRangeModel(Adjustable.HORIZONTAL);
 		RangeModel rowRangeModel = table.getRangeModel(Adjustable.VERTICAL);
@@ -146,15 +149,15 @@ public class SpreadUI extends ComponentUI {
 		rect.width = colRangeModel.getScrollPartSize();
 		rect.height = rowRangeModel.getScrollPartSize();
 		paintCells(g, clip, rect);
-		System.out.println("paintComponent():end");
+		LOG.info("paintComponent():end");
 	}
 	
     private void paintCells(Graphics g, Rectangle clipingRect, Rectangle rect){
 		ScrollModel scrollModel = table.getScrollModel();
-		System.out.println("\tpaintCells(clipingRect,rect):");
-		System.out.println("\t\trect:"+clipingRect);
+		LOG.info("\tpaintCells(clipingRect,rect):");
+		LOG.info("\t\trect:"+clipingRect);
 		Rectangle clip = rect.intersection(clipingRect);
-		System.out.println("\t\tclip:"+clip);
+		LOG.info("\t\tclip:"+clip);
 		Point upperLeft = clip.getLocation();
 	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
 		paintCells(g,	scrollModel.rowAtPoint(upperLeft),
@@ -165,8 +168,8 @@ public class SpreadUI extends ComponentUI {
 	}
 
 	private void paintCells(Graphics g, int rMin, int rMax, int cMin, int cMax, int horizontalOffset, int verticalOffset) {
-		System.out.println("\t\tpaintCells(int rMin, int rMax, int cMin, int cMax):");
-		System.out.println("\t\t\t(rMin, rMax, cMin, cMax)=("+rMin+","+rMax+","+cMin+","+cMax+")");
+		LOG.info("\t\tpaintCells(int rMin, int rMax, int cMin, int cMax):");
+		LOG.info("\t\t\t(rMin, rMax, cMin, cMax)=("+rMin+","+rMax+","+cMin+","+cMax+")");
 		SpreadModel m = table.getModel();
 		ScrollModel scrollModel = table.getScrollModel();
 		rMax = Math.min(rMax, m.getRowCount()-1);
