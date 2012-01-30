@@ -271,7 +271,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 			//getSpread().repaintCell(orig_row, orig_col);
 			//getSpread().repaintCell(this.rowIndex, this.columnIndex);
 		}
-		selectionModel.selectCell(rowIndex, columnIndex);
+		selectionModel.selectCell(newRowIndex, newColumnIndex);
 	}
 	
 	/*
