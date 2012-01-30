@@ -22,38 +22,38 @@ public class Actions {
     public class LeftAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			spread.getFocusModel().left();
+			spread.getHandler().left();
 		}
     }
 	
     public class RightAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			spread.getFocusModel().right();
+			spread.getHandler().right();
 		}
     }
     public class UpAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			spread.getFocusModel().up();
+			spread.getHandler().up();
 		}
     }
     public class DownAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			spread.getFocusModel().down();
+			spread.getHandler().down();
 		}
     }
     public class PageUpAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			spread.getFocusModel().pageUp();
+			spread.getHandler().pageUp();
 		}
     }
     public class PageDownAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			spread.getFocusModel().pageDown();
+			spread.getHandler().pageDown();
 		}
     }
 

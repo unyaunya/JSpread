@@ -3,6 +3,7 @@
  */
 package com.unyaunya.swing;
 
+import java.awt.Adjustable;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -25,9 +26,7 @@ import javax.swing.table.TableModel;
 
 import com.unyaunya.spread.DefaultCellEditor;
 import com.unyaunya.spread.DefaultCellRenderer;
-//import com.unyaunya.spread.DefaultKeyAdapter;
 import com.unyaunya.spread.Actions;
-import com.unyaunya.spread.FocusModel;
 import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.Range;
@@ -67,8 +66,9 @@ public class JSpread extends JComponent implements CellEditorListener {
 	private SpreadModel model;
 	private ScrollModel scrollModel;
 	private SingleCellSelectionModel selectionModel;
-	private FocusModel focusModel;
+	//private FocusModel focusModel;
 	private Actions actions;
+	private Handler handler;
 	
 	transient ISpreadCellEditor defaultCellEditor;
 	transient ISpreadCellEditor cellEditor = null;
@@ -86,7 +86,6 @@ public class JSpread extends JComponent implements CellEditorListener {
 		this.model = new SpreadModel();
 		this.scrollModel = new ScrollModel(this);
 		this.selectionModel = new SingleCellSelectionModel();
-		this.focusModel = new FocusModel(this);
         this.actions = new Actions(this);
     	this.defaultCellEditor = new DefaultCellEditor(this);
 
@@ -183,10 +182,6 @@ public class JSpread extends JComponent implements CellEditorListener {
 		return this.selectionModel;
 	}
 
-	public FocusModel getFocusModel() {
-		return this.focusModel;
-	}
-
 	/*
 	 * methods delegating to TableModel
 	 */
@@ -245,6 +240,40 @@ public class JSpread extends JComponent implements CellEditorListener {
 		selectionModel.selectCell(rowIndex, columnIndex);
 	}
 
+	private int _rowIndex(int rowIndex) {
+		if(rowIndex < 1) {
+			rowIndex = 1;
+		}
+		if(getRowCount() <= rowIndex) {
+			rowIndex = getRowCount() - 1; 
+		}
+		return rowIndex;
+	}
+
+	private int _columnIndex(int columnIndex) {
+		if(columnIndex < 1) {
+			columnIndex = 1;
+		}
+		if(getColumnCount() <= columnIndex) {
+			columnIndex = getColumnCount() - 1; 
+		}
+		return columnIndex;
+	}
+
+	public void setFocus(int rowIndex, int columnIndex) {
+		int orig_row = getSelectionModel().getLeadCell().getTop();
+		int orig_col = getSelectionModel().getLeadCell().getLeft();
+		int newRowIndex = _rowIndex(rowIndex);
+		int newColumnIndex = _columnIndex(columnIndex);
+		if(orig_row != newRowIndex || orig_col != newColumnIndex) {
+			stopEditing();
+			scrollToVisible(newRowIndex, newColumnIndex);
+			//getSpread().repaintCell(orig_row, orig_col);
+			//getSpread().repaintCell(this.rowIndex, this.columnIndex);
+		}
+		selectionModel.selectCell(rowIndex, columnIndex);
+	}
+	
 	/*
 	 * methods related to UI appearance
 	 */
@@ -511,6 +540,53 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
 	}
 
+	/*
+	 * 
+	 */
+	public class Handler {
+		Handler() {}
+		
+		private int _getRowIndex() {
+			return getSelectionModel().getLeadCell().getTop();
+		}
+
+		private int _getColumnIndex() {
+			return getSelectionModel().getLeadCell().getLeft();
+		}
+
+		public void left() {
+			setFocus(_getRowIndex(), _getColumnIndex()-1);
+		}
+		public void right() {
+			setFocus(_getRowIndex(), _getColumnIndex()+1);
+		}
+		public void up() {
+			setFocus(_getRowIndex()-1, _getColumnIndex());
+		}
+		public void down() {
+			setFocus(_getRowIndex()+1, _getColumnIndex());
+		}
+		public void pageLeft() {
+			setFocus(_getRowIndex(), _getColumnIndex() - getRangeModel(Adjustable.HORIZONTAL).getExtent());
+		}
+		public void pageRight() {
+			setFocus(_getRowIndex(), _getColumnIndex() + getRangeModel(Adjustable.HORIZONTAL).getExtent());
+		}
+		public void pageUp() {
+			setFocus(_getRowIndex() - getRangeModel(Adjustable.VERTICAL).getExtent(), _getColumnIndex());
+		}
+		public void pageDown() {
+			setFocus(_getRowIndex() + getRangeModel(Adjustable.VERTICAL).getExtent(), _getColumnIndex());
+		}
+	}
+
+	public Handler getHandler() {
+		if(handler == null) {
+			handler = new Handler();
+		}
+		return handler;
+	}
+	
 	class MouseInputHandler extends MouseInputAdapter {
 		static final int RESIZE_ZONE_WIDTH = 3;
 		private Cursor COLUMN_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
