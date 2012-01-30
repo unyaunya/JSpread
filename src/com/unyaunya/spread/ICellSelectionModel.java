@@ -7,4 +7,7 @@ public interface ICellSelectionModel {
 	public void selectCell(int row, int column);
 	public void clearSelection();
 	public Range getLeadCell();
+	public int getLeadSelectionRow();
+	public int getLeadSelectionColumn();
+	public boolean isLeadCell(int rowIndex, int columnIndex);
 }

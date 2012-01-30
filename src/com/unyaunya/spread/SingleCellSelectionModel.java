@@ -39,7 +39,22 @@ public class SingleCellSelectionModel implements ICellSelectionModel {
 	}
 
 	@Override
+	public boolean isLeadCell(int rowIndex, int columnIndex) {
+		return (rowIndex == getLeadSelectionRow() && columnIndex == getLeadSelectionColumn());
+	}
+
+	@Override
 	public Range getLeadCell() {
 		return new Range(selectedCell);
+	}
+
+	@Override
+	public int getLeadSelectionRow() {
+		return selectedCell.getTop();
+	}
+
+	@Override
+	public int getLeadSelectionColumn() {
+		return selectedCell.getLeft();
 	}
 }

@@ -30,6 +30,7 @@ import com.unyaunya.spread.Actions;
 import com.unyaunya.spread.FocusModel;
 import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.spread.ISpreadCellRenderer;
+import com.unyaunya.spread.Range;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
 import com.unyaunya.spread.SingleCellSelectionModel;
@@ -222,7 +223,9 @@ public class JSpread extends JComponent implements CellEditorListener {
 	}
 	
 	public void freezePanes() {
-		scrollModel.freezePanes(focusModel.getRowIndex()-1, focusModel.getColumnIndex()-1);
+		//scrollModel.freezePanes(focusModel.getRowIndex()-1, focusModel.getColumnIndex()-1);
+		Range leadCell = selectionModel.getLeadCell();
+		scrollModel.freezePanes(leadCell.getTop()-1, leadCell.getLeft()-1);
 	}
 	public void unfreezePanes() {
 		scrollModel.unfreezePanes();
@@ -325,7 +328,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		else {
 			isSelected = this.getSelectionModel().isCellSelected(row, col);
 		}
-		boolean hasFocus = this.getFocusModel().hasFocus(row, col);
+		boolean hasFocus = this.getSelectionModel().isLeadCell(row, col);
 		Border border = getCellBorder(isSelected, hasFocus, row, col);
 		renderer.setBorder(border);
 		renderer.setBackground(this.getCellBackground(isSelected, hasFocus, row, col));
@@ -403,7 +406,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 	public Component prepareEditor(ISpreadCellEditor editor, int row, int column) {
 		Object value = getModel().getValueAt(row, column);
-		boolean hasFocus = getFocusModel().isCellFocused(row, column);
+		boolean hasFocus = getSelectionModel().isLeadCell(row, column);
 		Component comp = editor.getCellEditorComponent(this, value, hasFocus, row, column);
 		/*
 		if (comp instanceof JComponent) {
@@ -459,8 +462,8 @@ public class JSpread extends JComponent implements CellEditorListener {
 				//int leadRow = getSelectionModel().getLeadSelectionIndex();
 				//int leadColumn = getColumnModel().getSelectionModel().getLeadSelectionIndex();
 				//if (leadRow != -1 && leadColumn != -1 && !isEditing()) {
-				int row = getFocusModel().getRowIndex();
-				int col = getFocusModel().getColumnIndex();
+				int row = getSelectionModel().getLeadSelectionRow();
+				int col = getSelectionModel().getLeadSelectionColumn();
 				if (!editCellAt(row, col)) {
 					return false;
 				}

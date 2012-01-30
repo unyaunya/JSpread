@@ -8,8 +8,6 @@ import com.unyaunya.swing.JSpread;
 
 public class FocusModel {
 	private JSpread spread;
-	private int rowIndex = 1;
-	private int columnIndex = 1;
 	
 	public FocusModel(JSpread spread) {
 		assert(spread != null);
@@ -20,24 +18,12 @@ public class FocusModel {
 		return this.spread;
 	}
 
-	public void setRowIndex(int rowIndex) {
-		this.setFocus(rowIndex, getColumnIndex());
+	private int getRowIndex() {
+		return spread.getSelectionModel().getLeadCell().getTop();
 	}
 
-	public int getRowIndex() {
-		return rowIndex;
-	}
-
-	public boolean isCellFocused(int rowIndex, int columnIndex) {
-		return (rowIndex == getRowIndex() && columnIndex == getColumnIndex());
-	}
-
-	public void setColumnIndex(int columnIndex) {
-		this.setFocus(getRowIndex(), columnIndex);
-	}
-
-	public int getColumnIndex() {
-		return columnIndex;
+	private int getColumnIndex() {
+		return spread.getSelectionModel().getLeadCell().getLeft();
 	}
 
 	private int _rowIndex(int rowIndex) {
@@ -61,19 +47,19 @@ public class FocusModel {
 	}
 
 	public void setFocus(int rowIndex, int columnIndex) {
-		int orig_row = this.rowIndex;
-		int orig_col = this.columnIndex;
-		this.rowIndex = _rowIndex(rowIndex);
-		this.columnIndex = _columnIndex(columnIndex);
-		if(orig_row != this.rowIndex || orig_col != this.columnIndex) {
+		int orig_row = getRowIndex();
+		int orig_col = getColumnIndex();
+		int newRowIndex = _rowIndex(rowIndex);
+		int newColumnIndex = _columnIndex(columnIndex);
+		if(orig_row != newRowIndex || orig_col != newColumnIndex) {
 			spread.stopEditing();
-			getSpread().scrollToVisible(this.rowIndex, this.columnIndex);
+			getSpread().scrollToVisible(newRowIndex, newColumnIndex);
 			//getSpread().repaintCell(orig_row, orig_col);
 			//getSpread().repaintCell(this.rowIndex, this.columnIndex);
 		}
 		spread.select(rowIndex, columnIndex);
 	}
-
+	
 	public void left() {
 		setFocus(getRowIndex(), getColumnIndex()-1);
 	}
@@ -97,15 +83,5 @@ public class FocusModel {
 	}
 	public void pageDown() {
 		setFocus(getRowIndex()+spread.getRangeModel(Adjustable.VERTICAL).getExtent(), getColumnIndex());
-	}
-
-	public boolean hasFocus(int rowIndex, int columnIndex) {
-		if(this.getRowIndex() != rowIndex) {
-			return false;
-		}
-		if(this.getColumnIndex() != columnIndex) {
-			return false;
-		}
-		return true;
 	}
 }
