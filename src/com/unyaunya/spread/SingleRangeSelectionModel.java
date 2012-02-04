@@ -1,33 +1,32 @@
 package com.unyaunya.spread;
 
-public class SingleCellSelectionModel implements ISpreadSelectionModel {
-	private Range selectedCell = new Range();
+public class SingleRangeSelectionModel implements ISpreadSelectionModel {
+	private Range selectedRange = new Range();
 	
-	public SingleCellSelectionModel() {
+	public SingleRangeSelectionModel() {
 		clearSelection();
 	}
 
 	@Override
 	public void clearSelection() {
-		selectedCell = Range.NULL;
+		selectedRange = Range.NULL;
 	}
 
 	@Override
 	public void selectCell(int rowIndex, int columnIndex) {
-		selectedCell = new Range(rowIndex, columnIndex);
+		selectRange(new Range(rowIndex, columnIndex));
 	}
 
-	@Override
 	public void selectRange(Range range) {
-		throw new RuntimeException();
+		selectedRange = range;
 	}
-
+	
 	@Override
 	public boolean isCellSelected(int rowIndex, int columnIndex) {
-		if(this.selectedCell.getTop() != rowIndex) {
+		if(this.selectedRange.getTop() != rowIndex) {
 			return false;
 		}
-		if(this.selectedCell.getLeft() != columnIndex) {
+		if(this.selectedRange.getLeft() != columnIndex) {
 			return false;
 		}
 		return true;
@@ -35,12 +34,12 @@ public class SingleCellSelectionModel implements ISpreadSelectionModel {
 
 	@Override
 	public boolean isRowSelected(int row) {
-		return (selectedCell.getTop() == row);
+		return (selectedRange.getTop() == row);
 	}
 
 	@Override
 	public boolean isColumnSelected(int column) {
-		return (selectedCell.getLeft() == column);
+		return (selectedRange.getLeft() == column);
 	}
 
 	@Override
@@ -50,16 +49,16 @@ public class SingleCellSelectionModel implements ISpreadSelectionModel {
 
 	@Override
 	public Range getLeadCell() {
-		return new Range(selectedCell);
+		return new Range(selectedRange);
 	}
 
 	@Override
 	public int getLeadSelectionRow() {
-		return selectedCell.getTop();
+		return selectedRange.getTop();
 	}
 
 	@Override
 	public int getLeadSelectionColumn() {
-		return selectedCell.getLeft();
+		return selectedRange.getLeft();
 	}
 }
