@@ -9,22 +9,7 @@ public class Range {
 	static Range NULL = new Range(null);
 	
 	public Range(int top, int left, int bottom, int right) {
-		if(top < 0) {
-			throw new IllegalArgumentException();
-		}
-		if(left < 0) {
-			throw new IllegalArgumentException();
-		}
-		if(bottom < top) {
-			throw new IllegalArgumentException();
-		}
-		if(right < left) {
-			throw new IllegalArgumentException();
-		}
-		this.top = top;
-		this.left = left;
-		this.bottom = bottom;
-		this.right = right;
+		set(top, left, bottom, right);
 	}
 
 	public Range(int top, int left) {
@@ -36,6 +21,10 @@ public class Range {
 	}
 
 	public Range(Range src) {
+		set(src);
+	}
+
+	public void set(Range src) {
 		if(src == null) {
 			this.top = -1;
 			this.left = -1;
@@ -43,29 +32,67 @@ public class Range {
 			this.right = -1;
 		}
 		else {
-			this.top = src.top;
-			this.left = src.left;
-			this.bottom = src.bottom;
-			this.right = src.right;
+			set(src.top, src.left, src.bottom, src.right);
 		}
 	}
 
+	public void set(int top, int left, int bottom, int right) {
+		if(top < 0) {
+			throw new IllegalArgumentException();
+		}
+		if(left < 0) {
+			throw new IllegalArgumentException();
+		}
+		if(top < bottom) {
+			this.top = top;
+			this.bottom = bottom;
+		}
+		else {
+			this.top = bottom;
+			this.bottom = top;
+		}
+		if(left < right) {
+			this.left = left;
+			this.right = right;
+		}
+		else {
+			this.left = right;
+			this.right = left;
+		}
+	}
+	
 	public int getTop() {
 		return top;
+	}
+
+	public void setTop(int top) {
+		set(top, this.left, this.bottom, this.right);
 	}
 
 	public int getLeft() {
 		return left;
 	}
 
+	public void setLeft(int left) {
+		set(this.top, left, this.bottom, this.right);
+	}
+
 	public int getBottom() {
 		return bottom;
+	}
+
+	public void setBottom(int bottom) {
+		set(this.top, this.left, bottom, this.right);
 	}
 
 	public int getRight() {
 		return right;
 	}
 	
+	public void setRight(int right) {
+		set(this.top, this.left, this.bottom, right);
+	}
+
 	public int getRows() {
 		return bottom - top + 1;
 	}

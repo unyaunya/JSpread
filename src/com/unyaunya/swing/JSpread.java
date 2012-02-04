@@ -9,6 +9,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
@@ -262,6 +263,10 @@ public class JSpread extends JComponent implements CellEditorListener {
 	}
 
 	public void setFocus(int rowIndex, int columnIndex) {
+		setFocus(rowIndex, columnIndex, null);
+	}
+	
+	public void setFocus(int rowIndex, int columnIndex, InputEvent modifiers) {
 		int orig_row = getSelectionModel().getLeadCell().getTop();
 		int orig_col = getSelectionModel().getLeadCell().getLeft();
 		int newRowIndex = _rowIndex(rowIndex);
@@ -272,7 +277,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 			//getSpread().repaintCell(orig_row, orig_col);
 			//getSpread().repaintCell(this.rowIndex, this.columnIndex);
 		}
-		selectionModel.selectCell(newRowIndex, newColumnIndex);
+		selectionModel.selectCell(newRowIndex, newColumnIndex, modifiers);
 	}
 	
 	/*
@@ -720,13 +725,13 @@ public class JSpread extends JComponent implements CellEditorListener {
 				setColumnWidth(resizeBorderIndex-1, height);
 				repaint();
 			}
-			/*
-			Point pt = e.getPoint();
-			int row = rowAtPoint(pt);
-			int col = columnAtPoint(pt);
-			Cursor nextCursor = getNextCursor(pt, row, col);
-			*/
-			
+			else {
+				Point pt = e.getPoint();
+				int row = rowAtPoint(pt);
+				int col = columnAtPoint(pt);
+				setFocus(row, col, e);
+				repaint();
+			}
 		}
 
 	}

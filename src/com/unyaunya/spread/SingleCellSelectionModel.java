@@ -1,5 +1,7 @@
 package com.unyaunya.spread;
 
+import java.awt.event.InputEvent;
+
 public class SingleCellSelectionModel implements ISpreadSelectionModel {
 	private Range selectedCell = new Range();
 	
@@ -14,14 +16,26 @@ public class SingleCellSelectionModel implements ISpreadSelectionModel {
 
 	@Override
 	public void selectCell(int rowIndex, int columnIndex) {
+		selectCell(rowIndex, columnIndex, null);
+	}
+
+	@Override
+	public void selectCell(int rowIndex, int columnIndex, InputEvent modifier) {
 		selectedCell = new Range(rowIndex, columnIndex);
 	}
+	
 
 	@Override
 	public void selectRange(Range range) {
 		throw new RuntimeException();
 	}
 
+	@Override
+	public void selectRange(int top, int left, int bottom, int right) {
+		throw new RuntimeException();
+	}
+
+	
 	@Override
 	public boolean isCellSelected(int rowIndex, int columnIndex) {
 		if(this.selectedCell.getTop() != rowIndex) {
