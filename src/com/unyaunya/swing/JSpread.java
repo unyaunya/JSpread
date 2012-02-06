@@ -31,10 +31,11 @@ import com.unyaunya.spread.Actions;
 import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.ISpreadSelectionModel;
+import com.unyaunya.spread.MultiRangeSelectionModel;
 import com.unyaunya.spread.Range;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
-import com.unyaunya.spread.SingleRangeSelectionModel;
+//import com.unyaunya.spread.SingleRangeSelectionModel;
 import com.unyaunya.spread.SpreadBorder;
 import com.unyaunya.spread.SpreadModel;
 import com.unyaunya.swing.plaf.SpreadUI;
@@ -87,7 +88,8 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 		this.model = new SpreadModel();
 		this.scrollModel = new ScrollModel(this);
-		this.selectionModel = new SingleRangeSelectionModel();
+		//this.selectionModel = new SingleRangeSelectionModel();
+		this.selectionModel = new MultiRangeSelectionModel();
         this.actions = new Actions(this);
     	this.defaultCellEditor = new DefaultCellEditor(this);
 
@@ -681,6 +683,18 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
 
 		@Override
+		/*
+		 * (non-Javadoc)
+		 * リードセル　　　　　：　キー入力対象セル。
+		 * 修飾キーなし　　　：　セレクションをクリアしてから、クリックされたセルを選択する。
+		 *					クリックされたセルはリードかつアンカーになる。
+		 * SHIFTキー押下時：　現在のRangeオブジェクトを、アンカーとクリックされたセルを含めるものに変更する。
+		 *					リードセルは、クリックされたセル。
+		 * CTRLキー押下時：  　現在のRangeオブジェクトを、アンカーとクリックされたセルを含めるものに変更する。
+		 *					リードセルは、クリックされたセル。
+		 * 
+		 * @see java.awt.event.MouseAdapter#mousePressed(java.awt.event.MouseEvent)
+		 */
 		public void mousePressed(MouseEvent e) {
 			LOG.info("mousePressed");
 			if(currentCursor == ROW_RESIZE_CURSOR) {
@@ -694,7 +708,13 @@ public class JSpread extends JComponent implements CellEditorListener {
 				int row = rowAtPoint(pt);
 				int col = columnAtPoint(pt);
 				if(row > 0 && col > 0) {
-					setFocus(row, col);
+					if(e.isShiftDown()) {
+						
+					}
+					else if(!e.isControlDown()) {
+						getSelectionModel().clearSelection();
+					}
+					setFocus(row, col, e);
 				}
 			}
 		}
@@ -711,6 +731,17 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
 		
 		@Override
+		/*
+		 * (non-Javadoc)
+		 * リードセル　　　　　：　キー入力対象セル。
+		 * 修飾キーなし　　　：　セレクションをクリアしてから、クリックされたセルを選択する。
+		 *					クリックされたセルはリードかつアンカーになる。
+		 * SHIFTキー押下時：　現在のRangeオブジェクトを、アンカーとクリックされたセルを含めるものに変更する。
+		 *					リードセルは、クリックされたセル。
+		 * マウスドラッグ時　　：　現在のRangeオブジェクトを変更する。
+		 * 
+		 * @see java.awt.event.MouseAdapter#mouseDragged(java.awt.event.MouseEvent)
+		 */
 		public void mouseDragged(MouseEvent e) {
 			LOG.info("mouseDragged");
 			if(currentCursor == ROW_RESIZE_CURSOR) {
