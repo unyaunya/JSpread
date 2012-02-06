@@ -47,13 +47,10 @@ public class MultiRangeSelectionModel implements ISpreadSelectionModel {
 
 	@Override
 	public boolean isCellSelected(int rowIndex, int columnIndex) {
-		if(rowIndex < this.selectedRange.getTop() || this.selectedRange.getBottom() < rowIndex) {
-			return false;
+		if(selectedRangeList.contains(rowIndex, columnIndex)) {
+			return true;
 		}
-		if(columnIndex < this.selectedRange.getLeft() || this.selectedRange.getRight() < columnIndex) {
-			return false;
-		}
-		return true;
+		return selectedRange.contains(rowIndex, columnIndex);
 	}
 
 	@Override
