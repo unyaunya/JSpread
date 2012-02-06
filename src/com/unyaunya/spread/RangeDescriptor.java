@@ -41,6 +41,15 @@ public class RangeDescriptor {
 		return selectedRangeList.size() > 1;
 	}
 
+	public boolean contains(int rowIndex, int columnIndex) {
+		for(int i = 0; i < selectedRangeList.size(); i++) {
+			if(selectedRangeList.get(i).contains(rowIndex, columnIndex)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void add(Range range) {
 		selectedRangeList = Range.merge(getSelectedRangeList(), range);
 	}

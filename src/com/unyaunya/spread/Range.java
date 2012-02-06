@@ -103,6 +103,10 @@ public class Range {
 		return right - left + 1;
 	}
 
+	public boolean contains(int rowIndex, int columnIndex) {
+		return (getTop() <= rowIndex && rowIndex <= getBottom()) && (getLeft() <= columnIndex && columnIndex <= getRight());
+	}
+
 	private static boolean isOverlappedOrAdjacent(int s1, int e1, int s2, int e2) {
 		if(s1 < s2) {
 			return (e1 >= (s2-1));
