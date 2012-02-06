@@ -241,5 +241,4 @@ public class Range {
 		}
 		return rslt;
 	}
-
 }

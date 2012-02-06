@@ -56,5 +56,4 @@ public class RangeDescriptor {
 	public void clear() {
 		getSelectedRangeList().clear();
 	}
-
 }
