@@ -1,6 +1,5 @@
 package com.unyaunya.spread;
 
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class DefaultRangeSelectionModel implements ISpreadSelectionModel {
@@ -55,6 +54,22 @@ public class DefaultRangeSelectionModel implements ISpreadSelectionModel {
 		setLeadCell(row, column);
 		setAnchorCell(row, column);
 	}
+
+	/**
+	 * 全セルを選択する。
+	 */
+	public void selectAll() {
+		reset();
+		setAnchorCell(Integer.MAX_VALUE, Integer.MAX_VALUE);
+	}
+	
+	/**
+	 * 指定した行全体を選択する。
+	 */
+	public void selectRow(int row, boolean clear) {
+		select(row, Integer.MAX_VALUE, clear);
+		setLeadCell(row, 1);
+	}
 	
 	private CellRange getCurrentRange() {
 		return currentRange;
@@ -62,6 +77,9 @@ public class DefaultRangeSelectionModel implements ISpreadSelectionModel {
 	
 	@Override
 	public boolean isCellSelected(int rowIndex, int columnIndex) {
+		if(rowIndex == 0  && columnIndex == 0) {
+			return anchorCell.getRow() == Integer.MAX_VALUE && anchorCell.getColumn() == Integer.MAX_VALUE; 
+		}
 		return selectedRangeList.contains(rowIndex, columnIndex);
 	}
 

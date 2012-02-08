@@ -25,7 +25,16 @@ public interface ISpreadSelectionModel {
 	 */
 	public void setLeadCell(int row, int column);
 
+	/**
+	 * 全セルを選択する。
+	 */
+	public void selectAll();
 	
+	/**
+	 * 指定した行全体を選択する。
+	 */
+	public void selectRow(int row, boolean clear);
+
 	public boolean isCellSelected(int row, int column);
 	public boolean isRowSelected(int row);
 	public boolean isColumnSelected(int column);

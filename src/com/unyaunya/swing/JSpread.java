@@ -361,7 +361,10 @@ public class JSpread extends JComponent implements CellEditorListener {
 		SpreadModel m = getModel();
 		Object s = m.getValueAt(row, col);
 		boolean isSelected;
-		if(row == 0) {
+		if(row == 0 && col == 0) {
+			isSelected = this.getSelectionModel().isCellSelected(row, col);
+		}
+		else if(row == 0) {
 			isSelected = this.getSelectionModel().isColumnSelected(col);
 		}
 		else if(col == 0) {
@@ -712,7 +715,17 @@ public class JSpread extends JComponent implements CellEditorListener {
 				Point pt = e.getPoint();
 				int row = rowAtPoint(pt);
 				int col = columnAtPoint(pt);
-				if(row > 0 && col > 0) {
+				if(row == 0 && col == 0) {
+					getSelectionModel().selectAll();
+					repaint();
+				}
+				else if(row == 0) {
+				}
+				else if(col == 0) {
+					getSelectionModel().selectRow(row, !e.isControlDown());
+					repaint();
+				}
+				else if(row > 0 && col > 0) {
 					if(e.isShiftDown()) {
 						
 					}
@@ -735,7 +748,6 @@ public class JSpread extends JComponent implements CellEditorListener {
 			}
 		}
 		
-		@Override
 		/*
 		 * (non-Javadoc)
 		 * リードセル　　　　　：　キー入力対象セル。
@@ -747,6 +759,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		 * 
 		 * @see java.awt.event.MouseAdapter#mouseDragged(java.awt.event.MouseEvent)
 		 */
+		@Override
 		public void mouseDragged(MouseEvent e) {
 			LOG.info("mouseDragged");
 			if(currentCursor == ROW_RESIZE_CURSOR) {
@@ -765,10 +778,11 @@ public class JSpread extends JComponent implements CellEditorListener {
 				Point pt = e.getPoint();
 				int row = rowAtPoint(pt);
 				int col = columnAtPoint(pt);
-				setFocus(row, col, e);
-				repaint();
+				if(row != 0 && col != 0) {
+					setFocus(row, col, e);
+					repaint();
+				}
 			}
 		}
-
 	}
 }
