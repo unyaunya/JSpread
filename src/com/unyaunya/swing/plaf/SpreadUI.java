@@ -120,8 +120,8 @@ public class SpreadUI extends ComponentUI {
             // when the clip doesn't intersect our bounds at all
 			return;
 		}
-		LOG.info("paintComponent():start");
-		LOG.info("\tclipingRect:"+clip);
+		//LOG.info("paintComponent():start");
+		//LOG.info("\tclipingRect:"+clip);
 		Rectangle rect = new Rectangle(bounds);
 		RangeModel colRangeModel = table.getRangeModel(Adjustable.HORIZONTAL);
 		RangeModel rowRangeModel = table.getRangeModel(Adjustable.VERTICAL);
@@ -149,15 +149,15 @@ public class SpreadUI extends ComponentUI {
 		rect.width = colRangeModel.getScrollPartSize();
 		rect.height = rowRangeModel.getScrollPartSize();
 		paintCells(g, clip, rect);
-		LOG.info("paintComponent():end");
+		//LOG.info("paintComponent():end");
 	}
 	
     private void paintCells(Graphics g, Rectangle clipingRect, Rectangle rect){
 		ScrollModel scrollModel = table.getScrollModel();
-		LOG.info("\tpaintCells(clipingRect,rect):");
-		LOG.info("\t\trect:"+clipingRect);
+		//LOG.info("\tpaintCells(clipingRect,rect):");
+		//LOG.info("\t\trect:"+clipingRect);
 		Rectangle clip = rect.intersection(clipingRect);
-		LOG.info("\t\tclip:"+clip);
+		//LOG.info("\t\tclip:"+clip);
 		Point upperLeft = clip.getLocation();
 	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
 		paintCells(g,	scrollModel.rowAtPoint(upperLeft),
@@ -168,8 +168,8 @@ public class SpreadUI extends ComponentUI {
 	}
 
 	private void paintCells(Graphics g, int rMin, int rMax, int cMin, int cMax, int horizontalOffset, int verticalOffset) {
-		LOG.info("\t\tpaintCells(int rMin, int rMax, int cMin, int cMax):");
-		LOG.info("\t\t\t(rMin, rMax, cMin, cMax)=("+rMin+","+rMax+","+cMin+","+cMax+")");
+		//LOG.info("\t\tpaintCells(int rMin, int rMax, int cMin, int cMax):");
+		//LOG.info("\t\t\t(rMin, rMax, cMin, cMax)=("+rMin+","+rMax+","+cMin+","+cMax+")");
 		SpreadModel m = table.getModel();
 		ScrollModel scrollModel = table.getScrollModel();
 		rMax = Math.min(rMax, m.getRowCount()-1);

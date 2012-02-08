@@ -7,7 +7,7 @@ public class RangeDescriptor {
 	public static final int SINGLE_RANGE = 1;
 	public static final int MULTI_RANGE = 2;
 	
-	private ArrayList<Range> selectedRangeList = new ArrayList<Range>();
+	private ArrayList<CellRange> selectedRangeList = new ArrayList<CellRange>();
 
 	public RangeDescriptor() {
 	}
@@ -26,7 +26,7 @@ public class RangeDescriptor {
 		if(selectedRangeList.size() != 1) {
 			return false;
 		}
-		Range r = selectedRangeList.get(0);
+		CellRange r = selectedRangeList.get(0);
 		return (r.getTop() == r.getBottom() && r.getLeft() == r.getRight());
 	}
 
@@ -50,15 +50,15 @@ public class RangeDescriptor {
 		return false;
 	}
 	
-	public void add(Range range) {
-		selectedRangeList = Range.merge(getSelectedRangeList(), range);
+	public void add(CellRange range) {
+		selectedRangeList = CellRange.merge(getSelectedRangeList(), range);
 	}
 
-	public void sub(Range range) {
-		selectedRangeList = Range.sub(getSelectedRangeList(), range);
+	public void sub(CellRange range) {
+		selectedRangeList = CellRange.sub(getSelectedRangeList(), range);
 	}
 
-	public ArrayList<Range> getSelectedRangeList() {
+	public ArrayList<CellRange> getSelectedRangeList() {
 		return selectedRangeList;		
 	}
 

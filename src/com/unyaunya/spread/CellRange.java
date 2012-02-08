@@ -2,31 +2,31 @@ package com.unyaunya.spread;
 
 import java.util.ArrayList;
 
-public class Range {
+public class CellRange {
 	private int top;
 	private int left;
 	private int bottom;
 	private int right;
 	
-	static Range NULL = new Range(null);
+	static CellRange NULL = new CellRange(null);
 	
-	public Range(int top, int left, int bottom, int right) {
+	public CellRange(int top, int left, int bottom, int right) {
 		set(top, left, bottom, right);
 	}
 
-	public Range(int top, int left) {
+	public CellRange(int top, int left) {
 		this(top, left, top, left);
 	}
 	
-	public Range() {
+	public CellRange() {
 		this(0, 0);
 	}
 
-	public Range(Range src) {
+	public CellRange(CellRange src) {
 		set(src);
 	}
 
-	public void set(Range src) {
+	public void set(CellRange src) {
 		if(src == null) {
 			this.top = -1;
 			this.left = -1;
@@ -36,6 +36,14 @@ public class Range {
 		else {
 			set(src.top, src.left, src.bottom, src.right);
 		}
+	}
+
+	public void set(CellPosition p) {
+		set(p, p);
+	}
+	
+	public void set(CellPosition p1, CellPosition p2) {
+		set(p1.getRow(), p1.getColumn(), p2.getRow(), p2.getColumn());
 	}
 
 	public void set(int top, int left, int bottom, int right) {
@@ -134,38 +142,38 @@ public class Range {
 	 * ２つのRangeオブジェクトを結合した結果を返す。
 	 * 結合するRangeオブジェクトは、縦または横の範囲が同じで、隣接あるいは重なっていなければならない。
 	 */
-	public Range merge(Range r) {
+	public CellRange merge(CellRange r) {
 		return merge(this, r);
 	}
 
-	public static Range merge(Range r1, Range r2) {
+	public static CellRange merge(CellRange r1, CellRange r2) {
 		assert(r1 != null);
 		assert(r2 != null);
 		if(r1.getTop() == r2.getTop() && r1.getBottom() == r2.getBottom()) {
 			if(isOverlappedOrAdjacent(r1.getLeft(), r1.getRight(), r2.getLeft(), r2.getRight())) {
-				return new Range(r1.getTop(),    Math.min(r1.getLeft(), r2.getLeft()),
+				return new CellRange(r1.getTop(),    Math.min(r1.getLeft(), r2.getLeft()),
 								 r1.getBottom(), Math.max(r1.getRight(), r2.getRight()));
 			}
 		}
 		if(r1.getLeft() == r2.getLeft() && r1.getRight() == r2.getRight()) {
 			if(isOverlappedOrAdjacent(r1.getTop(), r1.getBottom(), r2.getTop(), r2.getBottom())) {
-				return new Range(r1.getLeft(),  Math.min(r1.getTop(), r2.getTop()),
+				return new CellRange(r1.getLeft(),  Math.min(r1.getTop(), r2.getTop()),
 								 r1.getRight(), Math.max(r1.getBottom(), r2.getBottom()));
 			}
 		}
 		return null;
 	}
 
-	public static ArrayList<Range> merge(ArrayList<Range> rangeList, Range r) {
+	public static ArrayList<CellRange> merge(ArrayList<CellRange> rangeList, CellRange r) {
 		if(rangeList == null) {
-			rangeList = new ArrayList<Range>();
+			rangeList = new ArrayList<CellRange>();
 		}
 		if(r != null) {
 			if(rangeList.size() == 0) {
 				rangeList.add(r);
 			}
 			else {
-				Range new_r = null;
+				CellRange new_r = null;
 				int i;
 				for(i = 0; i < rangeList.size(); i++) {
 					new_r = merge(rangeList.get(i), r);
@@ -186,14 +194,14 @@ public class Range {
 	 * 指定したRangeオブジェクトの範囲を削除した結果（Rangeオブジェクトのリスト）を返す。
 	 * 削除される領域次第で、結合するRangeオブジェクトは、縦または横の範囲が同じで、隣接あるいは重なっていなければならない。
 	 */
-	public ArrayList<Range> sub(Range r) {
+	public ArrayList<CellRange> sub(CellRange r) {
 		return sub(this, r);
 	}
 	
-	public static ArrayList<Range> sub(Range r1, Range r2) {
+	public static ArrayList<CellRange> sub(CellRange r1, CellRange r2) {
 		assert(r1 != null);
 		assert(r2 != null);
-		ArrayList<Range> rslt = new ArrayList<Range>();
+		ArrayList<CellRange> rslt = new ArrayList<CellRange>();
 		if(!isOverlapped(r1.getTop(), r1.getBottom(), r2.getTop(), r2.getBottom())) {
 			rslt.add(r1);
 			return rslt;
@@ -225,7 +233,7 @@ public class Range {
 					int top    = y[i*2];
 					int bottom = y[i*2+1];
 					if(left <= right && top <= bottom) {
-						merge(rslt, new Range(top, left, right, bottom));
+						merge(rslt, new CellRange(top, left, right, bottom));
 					}
 				}
 			}
@@ -233,9 +241,9 @@ public class Range {
 		return rslt;
 	}
 
-	public static ArrayList<Range> sub(ArrayList<Range> rangeList, Range r) {
-		ArrayList<Range> rslt = new ArrayList<Range>();
-		ArrayList<Range> newList;
+	public static ArrayList<CellRange> sub(ArrayList<CellRange> rangeList, CellRange r) {
+		ArrayList<CellRange> rslt = new ArrayList<CellRange>();
+		ArrayList<CellRange> newList;
 		int i;
 		for(i = 0; i < rangeList.size(); i++) {
 			newList = sub(rangeList.get(i), r);
