@@ -37,7 +37,7 @@ public class CsvTable extends DefaultTableModel {
 		for(int i = 0; i < this.getRowCount(); i++) {
 			String[] row = new String[this.getColumnCount()];
 			for(int j = 0; j < this.getColumnCount(); j++) {
-				Object value = this.getValueAt(i, j).toString();
+				Object value = this.getValueAt(i, j);
 				if(value != null) {
 					row[j] = value.toString();
 				}

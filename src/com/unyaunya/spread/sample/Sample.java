@@ -2,6 +2,7 @@ package com.unyaunya.spread.sample;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -18,6 +19,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
@@ -82,23 +84,54 @@ class MyFrame extends JFrame {
 		isInited = true;
 	}
 
+	private static JMenu createMenu(String name, int mnemonic) {
+		JMenu menu = new JMenu(name);
+		menu.setMnemonic(mnemonic);
+		return menu;
+	}
+	private static JMenuItem createMenuItem(Action action, int mnemonic) {
+		JMenuItem mi = new JMenuItem(action);
+		mi.setMnemonic(mnemonic);
+		return mi;
+	}
+	
 	private JSpread getSpread() {
 		return spread;
 	}
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
+		JMenu menu;
 		//File menu
-		JMenu menu = new JMenu("ファイル");
-		menu.add(new JMenuItem(new OpenAction()));
+		menu = createMenu("ファイル(F)", KeyEvent.VK_F);
+		menu.add(createMenuItem(new OpenAction(), KeyEvent.VK_F));
 		menu.add(new JMenuItem(new SaveAsAction()));
 		menu.add(new JMenuItem("ccc"));
 		menuBar.add(menu);
+		//Edit menu
+		menu = createMenu("編集(E)", KeyEvent.VK_E);
+		menu.add(new JMenuItem(new DeleteAction()));
+		menuBar.add(menu);
+		//Insert menu
+		menu = createMenu("挿入(I)", KeyEvent.VK_I);
+		menu.add(new JMenuItem(new InsertRowAction()));
+		menu.add(new JMenuItem(new InsertColumnAction()));
+		menuBar.add(menu);
 		//Window menu
-		menu = new JMenu("ウィンドウ");
+		menu = createMenu("ウィンドウ(W)", KeyEvent.VK_W);
 		menu.add(new JMenuItem(new FreezePanesAction()));
 		menuBar.add(menu);
 		return menuBar;
 	}
+
+	/*
+	private JMenu createInsertMenu() {
+		JMenu menu = new JMenu("挿入");
+		menu.add(new JMenuItem(new InsertRowAction()));
+		menu.add(new JMenuItem(new InsertColumnAction()));
+		return menu;
+	}
+	*/
+
 	private JSpreadPane createSpreadPane() {
 		getSpread().addMouseListener(new MyMouseListener(spread));
 		return new JSpreadPane(spread);
@@ -119,6 +152,10 @@ class MyFrame extends JFrame {
 		return fc;
 	}
 	
+	private DefaultTableModel getTableModel() {
+		return (DefaultTableModel)getSpread().getModel().getTableModel();
+	}
+
 	class OpenAction extends AbstractAction {
 		public OpenAction() {
 			super("開く...");
@@ -203,6 +240,37 @@ class MyFrame extends JFrame {
 			else {
 				return "ウィンドウ枠の固定";
 			}
+		}
+	}
+
+	class InsertRowAction extends AbstractAction {
+		public InsertRowAction() {
+			super("行");
+		}
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			getTableModel().insertRow(getSpread().getSelectionModel().getLeadSelectionRow()-1, (Object[])null);
+			repaint();
+		}
+	}
+	class InsertColumnAction extends AbstractAction {
+		public InsertColumnAction() {
+			super("列");
+		}
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	class DeleteAction extends AbstractAction {
+		public DeleteAction() {
+			super("削除");
+		}
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			getTableModel().removeRow(getSpread().getSelectionModel().getLeadSelectionRow()-1);
+			repaint();
 		}
 	}
 }
