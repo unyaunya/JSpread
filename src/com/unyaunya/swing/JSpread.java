@@ -774,6 +774,8 @@ public class JSpread extends JComponent implements CellEditorListener {
 					repaint();
 				}
 				else if(row == 0) {
+					getSelectionModel().selectColumn(col, !e.isControlDown());
+					repaint();
 				}
 				else if(col == 0) {
 					getSelectionModel().selectRow(row, !e.isControlDown());

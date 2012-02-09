@@ -35,6 +35,11 @@ public interface ISpreadSelectionModel {
 	 */
 	public void selectRow(int row, boolean clear);
 
+	/**
+	 * 指定した列全体を選択する。
+	 */
+	public void selectColumn(int column, boolean clear);
+
 	public boolean isCellSelected(int row, int column);
 	public boolean isRowSelected(int row);
 	public boolean isColumnSelected(int column);

@@ -58,6 +58,7 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	/**
 	 * 全セルを選択する。
 	 */
+	@Override
 	public void selectAll() {
 		reset();
 		setAnchorCell(Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -66,9 +67,19 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	/**
 	 * 指定した行全体を選択する。
 	 */
+	@Override
 	public void selectRow(int row, boolean clear) {
 		select(row, Integer.MAX_VALUE, clear);
 		setLeadCell(row, 1);
+	}
+
+	/**
+	 * 指定した列全体を選択する。
+	 */
+	@Override
+	public void selectColumn(int column, boolean clear) {
+		select(Integer.MAX_VALUE, column, clear);
+		setLeadCell(1, column);
 	}
 	
 	private CellRange getCurrentRange() {
