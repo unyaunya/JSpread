@@ -106,11 +106,40 @@ public class Actions {
     	addAction(map, KeyEvent.VK_ENTER, DownAction.class);
     	addAction(map, KeyEvent.VK_PAGE_UP, PageUpAction.class);
     	addAction(map, KeyEvent.VK_PAGE_DOWN, PageDownAction.class);
-        return map;
+    	//
+    	addShiftAction(map, KeyEvent.VK_LEFT, LeftAction.class);
+    	addShiftAction(map, KeyEvent.VK_RIGHT, RightAction.class);
+    	addShiftAction(map, KeyEvent.VK_UP, UpAction.class);
+    	addShiftAction(map, KeyEvent.VK_DOWN, DownAction.class);
+    	addShiftAction(map, KeyEvent.VK_ENTER, DownAction.class);
+    	addShiftAction(map, KeyEvent.VK_PAGE_UP, PageUpAction.class);
+    	addShiftAction(map, KeyEvent.VK_PAGE_DOWN, PageDownAction.class);
+    	//
+    	addControlAction(map, KeyEvent.VK_LEFT, LeftAction.class);
+    	addControlAction(map, KeyEvent.VK_RIGHT, RightAction.class);
+    	addControlAction(map, KeyEvent.VK_UP, UpAction.class);
+    	addControlAction(map, KeyEvent.VK_DOWN, DownAction.class);
+    	addControlAction(map, KeyEvent.VK_ENTER, DownAction.class);
+    	addControlAction(map, KeyEvent.VK_PAGE_UP, PageUpAction.class);
+    	addControlAction(map, KeyEvent.VK_PAGE_DOWN, PageDownAction.class);
+
+    	return map;
     }    
 
     private void addAction(InputMap map, int key, Class<?> actionClass) {
-    	addAction(map, KeyStroke.getKeyStroke(key,0), actionClass);
+    	addAction(map, key, 0, actionClass);
+    }
+
+    private void addShiftAction(InputMap map, int key, Class<?> actionClass) {
+    	addAction(map, KeyStroke.getKeyStroke(key, java.awt.event.InputEvent.SHIFT_DOWN_MASK), actionClass);
+    }
+
+    private void addControlAction(InputMap map, int key, Class<?> actionClass) {
+    	addAction(map, KeyStroke.getKeyStroke(key, java.awt.event.InputEvent.CTRL_DOWN_MASK), actionClass);
+    }
+
+    private void addAction(InputMap map, int key, int modifier, Class<?> actionClass) {
+    	addAction(map, KeyStroke.getKeyStroke(key, modifier), actionClass);
     }
 
     private void addAction(InputMap map, KeyStroke ks, Class<?> actionClass) {
