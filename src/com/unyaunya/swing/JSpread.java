@@ -11,6 +11,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
 import java.util.logging.Logger;
@@ -108,8 +109,9 @@ public class JSpread extends JComponent implements CellEditorListener {
                 JComponent.getManagingFocusBackwardTraversalKeys());
 		*/
 		setUI(new SpreadUI());
-		this.addMouseListener(new Handler());
-		this.addMouseMotionListener(new Handler());
+		this.addMouseListener(getHandler());
+		this.addMouseMotionListener(getHandler());
+		this.addKeyListener(getHandler());
 	}
 
 	public Config getConfig() {
@@ -624,12 +626,27 @@ public class JSpread extends JComponent implements CellEditorListener {
 		return handler;
 	}
 	
-	public class Handler extends MouseInputAdapter {
+	public class Handler extends MouseInputAdapter implements KeyListener {
 		static final int RESIZE_ZONE_WIDTH = 3;
 		private Cursor COLUMN_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
 		private Cursor ROW_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
 		private Cursor currentCursor = null;
 		private int resizeBorderIndex = 0;
+		private boolean shiftDown;
+		private boolean controlDown;
+		
+		private boolean isShiftDown() {
+			return shiftDown;
+		}
+		private void setShiftDown(boolean value) {
+			shiftDown = value;
+		}
+		private boolean isControlDown() {
+			return controlDown;
+		}
+		private void setControlDown(boolean value) {
+			controlDown = value;
+		}
 		
 		private int getNearbyResizeColumnBorderIndex(Point pt, int row, int col) {
 			if(row != 0) {
@@ -749,12 +766,6 @@ public class JSpread extends JComponent implements CellEditorListener {
 					repaint();
 				}
 				else if(row > 0 && col > 0) {
-					/*
-					if(!e.isShiftDown() && !e.isControlDown()) {
-						getSelectionModel().reset();
-					}
-					setFocus(row, col, e);
-					*/
 					getSelectionModel().select(row, col, !e.isShiftDown() && !e.isControlDown());
 					repaint();
 				}
@@ -817,6 +828,11 @@ public class JSpread extends JComponent implements CellEditorListener {
 			return getSelectionModel().getLeadCell().getColumn();
 		}
 
+		private void select(int rowIndex, int columnIndex) {
+			LOG.info("SHIFT="+isShiftDown()+",CTRL="+isControlDown());
+			JSpread.this.select(rowIndex, columnIndex, isShiftDown(), isControlDown());
+		}
+
 		public void left() {
 			select(_getRowIndex(), _getColumnIndex()-1);
 		}
@@ -840,6 +856,27 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
 		public void pageDown() {
 			select(_getRowIndex() + getRangeModel(Adjustable.VERTICAL).getExtent(), _getColumnIndex());
+		}
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
+				setShiftDown(true);
+			}
+			if(e.getKeyCode() == KeyEvent.VK_CONTROL) {
+				setControlDown(true);
+			}
+		}
+		@Override
+		public void keyReleased(KeyEvent e) {
+			if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
+				setShiftDown(false);
+			}
+			if(e.getKeyCode() == KeyEvent.VK_CONTROL) {
+				setControlDown(false);
+			}
+		}
+		@Override
+		public void keyTyped(KeyEvent e) {
 		}
 	}
 }
