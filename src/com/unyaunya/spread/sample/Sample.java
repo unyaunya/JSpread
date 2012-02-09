@@ -70,6 +70,7 @@ class MyFrame extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.spread = new JSpread();
 		getSpread().setModel(new CsvTable(createSampleData()));
+		getSpread().getConfig().setRowInsertionSuppoorted(true);
 	}
 
 	public void init() {
@@ -249,8 +250,7 @@ class MyFrame extends JFrame {
 		}
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			getTableModel().insertRow(getSpread().getSelectionModel().getLeadSelectionRow()-1, (Object[])null);
-			repaint();
+			getSpread().insertRow();
 		}
 	}
 	class InsertColumnAction extends AbstractAction {
@@ -269,8 +269,7 @@ class MyFrame extends JFrame {
 		}
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			getTableModel().removeRow(getSpread().getSelectionModel().getLeadSelectionRow()-1);
-			repaint();
+			getSpread().removeRow();
 		}
 	}
 }

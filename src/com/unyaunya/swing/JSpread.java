@@ -23,9 +23,11 @@ import javax.swing.border.Border;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.MouseInputAdapter;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import com.unyaunya.spread.CellPosition;
+import com.unyaunya.spread.Config;
 import com.unyaunya.spread.DefaultCellEditor;
 import com.unyaunya.spread.DefaultCellRenderer;
 import com.unyaunya.spread.Actions;
@@ -65,6 +67,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	protected Color selectionForeground = DEFAULT_FOREGROUND_COLOR;
 	protected static ISpreadCellRenderer defaultCellRenderer = new DefaultCellRenderer();
 
+	private Config config;
 	private SpreadModel model;
 	private ScrollModel scrollModel;
 	private ISpreadSelectionModel selectionModel;
@@ -78,12 +81,20 @@ public class JSpread extends JComponent implements CellEditorListener {
 	transient protected int editingRow;
 	transient protected boolean isProcessingKeyboardEvent;
 
-	/*
+	/**
 	 * constructor
 	 */
 	public JSpread() {
+		this(new Config());
+	}
+
+	/**
+	 * constructor
+	 */
+	public JSpread(Config config) {
 		this.setFocusable(true);
 
+		this.config = config;
 		this.model = new SpreadModel();
 		this.scrollModel = new ScrollModel(this);
 		this.selectionModel = new DefaultRangeSelectionModel();
@@ -101,6 +112,49 @@ public class JSpread extends JComponent implements CellEditorListener {
 		this.addMouseMotionListener(new MouseInputHandler());
 	}
 
+	public Config getConfig() {
+		return config;
+	}
+	
+	//
+	// Operation of the SpreadSheet
+	//
+	public void insertRow() {
+		insertRow(getSelectionModel().getLeadSelectionRow()-1, true);
+	}
+
+	public void insertRow(int row) {
+		insertRow(row, true);
+	}
+	
+	public void insertRow(int row, boolean paint) {
+		if(!getConfig().isRowInsertionSuppoorted()) {
+			throw new UnsupportedOperationException();
+		}
+		DefaultTableModel m = (DefaultTableModel)this.getModel().getTableModel();
+		m.insertRow(row,  (Object[])null);
+		if(paint) {
+			repaint();
+		}
+	}
+
+	public void removeRow() {
+		removeRow(getSelectionModel().getLeadSelectionRow()-1, true);
+	}
+	public void removeRow(int row) {
+		removeRow(row, true);
+	}
+	public void removeRow(int row, boolean paint) {
+		if(!getConfig().isRowInsertionSuppoorted()) {
+			throw new UnsupportedOperationException();
+		}
+		DefaultTableModel m = (DefaultTableModel)this.getModel().getTableModel();
+		m.removeRow(row);
+		if(paint) {
+			repaint();
+		}
+	}
+	
 	//
 	// Managing TableUI
 	//
