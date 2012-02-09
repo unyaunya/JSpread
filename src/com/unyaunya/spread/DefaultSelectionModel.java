@@ -2,15 +2,15 @@ package com.unyaunya.spread;
 
 import java.util.logging.Logger;
 
-public class DefaultRangeSelectionModel implements ISpreadSelectionModel {
-    private static final Logger LOG = Logger.getLogger(DefaultRangeSelectionModel.class.getName());
+public class DefaultSelectionModel implements ISpreadSelectionModel {
+    private static final Logger LOG = Logger.getLogger(DefaultSelectionModel.class.getName());
 	
 	private RangeDescriptor selectedRangeList = new RangeDescriptor();
 	private CellPosition anchorCell = new CellPosition();
 	private CellPosition leadCell = new CellPosition();
 	private CellRange currentRange = new CellRange();
 	
-	public DefaultRangeSelectionModel() {
+	public DefaultSelectionModel() {
 		reset();
 	}
 

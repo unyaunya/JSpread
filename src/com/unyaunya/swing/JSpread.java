@@ -34,7 +34,7 @@ import com.unyaunya.spread.Actions;
 import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.ISpreadSelectionModel;
-import com.unyaunya.spread.DefaultRangeSelectionModel;
+import com.unyaunya.spread.DefaultSelectionModel;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
 import com.unyaunya.spread.SpreadBorder;
@@ -97,7 +97,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		this.config = config;
 		this.model = new SpreadModel();
 		this.scrollModel = new ScrollModel(this);
-		this.selectionModel = new DefaultRangeSelectionModel();
+		this.selectionModel = new DefaultSelectionModel();
         this.actions = new Actions(this);
     	this.defaultCellEditor = new DefaultCellEditor(this);
 
