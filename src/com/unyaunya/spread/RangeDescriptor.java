@@ -49,7 +49,27 @@ public class RangeDescriptor {
 		}
 		return false;
 	}
+
+	public boolean isRowSelected(int rowIndex) {
+		for(int i = 0; i < selectedRangeList.size(); i++) {
+			ICellRange r = selectedRangeList.get(i); 
+			if(r.getTop() <= rowIndex && rowIndex <= r.getBottom()) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
+	public boolean isColumnSelected(int columnIndex) {
+		for(int i = 0; i < selectedRangeList.size(); i++) {
+			ICellRange r = selectedRangeList.get(i); 
+			if(r.getLeft() <= columnIndex && columnIndex <= r.getRight()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void add(ICellRange range) {
 		selectedRangeList = CellRange.merge(getSelectedRangeList(), range);
 	}

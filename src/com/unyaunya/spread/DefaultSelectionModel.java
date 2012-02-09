@@ -96,18 +96,12 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 
 	@Override
 	public boolean isRowSelected(int rowIndex) {
-		if(rowIndex < this.getCurrentRange().getTop() || this.getCurrentRange().getBottom() < rowIndex) {
-			return false;
-		}
-		return true;
+		return selectedRangeList.isRowSelected(rowIndex);
 	}
 
 	@Override
 	public boolean isColumnSelected(int columnIndex) {
-		if(columnIndex < this.getCurrentRange().getLeft() || this.getCurrentRange().getRight() < columnIndex) {
-			return false;
-		}
-		return true;
+		return selectedRangeList.isColumnSelected(columnIndex);
 	}
 
 	@Override
