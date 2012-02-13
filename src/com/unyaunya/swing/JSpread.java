@@ -313,16 +313,6 @@ public class JSpread extends JComponent implements CellEditorListener {
 		return columnIndex;
 	}
 
-	public void setFocus(int rowIndex, int columnIndex, InputEvent modifiers) {
-		boolean ctrl = false;
-		boolean shft = false;
-		if(modifiers != null) {
-			ctrl = modifiers.isControlDown();
-			shft = modifiers.isShiftDown();
-		}
-		select(rowIndex, columnIndex, shft, ctrl);
-	}
-	
 	public void select(int rowIndex, int columnIndex) {
 		select(rowIndex, columnIndex, false, false);
 	}
@@ -814,7 +804,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 				int row = rowAtPoint(pt);
 				int col = columnAtPoint(pt);
 				if(row != 0 && col != 0) {
-					setFocus(row, col, e);
+					select(row, col);
 					repaint();
 				}
 			}
