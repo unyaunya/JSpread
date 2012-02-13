@@ -115,11 +115,49 @@ public class CellRange implements ICellRange {
 		return right - left + 1;
 	}
 
+	/**
+	 * ・当該セル範囲が、位置(0,0)を含んでいれば、containsは常にtrueを返す。
+	 *　・当該セル範囲が、位置(rowIndex,0)を含んでいれば、contains(rowIndex, any)は常にtrueを返す。
+	 *　・当該セル範囲が、位置(columnIndex,0)を含んでいれば、contains(any, columnIndex)は常にtrueを返す。
+	 *　・その他の場合は、次の条件を満たす場合のみ、contains(rowIndex, columnIndex)は常にtrueを返す。
+	 *   (getTop() <= rowIndex && rowIndex <= getBottom()) && (getLeft() <= columnIndex && columnIndex <= getRight())
+	 * @param rowIndex
+	 * @param columnIndex
+	 * @return　rowIndex, columnIndexで示されるセル位置を含んでいればtrue
+	 */
 	@Override
 	public boolean contains(int rowIndex, int columnIndex) {
+		if(_contains(0,0)) {
+			return true;
+		}
+		if(_contains(rowIndex, 0)) {
+			return true;
+		}
+		if(_contains(0,columnIndex)) {
+			return true;
+		}
+		return _contains(rowIndex, columnIndex);
+	}
+
+	private boolean _contains(int rowIndex, int columnIndex) {
 		return (getTop() <= rowIndex && rowIndex <= getBottom()) && (getLeft() <= columnIndex && columnIndex <= getRight());
 	}
 
+
+	public boolean containsRow(int rowIndex) {
+		if(getTop() == 0) {
+			return true;
+		}
+		return (getTop() <= rowIndex && rowIndex <= getBottom());
+	}
+	
+	public boolean containsColumn(int columnIndex) {
+		if(getLeft() == 0) {
+			return true;
+		}
+		return (getLeft() <= columnIndex && columnIndex <= getRight());
+	}
+	
 	private static boolean isOverlappedOrAdjacent(int s1, int e1, int s2, int e2) {
 		if(s1 < s2) {
 			return (e1 >= (s2-1));

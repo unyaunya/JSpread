@@ -12,7 +12,7 @@ public interface ISpreadSelectionModel {
 	public void reset();
 
 	/**
-	 * 指定したセルを選択する。(リードセル、アンカーセルは同じセルを指す。)
+	 * 指定したセルを選択する。(リードセル、テールセルは同じセルを指す。)
 	 * (SHIFTキーを押さずにクリック、カーソル移動した時の動作)
 	 * 
 	 * clearフラグがtrueならば、同時にその他の選択をクリアする。
@@ -21,30 +21,37 @@ public interface ISpreadSelectionModel {
 	public void select(int row, int column, boolean clear);
 
 	/**
-	 * 指定したセルをリードセルにする。アンカーセルは移動しない。
+	 * 指定したセルをアンカーセルにする。リードセルは移動しない。
 	 */
-	public void setLeadCell(int row, int column);
+	public void setTailCell(int row, int column);
+
+	/**
+	 * 指定したセルをリードセルにする。テールセルは移動しない。
+	 */
+	//public void setLeadCell(int row, int column);
 
 	/**
 	 * 全セルを選択する。
+	 * （表ヘッダの左上角のセルをクリックした時の動作）
 	 */
 	public void selectAll();
-	
+
 	/**
 	 * 指定した行全体を選択する。
 	 */
-	public void selectRow(int row, boolean clear);
+	//public void selectRow(int row, boolean clear);
 
 	/**
 	 * 指定した列全体を選択する。
 	 */
-	public void selectColumn(int column, boolean clear);
-
+	//public void selectColumn(int column, boolean clear);
+	
+	
+	
 	public boolean isCellSelected(int row, int column);
 	public boolean isRowSelected(int row);
 	public boolean isColumnSelected(int column);
-	public CellPosition getLeadCell();
-	public int getLeadSelectionRow();
-	public int getLeadSelectionColumn();
+	public int getRowOfLeadCell();
+	public int getColumnOfLeadCell();
 	public boolean isLeadCell(int rowIndex, int columnIndex);
 }
