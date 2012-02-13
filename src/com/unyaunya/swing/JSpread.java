@@ -878,6 +878,5 @@ public class JSpread extends JComponent implements CellEditorListener {
 		public void pageDown() {
 			select(_getRowIndex() + getRangeModel(Adjustable.VERTICAL).getExtent(), _getColumnIndex());
 		}
-	
 	}
 }
