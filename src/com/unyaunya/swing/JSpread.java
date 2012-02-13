@@ -7,11 +7,14 @@ import java.awt.Adjustable;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
+import java.net.URL;
 import java.util.EventObject;
 import java.util.logging.Logger;
 
@@ -26,7 +29,6 @@ import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import com.unyaunya.spread.CellPosition;
 import com.unyaunya.spread.Config;
 import com.unyaunya.spread.DefaultCellEditor;
 import com.unyaunya.spread.DefaultCellRenderer;
@@ -121,7 +123,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	// Operation of the SpreadSheet
 	//
 	public void insertRow() {
-		insertRow(getSelectionModel().getLeadSelectionRow()-1, true);
+		insertRow(getSelectionModel().getRowOfLeadCell()-1, true);
 	}
 
 	public void insertRow(int row) {
@@ -140,7 +142,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	}
 
 	public void removeRow() {
-		removeRow(getSelectionModel().getLeadSelectionRow()-1, true);
+		removeRow(getSelectionModel().getRowOfLeadCell()-1, true);
 	}
 	public void removeRow(int row) {
 		removeRow(row, true);
@@ -274,10 +276,9 @@ public class JSpread extends JComponent implements CellEditorListener {
 	}
 	
 	public void freezePanes() {
-		//scrollModel.freezePanes(focusModel.getRowIndex()-1, focusModel.getColumnIndex()-1);
-		CellPosition leadCell = selectionModel.getLeadCell();
-		scrollModel.freezePanes(leadCell.getRow()-1, leadCell.getColumn()-1);
+		scrollModel.freezePanes(selectionModel.getRowOfLeadCell()-1, selectionModel.getColumnOfLeadCell()-1);
 	}
+
 	public void unfreezePanes() {
 		scrollModel.unfreezePanes();
 	}
@@ -312,13 +313,9 @@ public class JSpread extends JComponent implements CellEditorListener {
 		return columnIndex;
 	}
 
-	public void select(int rowIndex, int columnIndex) {
-		select(rowIndex, columnIndex, false, false);
-	}
-
 	public void select(int rowIndex, int columnIndex, boolean shft, boolean ctrl) {
-		int orig_row = getSelectionModel().getLeadCell().getRow();
-		int orig_col = getSelectionModel().getLeadCell().getColumn();
+		int orig_row = getSelectionModel().getRowOfLeadCell();
+		int orig_col = getSelectionModel().getColumnOfLeadCell();
 		int newRowIndex = _rowIndex(rowIndex);
 		int newColumnIndex = _columnIndex(columnIndex);
 		if(orig_row != newRowIndex || orig_col != newColumnIndex) {
@@ -328,7 +325,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 			//getSpread().repaintCell(this.rowIndex, this.columnIndex);
 		}
 		if(shft) {
-			selectionModel.setLeadCell(newRowIndex, newColumnIndex);
+			selectionModel.setTailCell(newRowIndex, newColumnIndex);
 		}
 		else {
 			selectionModel.select(newRowIndex, newColumnIndex, !ctrl);
@@ -409,20 +406,22 @@ public class JSpread extends JComponent implements CellEditorListener {
 	public Component prepareRenderer(ISpreadCellRenderer renderer, int row, int col) {
 		SpreadModel m = getModel();
 		Object s = m.getValueAt(row, col);
-		boolean isSelected;
-		if(row == 0 && col == 0) {
-			isSelected = this.getSelectionModel().isCellSelected(row, col);
-		}
-		else if(row == 0) {
-			isSelected = this.getSelectionModel().isColumnSelected(col);
-		}
-		else if(col == 0) {
-			isSelected = this.getSelectionModel().isRowSelected(row);
-		}
-		else {
-			isSelected = this.getSelectionModel().isCellSelected(row, col);
-		}
 		boolean hasFocus = this.getSelectionModel().isLeadCell(row, col);
+		boolean isSelected = false;
+		if(!hasFocus) {
+			if(row == 0 && col == 0) {
+				isSelected = this.getSelectionModel().isCellSelected(row, col);
+			}
+			else if(row == 0) {
+				isSelected = this.getSelectionModel().isColumnSelected(col);
+			}
+			else if(col == 0) {
+				isSelected = this.getSelectionModel().isRowSelected(row);
+			}
+			else {
+				isSelected = this.getSelectionModel().isCellSelected(row, col);
+			}
+		}
 		Border border = getCellBorder(isSelected, hasFocus, row, col);
 		renderer.setBorder(border);
 		renderer.setBackground(this.getCellBackground(isSelected, hasFocus, row, col));
@@ -556,8 +555,8 @@ public class JSpread extends JComponent implements CellEditorListener {
 				//int leadRow = getSelectionModel().getLeadSelectionIndex();
 				//int leadColumn = getColumnModel().getSelectionModel().getLeadSelectionIndex();
 				//if (leadRow != -1 && leadColumn != -1 && !isEditing()) {
-				int row = getSelectionModel().getLeadSelectionRow();
-				int col = getSelectionModel().getLeadSelectionColumn();
+				int row = getSelectionModel().getRowOfLeadCell();
+				int col = getSelectionModel().getColumnOfLeadCell();
 				if (!editCellAt(row, col)) {
 					return false;
 				}
@@ -617,12 +616,22 @@ public class JSpread extends JComponent implements CellEditorListener {
 	
 	public class Handler extends MouseInputAdapter implements KeyListener {
 		static final int RESIZE_ZONE_WIDTH = 3;
+		private final Cursor ROW_SELECT_CURSOR = createCursor("icons/arrow_right.gif", new Point(15, 15));
+		private final Cursor COLUMN_SELECT_CURSOR = createCursor("icons/arrow_down.gif", new Point(15, 15));
 		private Cursor COLUMN_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
 		private Cursor ROW_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
 		private Cursor currentCursor = null;
 		private int resizeBorderIndex = 0;
 		private boolean shiftDown;
 		private boolean controlDown;
+		
+		private Cursor createCursor(String name, Point hotSpot) {
+			Toolkit kit = Toolkit.getDefaultToolkit();
+			URL url = getClass().getClassLoader().getResource(name);
+			Image img = kit.createImage(url); 
+			Cursor cursor = kit.createCustomCursor(img, hotSpot, name);
+			return cursor;
+		}
 		
 		private boolean isShiftDown() {
 			return shiftDown;
@@ -695,14 +704,23 @@ public class JSpread extends JComponent implements CellEditorListener {
 			Cursor nextCursor = null;
 			resizeBorderIndex = 0;
 			int colIndex = getNearbyResizeColumnBorderIndex(pt, row, col);
+			int rowIndex = getNearbyResizeRowBorderIndex(pt, row, col);
 			if(colIndex != 0) {
 				nextCursor = COLUMN_RESIZE_CURSOR;
 				resizeBorderIndex = colIndex;
 			}
-			int rowIndex = getNearbyResizeRowBorderIndex(pt, row, col);
-			if(rowIndex != 0) {
+			else if(rowIndex != 0) {
 				nextCursor = ROW_RESIZE_CURSOR;
 				resizeBorderIndex = rowIndex;
+			}
+			else if(row == 0 && col == 0) {
+				nextCursor = null;
+			}
+			else if(row == 0) {
+				nextCursor = COLUMN_SELECT_CURSOR;
+			}
+			else if(col == 0) {
+				nextCursor = ROW_SELECT_CURSOR;
 			}
 
 			if(currentCursor != nextCursor) {
@@ -742,22 +760,13 @@ public class JSpread extends JComponent implements CellEditorListener {
 				Point pt = e.getPoint();
 				int row = rowAtPoint(pt);
 				int col = columnAtPoint(pt);
-				if(row == 0 && col == 0) {
-					getSelectionModel().selectAll();
-					repaint();
+				if(isShiftDown()) {
+					getSelectionModel().setTailCell(row, col);
 				}
-				else if(row == 0) {
-					getSelectionModel().selectColumn(col, !e.isControlDown());
-					repaint();
-				}
-				else if(col == 0) {
-					getSelectionModel().selectRow(row, !e.isControlDown());
-					repaint();
-				}
-				else if(row > 0 && col > 0) {
+				else {
 					getSelectionModel().select(row, col, !e.isShiftDown() && !e.isControlDown());
-					repaint();
 				}
+				repaint();
 			}
 		}
 
@@ -803,23 +812,46 @@ public class JSpread extends JComponent implements CellEditorListener {
 				int row = rowAtPoint(pt);
 				int col = columnAtPoint(pt);
 				if(row != 0 && col != 0) {
-					select(row, col);
+					//select(row, col);
+					getSelectionModel().setTailCell(row, col);
 					repaint();
 				}
 			}
 		}
 
 		private int _getRowIndex() {
-			return getSelectionModel().getLeadCell().getRow();
+			return getSelectionModel().getRowOfLeadCell();
 		}
 
 		private int _getColumnIndex() {
-			return getSelectionModel().getLeadCell().getColumn();
+			return getSelectionModel().getColumnOfLeadCell();
 		}
 
 		private void select(int rowIndex, int columnIndex) {
 			LOG.info("SHIFT="+isShiftDown()+",CTRL="+isControlDown());
 			JSpread.this.select(rowIndex, columnIndex, isShiftDown(), isControlDown());
+		}
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
+				setShiftDown(true);
+			}
+			if(e.getKeyCode() == KeyEvent.VK_CONTROL) {
+				setControlDown(true);
+			}
+		}
+		@Override
+		public void keyReleased(KeyEvent e) {
+			if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
+				setShiftDown(false);
+			}
+			if(e.getKeyCode() == KeyEvent.VK_CONTROL) {
+				setControlDown(false);
+			}
+		}
+		@Override
+		public void keyTyped(KeyEvent e) {
 		}
 
 		public void left() {
@@ -846,26 +878,6 @@ public class JSpread extends JComponent implements CellEditorListener {
 		public void pageDown() {
 			select(_getRowIndex() + getRangeModel(Adjustable.VERTICAL).getExtent(), _getColumnIndex());
 		}
-		@Override
-		public void keyPressed(KeyEvent e) {
-			if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
-				setShiftDown(true);
-			}
-			if(e.getKeyCode() == KeyEvent.VK_CONTROL) {
-				setControlDown(true);
-			}
-		}
-		@Override
-		public void keyReleased(KeyEvent e) {
-			if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
-				setShiftDown(false);
-			}
-			if(e.getKeyCode() == KeyEvent.VK_CONTROL) {
-				setControlDown(false);
-			}
-		}
-		@Override
-		public void keyTyped(KeyEvent e) {
-		}
+	
 	}
 }

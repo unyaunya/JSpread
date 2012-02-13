@@ -2,14 +2,37 @@ package com.unyaunya.spread;
 
 import java.util.logging.Logger;
 
+/**
+ * スプレッドシート用のセレクションを取扱うモデル
+ * 
+ * @author wata
+ *
+ */
 public class DefaultSelectionModel implements ISpreadSelectionModel {
     private static final Logger LOG = Logger.getLogger(DefaultSelectionModel.class.getName());
 	
-	private RangeDescriptor selectedRangeList = new RangeDescriptor();
-	private CellPosition anchorCell = new CellPosition();
-	private CellPosition leadCell = new CellPosition();
+    /**
+     * 選択範囲全体を保持するリスト。複数のセル範囲を保持する。
+     */
+    private RangeDescriptor selectedRangeList = new RangeDescriptor();
+    /**
+     * マウス、キーボードにより、直接操作されるセル範囲。
+     * セル範囲の限界は、常にleadCellとanchorCellを含むように設定される。
+     */
 	private CellRange currentRange = new CellRange();
+	/**
+	 * currentRangeの角であり、anchorCellの対角となるセル位置。
+	 * 入力コンポーネントが配置されるセル位置でもある。 
+	 */
+	private CellPosition leadCell = new CellPosition();
+	/**
+	 * currentRangeの角であり、leadCellの対角となるセル位置
+	 */
+	private CellPosition tailCell = new CellPosition();
 	
+	/**
+	 * コンストラクタ
+	 */
 	public DefaultSelectionModel() {
 		reset();
 	}
@@ -19,26 +42,37 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	 */
 	public void reset() {
 		selectedRangeList.clear();
-		selectedRangeList.add(currentRange);
+		selectedRangeList.getSelectedRangeList().add(currentRange);
 		select(1,1,true);
 	}
 
-	private void setAnchorCell(int row, int column) {
-		anchorCell.set(row, column);
-		currentRange.set(leadCell, anchorCell);
+	/**
+	 * 指定したセルをテールセルにする。リードセルは移動しない。
+	 */
+	public void setTailCell(int row, int column) {
+		tailCell.set(row, column);
+		currentRange.set(leadCell, tailCell);
 	}
 
 	/**
-	 * 指定したセルをリードセルにする。アンカーセルは移動しない。
+	 * 指定したセルをリードセルにする。テールセルは移動しない。
 	 */
-	public void setLeadCell(int row, int column) {
+	private void setLeadCell(int row, int column) {
 		LOG.info("setLeadCell("+row+","+column+")");
 		leadCell.set(row, column);
-		currentRange.set(leadCell, anchorCell);
+		currentRange.set(leadCell, tailCell);
+	}
+
+	private void addNewRange(boolean clear) {
+		if(clear) {
+			selectedRangeList.clear();
+		}
+		currentRange = new CellRange();
+		selectedRangeList.getSelectedRangeList().add(currentRange);
 	}
 
 	/**
-	 * 指定したセルを選択する。(リードセル、アンカーセルは同じセルを指す。)
+	 * 指定したセルを選択する。(リードセル、テールセルは同じセルを指す。)
 	 * (SHIFTキーを押さずにクリック、カーソル移動した時の動作)
 	 * 
 	 * clearフラグがtrueならば、同時にその他の選択をクリアする。
@@ -46,13 +80,20 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	 */
 	public void select(int row, int column, boolean clear) {
 		LOG.info("select("+row+","+column+","+clear+")");
-		if(clear) {
-			selectedRangeList.clear();
+		addNewRange(clear);
+		if(row == 0 && column == 0) {
+			//selectAll();
 		}
-		currentRange = new CellRange();
-		selectedRangeList.getSelectedRangeList().add(currentRange);
+		else if(row == 0) {
+			
+		}
+		else if(column == 0) {
+			
+		}
+		else {
+		}
 		setLeadCell(row, column);
-		setAnchorCell(row, column);
+		setTailCell(row, column);
 	}
 
 	/**
@@ -61,36 +102,35 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	@Override
 	public void selectAll() {
 		reset();
-		setAnchorCell(Integer.MAX_VALUE, Integer.MAX_VALUE);
+		setTailCell(Integer.MAX_VALUE, Integer.MAX_VALUE);
 	}
 	
 	/**
 	 * 指定した行全体を選択する。
 	 */
+	/*
 	@Override
 	public void selectRow(int row, boolean clear) {
-		select(row, Integer.MAX_VALUE, clear);
+		addNewRange(clear);
 		setLeadCell(row, 1);
+		setTailCell(row, Integer.MAX_VALUE);
 	}
+	*/
 
 	/**
 	 * 指定した列全体を選択する。
 	 */
+	/*
 	@Override
 	public void selectColumn(int column, boolean clear) {
-		select(Integer.MAX_VALUE, column, clear);
+		addNewRange(clear);
 		setLeadCell(1, column);
+		setTailCell(Integer.MAX_VALUE, column);
 	}
-	
-	private CellRange getCurrentRange() {
-		return currentRange;
-	}
+	*/
 	
 	@Override
 	public boolean isCellSelected(int rowIndex, int columnIndex) {
-		if(rowIndex == 0  && columnIndex == 0) {
-			return anchorCell.getRow() == Integer.MAX_VALUE && anchorCell.getColumn() == Integer.MAX_VALUE; 
-		}
 		return selectedRangeList.contains(rowIndex, columnIndex);
 	}
 
@@ -106,21 +146,16 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 
 	@Override
 	public boolean isLeadCell(int rowIndex, int columnIndex) {
-		return (rowIndex == getLeadSelectionRow() && columnIndex == getLeadSelectionColumn());
+		return (rowIndex == getRowOfLeadCell() && columnIndex == getColumnOfLeadCell());
 	}
 
 	@Override
-	public CellPosition getLeadCell() {
-		return leadCell;
+	public int getRowOfLeadCell() {
+		return Math.max(1, leadCell.getRow());
 	}
 
 	@Override
-	public int getLeadSelectionRow() {
-		return leadCell.getRow();
-	}
-
-	@Override
-	public int getLeadSelectionColumn() {
-		return leadCell.getColumn();
+	public int getColumnOfLeadCell() {
+		return Math.max(1, leadCell.getColumn());
 	}
 }

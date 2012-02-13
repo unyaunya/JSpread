@@ -53,7 +53,7 @@ public class RangeDescriptor {
 	public boolean isRowSelected(int rowIndex) {
 		for(int i = 0; i < selectedRangeList.size(); i++) {
 			ICellRange r = selectedRangeList.get(i); 
-			if(r.getTop() <= rowIndex && rowIndex <= r.getBottom()) {
+			if(r.containsRow(rowIndex)) {
 				return true;
 			}
 		}
@@ -63,7 +63,7 @@ public class RangeDescriptor {
 	public boolean isColumnSelected(int columnIndex) {
 		for(int i = 0; i < selectedRangeList.size(); i++) {
 			ICellRange r = selectedRangeList.get(i); 
-			if(r.getLeft() <= columnIndex && columnIndex <= r.getRight()) {
+			if(r.containsColumn(columnIndex)) {
 				return true;
 			}
 		}

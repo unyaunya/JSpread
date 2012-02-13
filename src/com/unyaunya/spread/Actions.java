@@ -120,8 +120,6 @@ public class Actions {
     	addControlAction(map, KeyEvent.VK_UP, UpAction.class);
     	addControlAction(map, KeyEvent.VK_DOWN, DownAction.class);
     	addControlAction(map, KeyEvent.VK_ENTER, DownAction.class);
-    	addControlAction(map, KeyEvent.VK_PAGE_UP, PageUpAction.class);
-    	addControlAction(map, KeyEvent.VK_PAGE_DOWN, PageDownAction.class);
 
     	return map;
     }    
