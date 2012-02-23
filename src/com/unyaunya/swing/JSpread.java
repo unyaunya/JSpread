@@ -779,6 +779,12 @@ public class JSpread extends JComponent implements CellEditorListener {
 			else if(currentCursor == COLUMN_RESIZE_CURSOR) {
 				LOG.info("列リサイズ終了");
 			}
+			else if(currentCursor == ROW_SELECT_CURSOR) {
+				LOG.info("行選択終了");
+			}
+			else if(currentCursor == COLUMN_SELECT_CURSOR) {
+				LOG.info("列選択終了");
+			}
 		}
 		
 		/*
@@ -811,11 +817,24 @@ public class JSpread extends JComponent implements CellEditorListener {
 				Point pt = e.getPoint();
 				int row = rowAtPoint(pt);
 				int col = columnAtPoint(pt);
-				if(row != 0 && col != 0) {
-					//select(row, col);
-					getSelectionModel().setTailCell(row, col);
-					repaint();
+				if(currentCursor == COLUMN_SELECT_CURSOR) {
+					row = 0;
+					if(col == 0) {
+						col = 1;
+					}
 				}
+				else if(currentCursor == ROW_SELECT_CURSOR) {
+					col = 0;
+					if(row == 0) {
+						row = 1;
+					}
+				}
+				else {
+					//if(row != 0 && col != 0) {
+					//}
+				}
+				getSelectionModel().setTailCell(row, col);
+				repaint();
 			}
 		}
 
