@@ -110,7 +110,7 @@ public class ScrollModel implements TableModelListener {
 		}
 	}
 
-	public Rectangle getCellRect(int rowIndex, int colIndex) {
+	public Rectangle getGridRect(int rowIndex, int colIndex) {
 		return new Rectangle(
 					colRangeModel.getPosition(colIndex),
 					rowRangeModel.getPosition(rowIndex),

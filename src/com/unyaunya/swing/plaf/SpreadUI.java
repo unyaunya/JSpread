@@ -165,56 +165,24 @@ public class SpreadUI extends ComponentUI {
 		paintCells(g,	scrollModel.rowAtPoint(upperLeft),
 						scrollModel.rowAtPoint(lowerRight),
 						scrollModel.columnAtPoint(upperLeft),
-						scrollModel.columnAtPoint(lowerRight),
-						0,0);
+						scrollModel.columnAtPoint(lowerRight));
 	}
 
-	private void paintCells(Graphics g, int rMin, int rMax, int cMin, int cMax, int horizontalOffset, int verticalOffset) {
-		//LOG.info("\t\tpaintCells(int rMin, int rMax, int cMin, int cMax):");
-		//LOG.info("\t\t\t(rMin, rMax, cMin, cMax)=("+rMin+","+rMax+","+cMin+","+cMax+")");
+	private void paintCells(Graphics g, int rMin, int rMax, int cMin, int cMax) {
 		SpreadModel m = table.getModel();
-		ScrollModel scrollModel = table.getScrollModel();
 		rMax = Math.min(rMax, m.getRowCount()-1);
 		cMax = Math.min(cMax, m.getColumnCount()-1);
-		Rectangle cellRect = new Rectangle();
+		Rectangle cellRect = null;
 		for(int row = rMin; row <= rMax; row++) {
-			cellRect.y = scrollModel.getRowPosition(row) + verticalOffset;
-			cellRect.height = scrollModel.getRowHeight(row);
 			for(int col = cMin; col <= cMax; col++) {
-				cellRect.x = scrollModel.getColumnPosition(col) + horizontalOffset;
-				cellRect.width = scrollModel.getColumnWidth(col);
-				ICellRange r = this.table.getCellRange(row, col);
-				if(r == null) {
+				cellRect = table.getCellRect(row, col);
+				if(cellRect != null) {
 					paintCell(g, cellRect, row, col);
-				}
-				else {
-					if(r.getTop() == row && r.getLeft() == col) {
-						Rectangle rect = _getCellRect(r, horizontalOffset, verticalOffset);
-						paintCell(g, rect, row, col);
-						//paintCell(g, cellRect, row, col);
-						LOG.info(String.format("(%d, %d)=%s", row, col, rect));
-					}
-					else {
-					}
 				}
 			}
 		}
 	}
 
-	private Rectangle _getCellRect(ICellRange r, int horizontalOffset, int verticalOffset) {
-		int top = r.getTop();
-		int left = r.getLeft();
-		int bottom = r.getBottom();
-		int right = r.getRight();
-		ScrollModel scrollModel = table.getScrollModel();
-		Rectangle cellRect = new Rectangle();
-		cellRect.y = scrollModel.getRowPosition(top) + verticalOffset;
-		cellRect.height = scrollModel.getRowPosition(bottom+1) - cellRect.y;
-		cellRect.x = scrollModel.getColumnPosition(left) + horizontalOffset;
-		cellRect.width = scrollModel.getColumnPosition(right+1) - cellRect.x;
-		return cellRect;
-	}
-	
 	private void paintCell(Graphics g, Rectangle cellRect, int row, int col) {
 		ISpreadCellRenderer tcr = table.getCellRenderer(row,col);
 		Component c = table.prepareRenderer(tcr, row, col);

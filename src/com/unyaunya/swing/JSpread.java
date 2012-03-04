@@ -307,10 +307,33 @@ public class JSpread extends JComponent implements CellEditorListener {
 	 * methods delegating to ScrollModel
 	 */
 	
-	public Rectangle getCellRect(int rowIndex, int colIndex) {
-		return scrollModel.getCellRect(rowIndex, colIndex);
+	public Rectangle getGridRect(int rowIndex, int colIndex) {
+		return scrollModel.getGridRect(rowIndex, colIndex);
 	}
 
+	public Rectangle getCellRect(int rowIndex, int colIndex) {
+		ICellRange r = getCellRange(rowIndex, colIndex);
+		if(r == null) {
+			return getGridRect(rowIndex, colIndex);
+		}
+		if(r.getTop() == rowIndex && r.getLeft() == colIndex) {
+			int top = r.getTop();
+			int left = r.getLeft();
+			int bottom = r.getBottom();
+			int right = r.getRight();
+			ScrollModel scrollModel = getScrollModel();
+			Rectangle cellRect = new Rectangle();
+			cellRect.y = scrollModel.getRowPosition(top);
+			cellRect.height = scrollModel.getRowPosition(bottom+1) - cellRect.y;
+			cellRect.x = scrollModel.getColumnPosition(left);
+			cellRect.width = scrollModel.getColumnPosition(right+1) - cellRect.x;
+			return cellRect;
+		}
+		else {
+			return null;
+		}
+	}
+	
 	public int rowAtPoint(Point pt) {
 		return scrollModel.rowAtPoint(pt);
 	}
@@ -555,7 +578,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
 		ISpreadCellEditor editor = getCellEditor(row, column);
 		editorComponent = prepareEditor(editor, row, column);
-		editorComponent.setBounds(getCellRect(row, column));
+		editorComponent.setBounds(getGridRect(row, column));
 		add(editorComponent);
 		editorComponent.validate();
 		
