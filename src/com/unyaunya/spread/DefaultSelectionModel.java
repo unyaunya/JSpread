@@ -158,4 +158,9 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	public int getColumnOfLeadCell() {
 		return Math.max(1, leadCell.getColumn());
 	}
+
+	@Override
+	public RangeDescriptor getRangeDescriptor() {
+		return this.selectedRangeList;
+	}
 }

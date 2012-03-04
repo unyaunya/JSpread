@@ -28,4 +28,29 @@ public class CellPosition {
 		this.row = row;
 		this.column = column;
 	}
+
+	@Override
+	public boolean equals(Object value) {
+		if(value == null) {
+			return false;
+		}
+		//System.out.println(String.format("equals(%s, %s)", this, value));
+		if(value instanceof CellPosition) {
+			CellPosition val = (CellPosition)value;
+			if(this.row == val.row && this.column == val.column) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("CallPosition[row=%d,column=%d]", this.row, this.column);
+	}
+
+	@Override
+	public int hashCode(){
+		return row*column;
+	}
 }

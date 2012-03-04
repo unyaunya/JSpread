@@ -54,4 +54,5 @@ public interface ISpreadSelectionModel {
 	public int getRowOfLeadCell();
 	public int getColumnOfLeadCell();
 	public boolean isLeadCell(int rowIndex, int columnIndex);
+	public RangeDescriptor getRangeDescriptor();
 }

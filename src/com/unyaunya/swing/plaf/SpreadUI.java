@@ -19,6 +19,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.plaf.ComponentUI;
 
 import com.unyaunya.spread.Actions;
+import com.unyaunya.spread.CellRange;
+import com.unyaunya.spread.ICellRange;
 import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
@@ -181,11 +183,38 @@ public class SpreadUI extends ComponentUI {
 			for(int col = cMin; col <= cMax; col++) {
 				cellRect.x = scrollModel.getColumnPosition(col) + horizontalOffset;
 				cellRect.width = scrollModel.getColumnWidth(col);
-				paintCell(g, cellRect, row, col);
+				ICellRange r = this.table.getCellRange(row, col);
+				if(r == null) {
+					paintCell(g, cellRect, row, col);
+				}
+				else {
+					if(r.getTop() == row && r.getLeft() == col) {
+						Rectangle rect = _getCellRect(r, horizontalOffset, verticalOffset);
+						paintCell(g, rect, row, col);
+						//paintCell(g, cellRect, row, col);
+						LOG.info(String.format("(%d, %d)=%s", row, col, rect));
+					}
+					else {
+					}
+				}
 			}
 		}
 	}
 
+	private Rectangle _getCellRect(ICellRange r, int horizontalOffset, int verticalOffset) {
+		int top = r.getTop();
+		int left = r.getLeft();
+		int bottom = r.getBottom();
+		int right = r.getRight();
+		ScrollModel scrollModel = table.getScrollModel();
+		Rectangle cellRect = new Rectangle();
+		cellRect.y = scrollModel.getRowPosition(top) + verticalOffset;
+		cellRect.height = scrollModel.getRowPosition(bottom+1) - cellRect.y;
+		cellRect.x = scrollModel.getColumnPosition(left) + horizontalOffset;
+		cellRect.width = scrollModel.getColumnPosition(right+1) - cellRect.x;
+		return cellRect;
+	}
+	
 	private void paintCell(Graphics g, Rectangle cellRect, int row, int col) {
 		ISpreadCellRenderer tcr = table.getCellRenderer(row,col);
 		Component c = table.prepareRenderer(tcr, row, col);
