@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -48,6 +49,7 @@ class MyMouseListener extends MouseAdapter {
 }
 
 class MyFrame extends JFrame {
+	private static Logger LOG = Logger.getLogger(MyFrame.class.getName());
 	private static final long serialVersionUID = 1L;
 	private boolean isInited = false; 
 	private JSpread spread; 
@@ -116,6 +118,10 @@ class MyFrame extends JFrame {
 		menu = createMenu("挿入(I)", KeyEvent.VK_I);
 		menu.add(new JMenuItem(new InsertRowAction()));
 		menu.add(new JMenuItem(new InsertColumnAction()));
+		menuBar.add(menu);
+		//Format menu
+		menu = createMenu("書式(O)", KeyEvent.VK_O);
+		menu.add(new JMenuItem(new CellCouplingAction()));
 		menuBar.add(menu);
 		//Window menu
 		menu = createMenu("ウィンドウ(W)", KeyEvent.VK_W);
@@ -253,6 +259,7 @@ class MyFrame extends JFrame {
 			getSpread().insertRow();
 		}
 	}
+
 	class InsertColumnAction extends AbstractAction {
 		public InsertColumnAction() {
 			super("列");
@@ -270,6 +277,16 @@ class MyFrame extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			getSpread().removeRow();
+		}
+	}
+
+	class CellCouplingAction extends AbstractAction {
+		public CellCouplingAction() {
+			super("セルの結合");
+		}
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			getSpread().coupleCells();
 		}
 	}
 }

@@ -16,6 +16,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.EventObject;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
@@ -29,19 +30,68 @@ import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import com.unyaunya.spread.CellRange;
 import com.unyaunya.spread.Config;
 import com.unyaunya.spread.DefaultCellEditor;
 import com.unyaunya.spread.DefaultCellRenderer;
 import com.unyaunya.spread.Actions;
+import com.unyaunya.spread.CellPosition;
+import com.unyaunya.spread.ICellRange;
 import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.ISpreadSelectionModel;
 import com.unyaunya.spread.DefaultSelectionModel;
+import com.unyaunya.spread.RangeDescriptor;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
 import com.unyaunya.spread.SpreadBorder;
 import com.unyaunya.spread.SpreadModel;
 import com.unyaunya.swing.plaf.SpreadUI;
+
+class FormatModel {
+	private HashMap<CellPosition, ICellRange> cellRangeModel;
+
+	public FormatModel() {
+		 cellRangeModel = new HashMap<CellPosition, ICellRange>();
+	}
+
+    public ICellRange getCellRange(int row, int column) {
+    	if(row <= 0 || column <= 0) {
+    		return null;
+    	}
+    	else {
+    		return this.cellRangeModel.get(new CellPosition(row, column));
+    	}
+    }
+
+	public void coupleCells(CellRange range) {
+		ICellRange r = this.getCellRange(range.getTop(), range.getLeft());  
+		if(r == null) {
+			_coupleCells(range);
+		}
+		else {
+			_decoupleCells(r);
+		}
+	}
+
+	private void _coupleCells(ICellRange range) {
+		CellRange value = new CellRange(range);
+		for(int i = range.getTop(); i <= range.getBottom(); i++) {
+			for(int j = range.getLeft(); j <= range.getRight(); j++) {
+				cellRangeModel.put(new CellPosition(i, j), value);
+			}
+		}
+	}
+
+	private void _decoupleCells(ICellRange range) {
+		CellRange value = new CellRange(range);
+		for(int i = range.getTop(); i <= range.getBottom(); i++) {
+			for(int j = range.getLeft(); j <= range.getRight(); j++) {
+				cellRangeModel.remove(new CellPosition(i, j));
+			}
+		}
+	}
+}
 
 /**
  * @author wata
@@ -73,6 +123,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	private SpreadModel model;
 	private ScrollModel scrollModel;
 	private ISpreadSelectionModel selectionModel;
+	private FormatModel formatModel;
 	private Actions actions;
 	private Handler handler;
 	
@@ -102,6 +153,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		this.selectionModel = new DefaultSelectionModel();
         this.actions = new Actions(this);
     	this.defaultCellEditor = new DefaultCellEditor(this);
+    	this.formatModel = new FormatModel();
 
         /*
         setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
@@ -278,9 +330,23 @@ public class JSpread extends JComponent implements CellEditorListener {
 	public void freezePanes() {
 		scrollModel.freezePanes(selectionModel.getRowOfLeadCell()-1, selectionModel.getColumnOfLeadCell()-1);
 	}
-
+	
 	public void unfreezePanes() {
 		scrollModel.unfreezePanes();
+	}
+
+	public void coupleCells(RangeDescriptor desc) {
+		if(desc.isMultiRange()) {
+			return;
+		}
+		CellRange range = new CellRange((CellRange)desc.getSelectedRangeList().get(0));
+		formatModel.coupleCells(range);
+		repaint();
+		LOG.info(range.toString());
+	}
+	
+	public void coupleCells() {
+		coupleCells(this.getSelectionModel().getRangeDescriptor());
 	}
 
 	public void setColumnWidth(int colIndex, int width) {
@@ -376,7 +442,11 @@ public class JSpread extends JComponent implements CellEditorListener {
     	}
     }
 
-	public Color getSelectionBackground() {
+    public ICellRange getCellRange(int row, int column) {
+   		return formatModel.getCellRange(row, column);
+    }
+
+    public Color getSelectionBackground() {
 		return this.selectionBackground;
 	}
 	public void setSelectionBackground(Color color) {

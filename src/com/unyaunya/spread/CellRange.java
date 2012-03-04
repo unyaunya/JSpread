@@ -22,11 +22,11 @@ public class CellRange implements ICellRange {
 		this(0, 0);
 	}
 
-	public CellRange(CellRange src) {
+	public CellRange(ICellRange src) {
 		set(src);
 	}
 
-	public void set(CellRange src) {
+	public void set(ICellRange src) {
 		if(src == null) {
 			this.top = -1;
 			this.left = -1;
@@ -34,7 +34,7 @@ public class CellRange implements ICellRange {
 			this.right = -1;
 		}
 		else {
-			set(src.top, src.left, src.bottom, src.right);
+			set(src.getTop(), src.getLeft(), src.getBottom(), src.getRight());
 		}
 	}
 
@@ -295,5 +295,11 @@ public class CellRange implements ICellRange {
 			}
 		}
 		return rslt;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("CallRange[top=%d,left=%d,bottom=%d,right=%d]",
+				this.top, this.left, this.bottom, this.right);
 	}
 }
