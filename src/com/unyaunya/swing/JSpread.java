@@ -334,6 +334,14 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
 	}
 	
+	public CellPosition getCellPositionAtPoint(Point pt) {
+		return new CellPosition(scrollModel.rowAtPoint(pt), scrollModel.columnAtPoint(pt));
+	}
+
+	public CellPosition getGridPositionAtPoint(Point pt) {
+		return new CellPosition(scrollModel.rowAtPoint(pt), scrollModel.columnAtPoint(pt));
+	}
+
 	public int rowAtPoint(Point pt) {
 		return scrollModel.rowAtPoint(pt);
 	}
