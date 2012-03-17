@@ -421,6 +421,11 @@ public class JSpread extends JComponent implements CellEditorListener {
 			//getSpread().repaintCell(orig_row, orig_col);
 			//getSpread().repaintCell(this.rowIndex, this.columnIndex);
 		}
+		_select(newRowIndex, newColumnIndex, shft, ctrl);
+	}
+
+	private void _select(int newRowIndex, int newColumnIndex, boolean shft,
+			boolean ctrl) {
 		if(shft) {
 			selectionModel.setTailCell(newRowIndex, newColumnIndex);
 		}
@@ -861,13 +866,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 				Point pt = e.getPoint();
 				int row = rowAtPoint(pt);
 				int col = columnAtPoint(pt);
-				if(isShiftDown()) {
-					getSelectionModel().setTailCell(row, col);
-				}
-				else {
-					getSelectionModel().select(row, col, !e.isShiftDown() && !e.isControlDown());
-				}
-				repaint();
+				_select(row, col, e.isShiftDown(), e.isControlDown());
 			}
 		}
 
