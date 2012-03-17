@@ -427,7 +427,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	private void _select(int newRowIndex, int newColumnIndex, boolean shft,
 			boolean ctrl) {
 		if(shft) {
-			selectionModel.setTailCell(newRowIndex, newColumnIndex);
+			selectionModel.setLeadCell(newRowIndex, newColumnIndex);
 		}
 		else {
 			selectionModel.select(newRowIndex, newColumnIndex, !ctrl);
@@ -933,7 +933,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 					//if(row != 0 && col != 0) {
 					//}
 				}
-				getSelectionModel().setTailCell(row, col);
+				getSelectionModel().setLeadCell(row, col);
 				repaint();
 			}
 		}
