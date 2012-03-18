@@ -953,17 +953,12 @@ public class JSpread extends JComponent implements CellEditorListener {
 			}
 		}
 
-		private int _getRowIndex() {
-			return getSelectionModel().getRowOfLeadCell();
-		}
-
-		private int _getColumnIndex() {
-			return getSelectionModel().getColumnOfLeadCell();
-		}
-
-		private void select(int rowIndex, int columnIndex) {
+		private void move(int deltaRow, int deltaColumn) {
 			LOG.info("SHIFT="+isShiftDown()+",CTRL="+isControlDown());
-			JSpread.this.select(rowIndex, columnIndex, isShiftDown(), isControlDown());
+			JSpread.this.select(
+					getSelectionModel().getRowOfLeadCell()+deltaRow,
+					getSelectionModel().getColumnOfLeadCell()+deltaColumn,
+					isShiftDown(), isControlDown());
 		}
 
 		@Override
@@ -989,28 +984,28 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
 
 		public void left() {
-			select(_getRowIndex(), _getColumnIndex()-1);
+			move(0, -1);
 		}
 		public void right() {
-			select(_getRowIndex(), _getColumnIndex()+1);
+			move(0, +1);
 		}
 		public void up() {
-			select(_getRowIndex()-1, _getColumnIndex());
+			move(-1, 0);
 		}
 		public void down() {
-			select(_getRowIndex()+1, _getColumnIndex());
+			move(+1, 0);
 		}
 		public void pageLeft() {
-			select(_getRowIndex(), _getColumnIndex() - getRangeModel(Adjustable.HORIZONTAL).getExtent());
+			move(0, - getRangeModel(Adjustable.HORIZONTAL).getExtent());
 		}
 		public void pageRight() {
-			select(_getRowIndex(), _getColumnIndex() + getRangeModel(Adjustable.HORIZONTAL).getExtent());
+			move(0, + getRangeModel(Adjustable.HORIZONTAL).getExtent());
 		}
 		public void pageUp() {
-			select(_getRowIndex() - getRangeModel(Adjustable.VERTICAL).getExtent(), _getColumnIndex());
+			move(- getRangeModel(Adjustable.VERTICAL).getExtent(), 0);
 		}
 		public void pageDown() {
-			select(_getRowIndex() + getRangeModel(Adjustable.VERTICAL).getExtent(), _getColumnIndex());
+			move(+ getRangeModel(Adjustable.VERTICAL).getExtent(), 0);
 		}
 	}
 }
