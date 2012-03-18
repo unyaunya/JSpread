@@ -446,7 +446,7 @@ public class JSpread extends JComponent implements CellEditorListener {
     	return SpreadBorder.defaultBorder;
     }
 
-    public Border getCellBorder(boolean isSelected, boolean hasFocus, int row, int column) {
+    public Border getCellBorder(boolean hasFocus, int row, int column) {
 		if(hasFocus) {
 			return this.getFocusBorder();
 		}
@@ -512,7 +512,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	public Component prepareRenderer(ISpreadCellRenderer renderer, int row, int col) {
 		SpreadModel m = getModel();
 		Object s = m.getValueAt(row, col);
-		boolean hasFocus = this.getSelectionModel().isLeadCell(row, col);
+		boolean hasFocus = this.hasFocus(row, col);
 		boolean isSelected = false;
 		if(!hasFocus) {
 			if(row == 0 && col == 0) {
@@ -528,7 +528,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 				isSelected = this.getSelectionModel().isCellSelected(row, col);
 			}
 		}
-		Border border = getCellBorder(isSelected, hasFocus, row, col);
+		Border border = getCellBorder(hasFocus, row, col);
 		renderer.setBorder(border);
 		renderer.setBackground(this.getCellBackground(isSelected, hasFocus, row, col));
 		renderer.setHorizontalAlignment(this.getHorizontalAlignment(row, col));
@@ -536,6 +536,21 @@ public class JSpread extends JComponent implements CellEditorListener {
 		return c;
 	}
 
+	private boolean hasFocus(int row, int col) {
+		boolean rslt = false;
+		ICellRange range = this.getCellRange(row, col);
+		if(range == null) {
+			rslt = this.getSelectionModel().isLeadCell(row, col);
+		}
+		else {
+			int rowLeadCell = this.getSelectionModel().getRowOfLeadCell();
+			int colLeadCell = this.getSelectionModel().getColumnOfLeadCell();
+			if(range.contains(rowLeadCell, colLeadCell)) {
+				rslt = true;
+			}
+		}
+		return rslt;
+	}
 
 	/*
 	 * methods related to cell editing 
