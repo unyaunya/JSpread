@@ -955,10 +955,34 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 		private void move(int deltaRow, int deltaColumn) {
 			LOG.info("SHIFT="+isShiftDown()+",CTRL="+isControlDown());
-			JSpread.this.select(
-					getSelectionModel().getRowOfLeadCell()+deltaRow,
-					getSelectionModel().getColumnOfLeadCell()+deltaColumn,
-					isShiftDown(), isControlDown());
+			int currentRow = getSelectionModel().getRowOfLeadCell();
+			int currentCol = getSelectionModel().getColumnOfLeadCell();
+			ICellRange range = JSpread.this.getCellRange(currentRow, currentCol);
+			int row = currentRow+deltaRow;
+			int col = currentCol+deltaColumn;
+			if(range != null) {
+				if(deltaRow > 0) {
+					if(row <= range.getBottom()) {
+						row = range.getBottom() + 1;
+					}
+				}
+				else if(deltaRow < 0) {
+					if(row >= range.getTop()) {
+						row = range.getTop() - 1;
+					}
+				}
+				if(deltaColumn > 0) {
+					if(col <= range.getRight()) {
+						col = range.getRight() + 1;
+					}
+				}
+				else if(deltaColumn < 0) {
+					if(col >= range.getLeft()) {
+						col = range.getLeft() - 1;
+					}
+				}
+			}
+			JSpread.this.select(row, col, isShiftDown(), isControlDown());
 		}
 
 		@Override
