@@ -267,7 +267,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
 		this.spreadSheetModel.setTableModel((SpreadModel)model);
 		this.getSelectionModel().reset();
-		scrollModel.setTableModel(this.getModel());
+		getScrollModel().setTableModel(this.getModel());
 		this.repaint(this.getBounds());
 	}
 	
@@ -287,7 +287,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	 * @return the rangeModel
 	 */
 	public RangeModel getRangeModel(int direction) {
-		return scrollModel.getRangeModel(direction);
+		return getScrollModel().getRangeModel(direction);
 	}
 
 	public ISpreadSelectionModel getSelectionModel() {
@@ -310,7 +310,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	 */
 	
 	public Rectangle getGridRect(int rowIndex, int colIndex) {
-		return scrollModel.getGridRect(rowIndex, colIndex);
+		return getScrollModel().getGridRect(rowIndex, colIndex);
 	}
 
 	public Rectangle getCellRect(int rowIndex, int colIndex) {
@@ -337,35 +337,35 @@ public class JSpread extends JComponent implements CellEditorListener {
 	}
 	
 	public CellPosition getCellPositionAtPoint(Point pt) {
-		return new CellPosition(scrollModel.rowAtPoint(pt), scrollModel.columnAtPoint(pt));
+		return new CellPosition(getScrollModel().rowAtPoint(pt), getScrollModel().columnAtPoint(pt));
 	}
 
 	public CellPosition getGridPositionAtPoint(Point pt) {
-		return new CellPosition(scrollModel.rowAtPoint(pt), scrollModel.columnAtPoint(pt));
+		return new CellPosition(getScrollModel().rowAtPoint(pt), getScrollModel().columnAtPoint(pt));
 	}
 
 	public int rowAtPoint(Point pt) {
-		return scrollModel.rowAtPoint(pt);
+		return getScrollModel().rowAtPoint(pt);
 	}
 	
 	public int columnAtPoint(Point pt) {
-		return scrollModel.columnAtPoint(pt);
+		return getScrollModel().columnAtPoint(pt);
 	}
 	
 	public void scrollToVisible(int rowIndex, int columnIndex) {
-		scrollModel.scrollToVisible(rowIndex, columnIndex);
+		getScrollModel().scrollToVisible(rowIndex, columnIndex);
 	}
 
 	public boolean arePanesFreezed() {
-		return scrollModel.arePanesFreezed();
+		return getScrollModel().arePanesFreezed();
 	}
 	
 	public void freezePanes() {
-		scrollModel.freezePanes(selectionModel.getRowOfLeadCell()-1, selectionModel.getColumnOfLeadCell()-1);
+		getScrollModel().freezePanes(selectionModel.getRowOfLeadCell()-1, selectionModel.getColumnOfLeadCell()-1);
 	}
 	
 	public void unfreezePanes() {
-		scrollModel.unfreezePanes();
+		getScrollModel().unfreezePanes();
 	}
 
 	public void coupleCells(RangeDescriptor desc) {
@@ -383,10 +383,10 @@ public class JSpread extends JComponent implements CellEditorListener {
 	}
 
 	public void setColumnWidth(int colIndex, int width) {
-		scrollModel.setColumnWidth(colIndex, width);
+		getScrollModel().setColumnWidth(colIndex, width);
 	}
 	public void setRowHeight(int rowIndex, int height) {
-		scrollModel.setRowHeight(rowIndex, height);
+		getScrollModel().setRowHeight(rowIndex, height);
 	}
 	
 	/*
@@ -776,7 +776,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 			if(col == 0) {
 				return 0;
 			}
-			int left = scrollModel.getColumnPosition(col);
+			int left = getScrollModel().getColumnPosition(col);
 			if((col != 1) && ((pt.x - left) < RESIZE_ZONE_WIDTH)) {
 				return col;
 			}
@@ -794,11 +794,11 @@ public class JSpread extends JComponent implements CellEditorListener {
 			if(row == 0) {
 				return 0;
 			}
-			int top = scrollModel.getRowPosition(row);
+			int top = getScrollModel().getRowPosition(row);
 			if((row != 1) && ((pt.y - top) < RESIZE_ZONE_WIDTH)) {
 				return row;
 			}
-			int bottom = scrollModel.getRowPosition(row+1);
+			int bottom = getScrollModel().getRowPosition(row+1);
 			if((bottom - pt.y) < RESIZE_ZONE_WIDTH) {
 				return row+1;
 			}
@@ -919,7 +919,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		public void mouseDragged(MouseEvent e) {
 			LOG.info("mouseDragged");
 			if(currentCursor == ROW_RESIZE_CURSOR) {
-				int width = e.getPoint().y - scrollModel.getRowPosition(resizeBorderIndex-1);
+				int width = e.getPoint().y - getScrollModel().getRowPosition(resizeBorderIndex-1);
 				LOG.info("行リサイズ:"+resizeBorderIndex+"=>"+width);
 				setRowHeight(resizeBorderIndex-1, width);
 				repaint();
