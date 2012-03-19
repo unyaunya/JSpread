@@ -46,6 +46,7 @@ import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
 import com.unyaunya.spread.SpreadBorder;
 import com.unyaunya.spread.SpreadModel;
+import com.unyaunya.spread.SpreadSheetModel;
 import com.unyaunya.swing.plaf.SpreadUI;
 
 class FormatModel {
@@ -120,7 +121,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	protected static ISpreadCellRenderer defaultCellRenderer = new DefaultCellRenderer();
 
 	private Config config;
-	private SpreadModel model;
+	private SpreadSheetModel spreadSheetModel;
 	private ScrollModel scrollModel;
 	private ISpreadSelectionModel selectionModel;
 	private FormatModel formatModel;
@@ -148,7 +149,8 @@ public class JSpread extends JComponent implements CellEditorListener {
 		this.setFocusable(true);
 
 		this.config = config;
-		this.model = new SpreadModel();
+		this.spreadSheetModel = new SpreadSheetModel();
+		//this.model = new SpreadModel();
 		this.scrollModel = new ScrollModel(this);
 		this.selectionModel = new DefaultSelectionModel();
         this.actions = new Actions(this);
@@ -263,14 +265,14 @@ public class JSpread extends JComponent implements CellEditorListener {
 		if(!(model instanceof SpreadModel)) {
 			model = new SpreadModel(model);
 		}
-		this.model = (SpreadModel)model;
+		this.spreadSheetModel.setTableModel((SpreadModel)model);
 		this.getSelectionModel().reset();
-		scrollModel.setTableModel(model);
+		scrollModel.setTableModel(this.getModel());
 		this.repaint(this.getBounds());
 	}
 	
 	public SpreadModel getModel() {
-		return model;
+		return this.spreadSheetModel.getTableModel();
 	}
 
 	public ScrollModel getScrollModel() {
