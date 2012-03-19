@@ -30,13 +30,6 @@ public class ScrollModel implements TableModelListener {
 	}
 
 	/**
-	 * @return the tableModel
-	 */
-	public TableModel getTableModel() {
-		return tableModel;
-	}
-
-	/**
 	 * @param tableModel the tableModel to set
 	 */
 	public void setTableModel(TableModel tableModel) {

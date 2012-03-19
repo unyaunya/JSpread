@@ -151,6 +151,15 @@ public class SpreadUI extends ComponentUI {
 		rect.width = colRangeModel.getScrollPartSize();
 		rect.height = rowRangeModel.getScrollPartSize();
 		paintCells(g, clip, rect);
+		//ウィンドウ固定の場合、固定部との境界線を引く。
+		if(table.arePanesFreezed()) {
+			int x = bounds.x + colRangeModel.getFixedPartSize();
+			int y = bounds.y + rowRangeModel.getFixedPartSize();
+			//横線
+			g.drawLine(bounds.x, y, bounds.x + bounds.width, y);
+			//縦線
+			g.drawLine(x, bounds.y, x, bounds.y + bounds.height);
+		}
 		//LOG.info("paintComponent():end");
 	}
 	

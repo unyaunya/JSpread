@@ -123,7 +123,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 	private Config config;
 	private SpreadSheetModel spreadSheetModel;
-	private ScrollModel scrollModel;
+	//private ScrollModel scrollModel;
 	private ISpreadSelectionModel selectionModel;
 	private FormatModel formatModel;
 	private Actions actions;
@@ -151,14 +151,13 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 		this.config = config;
 		this.spreadSheetModel = new SpreadSheetModel();
-		this.scrollModel = new ScrollModel();
-		this.scrollModel.getRangeModel(Adjustable.VERTICAL).addChangeListener(new ChangeListener() {
+		this.getScrollModel().getRangeModel(Adjustable.VERTICAL).addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				repaint();
 			}
 		});
-		this.scrollModel.getRangeModel(Adjustable.HORIZONTAL).addChangeListener(new ChangeListener() {
+		this.getScrollModel().getRangeModel(Adjustable.HORIZONTAL).addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				repaint();
@@ -289,7 +288,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	}
 
 	public ScrollModel getScrollModel() {
-		return scrollModel;
+		return this.spreadSheetModel.getScrollModel();
 	}
 
     public Actions getActions() {
@@ -374,7 +373,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	}
 	
 	public void freezePanes() {
-		getScrollModel().freezePanes(selectionModel.getRowOfLeadCell()-1, selectionModel.getColumnOfLeadCell()-1);
+		getScrollModel().freezePanes(selectionModel.getRowOfLeadCell(), selectionModel.getColumnOfLeadCell());
 	}
 	
 	public void unfreezePanes() {
@@ -793,7 +792,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 			if((col != 1) && ((pt.x - left) < RESIZE_ZONE_WIDTH)) {
 				return col;
 			}
-			int right = scrollModel.getColumnPosition(col+1);
+			int right = getScrollModel().getColumnPosition(col+1);
 			if((right - pt.x) < RESIZE_ZONE_WIDTH) {
 				return col + 1;
 			}
@@ -938,7 +937,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 				repaint();
 			}
 			else if(currentCursor == COLUMN_RESIZE_CURSOR) {
-				int height = e.getPoint().x - scrollModel.getColumnPosition(resizeBorderIndex-1);
+				int height = e.getPoint().x - getScrollModel().getColumnPosition(resizeBorderIndex-1);
 				LOG.info("—ñƒŠƒTƒCƒY:"+resizeBorderIndex+"=>"+height);
 				setColumnWidth(resizeBorderIndex-1, height);
 				repaint();
