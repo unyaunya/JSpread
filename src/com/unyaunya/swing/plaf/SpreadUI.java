@@ -172,12 +172,39 @@ public class SpreadUI extends ComponentUI {
 		SpreadModel m = table.getModel();
 		rMax = Math.min(rMax, m.getRowCount()-1);
 		cMax = Math.min(cMax, m.getColumnCount()-1);
-		Rectangle cellRect = null;
-		for(int row = rMin; row <= rMax; row++) {
-			for(int col = cMin; col <= cMax; col++) {
-				cellRect = table.getCellRect(row, col);
-				if(cellRect != null) {
-					paintCell(g, cellRect, row, col);
+		int rowSpan = rMax - rMin + 1;
+		int colSpan = cMax - cMin + 1;
+		if(rowSpan <= 0 || colSpan <= 0) {
+			return;
+		}
+		boolean[][] map = new boolean[rowSpan][colSpan];
+		for(int i = 0; i < rowSpan; i++) {
+			for(int j = 0; j < colSpan; j++) {
+				if(!map[i][j]) {
+					int row = rMin+i;
+					int col = cMin+j;
+					ICellRange range = table.getCellRange(row, col);
+					Rectangle cellRect;
+					if(range == null) {
+						map[i][j] = true;
+						cellRect = table.getCellRect(row, col);
+						if(cellRect != null) {
+							paintCell(g, cellRect, row, col);
+						}
+					}
+					else {
+						for(int rr = range.getTop()-rMin; rr < range.getBottom()-rMin; rr++) {
+							for(int cc = range.getLeft()-cMin; cc < range.getRight()-cMin; cc++) {
+								if(rr >= 0 && rr < rowSpan && cc >= 0 && cc < colSpan) {
+									map[rr][cc] = true;
+								}
+							}
+						}
+						cellRect = table.getCellRect(range.getTop(), range.getLeft());
+						if(cellRect != null) {
+							paintCell(g, cellRect, range.getTop(), range.getLeft());
+						}
+					}
 				}
 			}
 		}
