@@ -26,6 +26,7 @@ import javax.swing.UIDefaults;
 import javax.swing.border.Border;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -150,8 +151,20 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 		this.config = config;
 		this.spreadSheetModel = new SpreadSheetModel();
-		//this.model = new SpreadModel();
-		this.scrollModel = new ScrollModel(this);
+		this.scrollModel = new ScrollModel();
+		this.scrollModel.getRangeModel(Adjustable.VERTICAL).addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				repaint();
+			}
+		});
+		this.scrollModel.getRangeModel(Adjustable.HORIZONTAL).addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				repaint();
+			}
+		});
+
 		this.selectionModel = new DefaultSelectionModel();
         this.actions = new Actions(this);
     	this.defaultCellEditor = new DefaultCellEditor(this);

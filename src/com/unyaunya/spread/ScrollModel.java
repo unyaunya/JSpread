@@ -5,54 +5,28 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-import com.unyaunya.swing.JSpread;
-
-
 public class ScrollModel implements TableModelListener {
-	private JSpread		spread;
 	private SizeModel colSizeModel;
 	private SizeModel rowSizeModel;
 	private RangeModel colRangeModel;
 	private RangeModel rowRangeModel;
 	private TableModel tableModel;
 
-	public ScrollModel(JSpread spread) {
-		this(spread, 23, 60);
+	public ScrollModel() {
+		this(23, 60);
 	}
 
-	public ScrollModel(JSpread spread, int defaultRowHeight, int defaultColumnWidth) {
-		this.spread = spread;
+	private ScrollModel(int defaultRowHeight, int defaultColumnWidth) {
 		this.rowSizeModel = new SizeModel();
 		this.colSizeModel = new SizeModel();
 		this.rowRangeModel = new RangeModel(rowSizeModel);
 		this.colRangeModel = new RangeModel(colSizeModel);
 		this.setDefaultRowHeight(defaultRowHeight);
 		this.setDefaultColumnWidth(defaultColumnWidth);
-		this.rowRangeModel.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				getSpread().repaint();
-			}
-		});		
-		this.colRangeModel.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				getSpread().repaint();
-			}
-		});
-	}
-
-	/**
-	 * @return the tableModel
-	 */
-	public JSpread getSpread() {
-		return this.spread;
 	}
 
 	/**
