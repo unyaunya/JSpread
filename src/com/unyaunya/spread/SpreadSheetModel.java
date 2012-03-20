@@ -1,6 +1,13 @@
 package com.unyaunya.spread;
 
-public class SpreadSheetModel {
+import java.io.Serializable;
+
+public class SpreadSheetModel implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private SpreadModel tableModel;
 	private ScrollModel scrollModel;
 	private CellSpanModel cellSpanModel;

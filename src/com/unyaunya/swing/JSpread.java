@@ -31,7 +31,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import com.unyaunya.spread.CellRange;
-import com.unyaunya.spread.CellSpanModel;
 import com.unyaunya.spread.Config;
 import com.unyaunya.spread.DefaultCellEditor;
 import com.unyaunya.spread.DefaultCellRenderer;
