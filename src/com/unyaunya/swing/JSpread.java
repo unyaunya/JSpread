@@ -374,10 +374,12 @@ public class JSpread extends JComponent implements CellEditorListener {
 	
 	public void freezePanes() {
 		getScrollModel().freezePanes(selectionModel.getRowOfLeadCell(), selectionModel.getColumnOfLeadCell());
+		repaint();
 	}
 	
 	public void unfreezePanes() {
 		getScrollModel().unfreezePanes();
+		repaint();
 	}
 
 	public void coupleCells(RangeDescriptor desc) {
