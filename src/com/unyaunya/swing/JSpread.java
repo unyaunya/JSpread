@@ -16,7 +16,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.EventObject;
-import java.util.HashMap;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
@@ -80,7 +79,6 @@ public class JSpread extends JComponent implements CellEditorListener {
 	private Config config;
 	private SpreadSheetModel spreadSheetModel;
 	private ISpreadSelectionModel selectionModel;
-	private CellSpanModel cellSpanModel;
 	private Actions actions;
 	private Handler handler;
 	
@@ -122,7 +120,6 @@ public class JSpread extends JComponent implements CellEditorListener {
 		this.selectionModel = new DefaultSelectionModel();
         this.actions = new Actions(this);
     	this.defaultCellEditor = new DefaultCellEditor(this);
-    	this.cellSpanModel = new CellSpanModel();
 
         /*
         setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
@@ -232,18 +229,22 @@ public class JSpread extends JComponent implements CellEditorListener {
 		if(!(model instanceof SpreadModel)) {
 			model = new SpreadModel(model);
 		}
-		this.spreadSheetModel.setTableModel((SpreadModel)model);
+		this.getSpreadSheetModel().setTableModel((SpreadModel)model);
 		this.getSelectionModel().reset();
 		getScrollModel().setTableModel(this.getModel());
 		this.repaint(this.getBounds());
 	}
 	
+	public SpreadSheetModel getSpreadSheetModel() {
+		return spreadSheetModel;
+	}
+
 	public SpreadModel getModel() {
-		return this.spreadSheetModel.getTableModel();
+		return this.getSpreadSheetModel().getTableModel();
 	}
 
 	public ScrollModel getScrollModel() {
-		return this.spreadSheetModel.getScrollModel();
+		return this.getSpreadSheetModel().getScrollModel();
 	}
 
     public Actions getActions() {
@@ -342,7 +343,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 			return;
 		}
 		CellRange range = new CellRange((CellRange)desc.getSelectedRangeList().get(0));
-		cellSpanModel.coupleCells(range);
+		getSpreadSheetModel().coupleCells(range);
 		repaint();
 		LOG.info(range.toString());
 	}
@@ -450,7 +451,7 @@ public class JSpread extends JComponent implements CellEditorListener {
     }
 
     public ICellRange getCellRange(int row, int column) {
-   		return cellSpanModel.getCellRange(row, column);
+   		return getSpreadSheetModel().getCellRange(row, column);
     }
 
     public Color getSelectionBackground() {
