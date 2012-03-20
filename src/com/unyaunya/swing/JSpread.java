@@ -622,7 +622,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
 		ISpreadCellEditor editor = getCellEditor(row, column);
 		editorComponent = prepareEditor(editor, row, column);
-		editorComponent.setBounds(getGridRect(row, column));
+		editorComponent.setBounds(this.getCellRect(row, column));
 		add(editorComponent);
 		editorComponent.validate();
 		
@@ -665,6 +665,16 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
 	}
 	
+	private CellPosition getEffectiveCell(int row, int col) {
+		ICellRange range = getCellRange(row, col);
+		if(range == null) {
+			return new CellPosition(row, col);
+		}
+		else {
+			return new CellPosition(range.getTop(), range.getLeft());
+		}
+	}
+	
 	@Override
 	protected boolean processKeyBinding(KeyStroke ks,
             KeyEvent e,
@@ -694,7 +704,8 @@ public class JSpread extends JComponent implements CellEditorListener {
 				//if (leadRow != -1 && leadColumn != -1 && !isEditing()) {
 				int row = getSelectionModel().getRowOfLeadCell();
 				int col = getSelectionModel().getColumnOfLeadCell();
-				if (!editCellAt(row, col)) {
+				CellPosition cell = getEffectiveCell(row, col);
+				if (!editCellAt(cell.getRow(), cell.getColumn())) {
 					return false;
 				}
 				editorComponent = getEditorComponent();
