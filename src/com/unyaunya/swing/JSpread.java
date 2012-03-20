@@ -32,6 +32,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import com.unyaunya.spread.CellRange;
+import com.unyaunya.spread.CellSpanModel;
 import com.unyaunya.spread.Config;
 import com.unyaunya.spread.DefaultCellEditor;
 import com.unyaunya.spread.DefaultCellRenderer;
@@ -125,7 +126,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	private SpreadSheetModel spreadSheetModel;
 	//private ScrollModel scrollModel;
 	private ISpreadSelectionModel selectionModel;
-	private FormatModel formatModel;
+	private CellSpanModel formatModel;
 	private Actions actions;
 	private Handler handler;
 	
@@ -167,7 +168,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		this.selectionModel = new DefaultSelectionModel();
         this.actions = new Actions(this);
     	this.defaultCellEditor = new DefaultCellEditor(this);
-    	this.formatModel = new FormatModel();
+    	this.formatModel = new CellSpanModel();
 
         /*
         setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
