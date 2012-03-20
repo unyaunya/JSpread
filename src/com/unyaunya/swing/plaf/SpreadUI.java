@@ -132,25 +132,25 @@ public class SpreadUI extends ComponentUI {
 		rect.y = bounds.y;
 		rect.width = colRangeModel.getFixedPartSize();
 		rect.height = rowRangeModel.getFixedPartSize();
-		paintCells(g, clip, rect);
+		paintQuadrant(g, clip, rect);
 		//
 		rect.x = bounds.x + colRangeModel.getFixedPartSize();
 		rect.y = bounds.y;
 		rect.width = colRangeModel.getScrollPartSize();
 		rect.height = rowRangeModel.getFixedPartSize();
-		paintCells(g, clip, rect);
+		paintQuadrant(g, clip, rect);
 		//
 		rect.x = bounds.x;
 		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
 		rect.width = colRangeModel.getFixedPartSize();
 		rect.height = rowRangeModel.getScrollPartSize();
-		paintCells(g, clip, rect);
+		paintQuadrant(g, clip, rect);
 		//
 		rect.x = bounds.x + colRangeModel.getFixedPartSize();
 		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
 		rect.width = colRangeModel.getScrollPartSize();
 		rect.height = rowRangeModel.getScrollPartSize();
-		paintCells(g, clip, rect);
+		paintQuadrant(g, clip, rect);
 		//ウィンドウ固定の場合、固定部との境界線を引く。
 		if(table.arePanesFreezed()) {
 			int x = bounds.x + colRangeModel.getFixedPartSize();
@@ -163,7 +163,7 @@ public class SpreadUI extends ComponentUI {
 		//LOG.info("paintComponent():end");
 	}
 	
-    private void paintCells(Graphics g, Rectangle clipingRect, Rectangle rect){
+    private void paintQuadrant(Graphics g, Rectangle clipingRect, Rectangle rect){
 		ScrollModel scrollModel = table.getScrollModel();
 		//LOG.info("\tpaintCells(clipingRect,rect):");
 		//LOG.info("\t\trect:"+clipingRect);
@@ -171,10 +171,13 @@ public class SpreadUI extends ComponentUI {
 		//LOG.info("\t\tclip:"+clip);
 		Point upperLeft = clip.getLocation();
 	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
+	    Rectangle currentClip = g.getClipBounds();
+	    g.setClip(clip.x, clip.y, clip.width, clip.height);
 		paintCells(g,	scrollModel.rowAtPoint(upperLeft),
 						scrollModel.rowAtPoint(lowerRight),
 						scrollModel.columnAtPoint(upperLeft),
 						scrollModel.columnAtPoint(lowerRight));
+	    g.setClip(currentClip.x, currentClip.y, currentClip.width, currentClip.height);
 	}
 
 	private void paintCells(Graphics g, int rMin, int rMax, int cMin, int cMax) {
