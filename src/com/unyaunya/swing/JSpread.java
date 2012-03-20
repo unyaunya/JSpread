@@ -51,51 +51,6 @@ import com.unyaunya.spread.SpreadModel;
 import com.unyaunya.spread.SpreadSheetModel;
 import com.unyaunya.swing.plaf.SpreadUI;
 
-class FormatModel {
-	private HashMap<CellPosition, ICellRange> cellRangeModel;
-
-	public FormatModel() {
-		 cellRangeModel = new HashMap<CellPosition, ICellRange>();
-	}
-
-    public ICellRange getCellRange(int row, int column) {
-    	if(row <= 0 || column <= 0) {
-    		return null;
-    	}
-    	else {
-    		return this.cellRangeModel.get(new CellPosition(row, column));
-    	}
-    }
-
-	public void coupleCells(CellRange range) {
-		ICellRange r = this.getCellRange(range.getTop(), range.getLeft());  
-		if(r == null) {
-			_coupleCells(range);
-		}
-		else {
-			_decoupleCells(r);
-		}
-	}
-
-	private void _coupleCells(ICellRange range) {
-		CellRange value = new CellRange(range);
-		for(int i = range.getTop(); i <= range.getBottom(); i++) {
-			for(int j = range.getLeft(); j <= range.getRight(); j++) {
-				cellRangeModel.put(new CellPosition(i, j), value);
-			}
-		}
-	}
-
-	private void _decoupleCells(ICellRange range) {
-		CellRange value = new CellRange(range);
-		for(int i = range.getTop(); i <= range.getBottom(); i++) {
-			for(int j = range.getLeft(); j <= range.getRight(); j++) {
-				cellRangeModel.remove(new CellPosition(i, j));
-			}
-		}
-	}
-}
-
 /**
  * @author wata
  *
@@ -124,9 +79,8 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 	private Config config;
 	private SpreadSheetModel spreadSheetModel;
-	//private ScrollModel scrollModel;
 	private ISpreadSelectionModel selectionModel;
-	private CellSpanModel formatModel;
+	private CellSpanModel cellSpanModel;
 	private Actions actions;
 	private Handler handler;
 	
@@ -168,7 +122,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		this.selectionModel = new DefaultSelectionModel();
         this.actions = new Actions(this);
     	this.defaultCellEditor = new DefaultCellEditor(this);
-    	this.formatModel = new CellSpanModel();
+    	this.cellSpanModel = new CellSpanModel();
 
         /*
         setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
@@ -388,7 +342,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 			return;
 		}
 		CellRange range = new CellRange((CellRange)desc.getSelectedRangeList().get(0));
-		formatModel.coupleCells(range);
+		cellSpanModel.coupleCells(range);
 		repaint();
 		LOG.info(range.toString());
 	}
@@ -496,7 +450,7 @@ public class JSpread extends JComponent implements CellEditorListener {
     }
 
     public ICellRange getCellRange(int row, int column) {
-   		return formatModel.getCellRange(row, column);
+   		return cellSpanModel.getCellRange(row, column);
     }
 
     public Color getSelectionBackground() {
