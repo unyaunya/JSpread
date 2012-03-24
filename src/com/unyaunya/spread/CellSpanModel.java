@@ -1,8 +1,9 @@
 package com.unyaunya.spread;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class CellSpanModel {
+public class CellSpanModel implements Serializable {
 	private HashMap<CellPosition, ICellRange> cellRangeModel;
 
 	public CellSpanModel() {

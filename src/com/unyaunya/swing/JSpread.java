@@ -238,6 +238,11 @@ public class JSpread extends JComponent implements CellEditorListener {
 		return spreadSheetModel;
 	}
 
+	public void setSpreadSheetModel(SpreadSheetModel model) {
+		spreadSheetModel = model;
+		repaint();
+	}
+
 	public SpreadModel getModel() {
 		return this.getSpreadSheetModel().getTableModel();
 	}

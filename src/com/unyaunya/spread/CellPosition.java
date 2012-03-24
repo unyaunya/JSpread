@@ -1,6 +1,8 @@
 package com.unyaunya.spread;
 
-public class CellPosition {
+import java.io.Serializable;
+
+public class CellPosition implements Serializable {
 	private int row;
 	private int column;
 	

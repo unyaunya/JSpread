@@ -1,8 +1,9 @@
 package com.unyaunya.spread;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class CellRange implements ICellRange {
+public class CellRange implements ICellRange, Serializable {
 	private int top;
 	private int left;
 	private int bottom;

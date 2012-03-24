@@ -3,15 +3,20 @@
  */
 package com.unyaunya.spread;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 import javax.swing.SizeSequence;
 
 /**
  * @author wata
  *
  */
-class SizeModel extends SizeSequence {
-	private int length = 0;
+class SizeModel extends SizeSequence implements Serializable {
 	private int defaultSize = 20;
+	private int length = 0;
 
 	/**
 	 * 
@@ -77,5 +82,35 @@ class SizeModel extends SizeSequence {
 
 	public int getDefaultSize() {
 		return defaultSize;
+	}
+
+	private void writeObject(ObjectOutputStream stream) throws IOException {
+		stream.defaultWriteObject();
+		stream.writeInt(length);
+		stream.writeInt(defaultSize);
+		int[] sizes = getSizes();
+		for(int i = 0; i < sizes.length; i++) {
+			if(sizes[i] != defaultSize) {
+				stream.writeInt(i);
+				stream.writeInt(sizes[i]);
+			}
+		}
+		stream.writeInt(-1);
+	}
+
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		length = stream.readInt();
+		defaultSize = stream.readInt();
+		int[] sizes = new int[length];
+		for(int i = 0; i < length; i++) {
+			sizes[i] = defaultSize;
+		}
+		int index = stream.readInt();
+		while(index != -1) {
+			sizes[index] = stream.readInt();
+			index = stream.readInt();
+		}
+		this.setSizes(sizes);
 	}
 }

@@ -4,10 +4,14 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -26,6 +30,7 @@ import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import com.unyaunya.spread.CsvTable;
+import com.unyaunya.spread.SpreadSheetModel;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.JSpreadPane;
 
@@ -54,6 +59,10 @@ class MyFrame extends JFrame {
 	private boolean isInited = false; 
 	private JSpread spread; 
 	private JFileChooser fileChooser;
+	private FileNameExtensionFilter csvFilter = new FileNameExtensionFilter(
+	        "CSV & TXT", "csv", "txt");
+	private FileNameExtensionFilter ssdFilter = new FileNameExtensionFilter(
+	        "スプレッドシート", "ssd");
 
 	static List<String[]> createSampleData() {
 		List<String[]> data = new ArrayList<String[]>();
@@ -153,9 +162,9 @@ class MyFrame extends JFrame {
 	}
 	private JFileChooser createFileChooser() {
 		JFileChooser fc = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(
-		        "CSV & TXT", "csv", "txt");
-		fc.setFileFilter(filter);			
+		fc.setAcceptAllFileFilterUsed(false);
+		fc.addChoosableFileFilter(ssdFilter);			
+		fc.addChoosableFileFilter(csvFilter);			
 		return fc;
 	}
 	
@@ -172,15 +181,32 @@ class MyFrame extends JFrame {
 			JFileChooser fc = getFileChooser();
 			int returnVal = fc.showOpenDialog(MyFrame.this);
 		    if(returnVal == JFileChooser.APPROVE_OPTION) {
-		    	try {
-		    		CSVReader reader = new CSVReader(new FileReader(fc.getSelectedFile()));
-		    	    List<String[]> myEntries = reader.readAll();
-		    		getSpread().setModel(new CsvTable(myEntries));
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+		    	if(ssdFilter.accept(fc.getSelectedFile())) {
+			    	try {
+				    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fc.getSelectedFile()));
+				    	SpreadSheetModel tmp = (SpreadSheetModel)ois.readObject();
+				    	ois.close();
+			    		getSpread().setSpreadSheetModel(tmp);
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		    	}
+		    	else if(csvFilter.accept(fc.getSelectedFile())) {
+			    	try {
+			    		CSVReader reader = new CSVReader(new FileReader(fc.getSelectedFile()));
+			    	    List<String[]> myEntries = reader.readAll();
+			    		getSpread().setModel(new CsvTable(myEntries));
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+		    	}
 		    }
 		}
 	}
@@ -193,18 +219,31 @@ class MyFrame extends JFrame {
 		public void actionPerformed(ActionEvent event) {
 			JFileChooser fc = getFileChooser();
 			fc.setDialogTitle("名前をつけて保存");
-			int returnVal = fc.showOpenDialog(MyFrame.this);
+			int returnVal = fc.showSaveDialog(MyFrame.this);
 		    if(returnVal == JFileChooser.APPROVE_OPTION) {
 		    	System.out.println("You chose to save data in this file: " +
-		    			fc.getSelectedFile());
-		    	CSVWriter writer;
-				try {
-					writer = new CSVWriter(new FileWriter(fc.getSelectedFile()));
-			        writer.writeAll(((CsvTable)spread.getModel().getTableModel()).getData());
-			        writer.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+		    			fc.getSelectedFile().toString() + "/" +
+		    			fc.getTypeDescription(fc.getSelectedFile()));
+		    	if(ssdFilter.accept(fc.getSelectedFile())) {
+					try {
+				        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fc.getSelectedFile()));
+				    	oos.writeObject(getSpread().getSpreadSheetModel());
+				    	oos.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+		    	}
+		    	else if(csvFilter.accept(fc.getSelectedFile())) {
+			    	CSVWriter writer;
+					try {
+						
+						writer = new CSVWriter(new FileWriter(fc.getSelectedFile()));
+				        writer.writeAll(((CsvTable)spread.getModel().getTableModel()).getData());
+				        writer.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+		    	}
 		    }
 		}
 	}

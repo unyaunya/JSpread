@@ -4,12 +4,13 @@ import java.awt.Adjustable;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.io.Serializable;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-public class ScrollModel implements TableModelListener {
+public class ScrollModel implements TableModelListener, Serializable {
 	private SizeModel colSizeModel;
 	private SizeModel rowSizeModel;
 	private RangeModel colRangeModel;

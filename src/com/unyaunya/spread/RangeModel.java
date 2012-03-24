@@ -3,6 +3,9 @@
  */
 package com.unyaunya.spread;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.swing.BoundedRangeModel;
@@ -13,17 +16,25 @@ import javax.swing.event.ChangeListener;
  * @author wata
  *
  */
-public class RangeModel implements BoundedRangeModel {
+public class RangeModel implements BoundedRangeModel, Serializable {
 	private SizeModel sizeModel;
 	private int componentSize;
 	private int value;
-	private ArrayList<ChangeListener> changeListenerList = new ArrayList<ChangeListener>();
-	private ChangeEvent event = new ChangeEvent(this);
-	private int extent = 1;
-	private int fixedPartNum = 1;
+	transient private ArrayList<ChangeListener> changeListenerList;
+	transient private ChangeEvent event;
+	transient private int extent;
+	transient private int fixedPartNum;
 	
 	RangeModel(SizeModel sizeModel) {
+		setup();
 		this.sizeModel = sizeModel;
+	}
+	
+	private void setup() {
+		changeListenerList = new ArrayList<ChangeListener>();
+		event = new ChangeEvent(this);
+		extent = 1;
+		fixedPartNum = 1;
 	}
 	
 	public void setFixedPartNum(int fixedPartNum) {
@@ -46,8 +57,13 @@ public class RangeModel implements BoundedRangeModel {
 
 	public void fireChangeEvent() {
 		System.out.println("fireChangeEvent");
-		for(ChangeListener l: changeListenerList) {
-			l.stateChanged(event);
+		if(changeListenerList == null) {
+			System.out.println("\tchangeListenerList=null");
+		}
+		else {
+			for(ChangeListener l: changeListenerList) {
+				l.stateChanged(event);
+			}
 		}
 	}
 	public int getComponentSize() {
@@ -289,5 +305,10 @@ public class RangeModel implements BoundedRangeModel {
 			}
 			setValue(getValue()+n);
 		}
+	}
+
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		setup();
 	}
 }
