@@ -19,11 +19,15 @@ import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
@@ -134,6 +138,7 @@ class MyFrame extends JFrame {
 		menuBar.add(menu);
 		//Format menu
 		menu = createMenu("èëéÆ(O)", KeyEvent.VK_O);
+		menu.add(new JMenuItem(new BackgroundColorAction()));
 		menu.add(new JMenuItem(new CellCouplingAction()));
 		menuBar.add(menu);
 		//Window menu
@@ -190,20 +195,6 @@ class MyFrame extends JFrame {
 				    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fc.getSelectedFile()));
 				    	SpreadSheetModel tmp = (SpreadSheetModel)ois.readObject();
 				    	ois.close();
-			    		{
-			    			CellFormat f1 = new CellFormat();
-			    			f1.setBackgroundColor(Color.CYAN);
-			    			CellFormat f2 = new CellFormat();
-			    			f2.setBackgroundColor(Color.ORANGE);
-			    			tmp.getCellFormatModel().add(3, 5, f1);
-			    			tmp.getCellFormatModel().add(4, 5, f1);
-			    			tmp.getCellFormatModel().add(5, 5, f1);
-			    			tmp.getCellFormatModel().add(6, 5, f1);
-			    			tmp.getCellFormatModel().add(3, 6, f2);
-			    			tmp.getCellFormatModel().add(4, 6, f2);
-			    			tmp.getCellFormatModel().add(5, 6, f2);
-			    			tmp.getCellFormatModel().add(6, 6, f2);
-			    		}
 			    		getSpread().setSpreadSheetModel(tmp);
 			    		spreadPane.setSpread(getSpread());
 					} catch (FileNotFoundException e) {
@@ -255,7 +246,6 @@ class MyFrame extends JFrame {
 		    	else if(csvFilter.accept(fc.getSelectedFile())) {
 			    	CSVWriter writer;
 					try {
-						
 						writer = new CSVWriter(new FileWriter(fc.getSelectedFile()));
 				        writer.writeAll(((CsvTable)spread.getModel().getTableModel()).getData());
 				        writer.close();
@@ -345,6 +335,23 @@ class MyFrame extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			getSpread().coupleCells();
+		}
+	}
+
+	class BackgroundColorAction extends AbstractAction {
+		public BackgroundColorAction() {
+			super("îwåiêF");
+		}
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			int row = getSpread().getSelectionModel().getRowOfLeadCell();
+			int col = getSpread().getSelectionModel().getColumnOfLeadCell();
+			Color currentColor = getSpread().getCellBackground(row, col);
+			Color newColor = JColorChooser.showDialog(MyFrame.this, "îwåiêFÇëIë", currentColor);
+			if(newColor != null) {
+		        getSpread().setCellBackground(row, col, newColor);
+		        getSpread().repaint();
+			}
 		}
 	}
 }

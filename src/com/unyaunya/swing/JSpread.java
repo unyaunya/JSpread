@@ -431,6 +431,41 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
     }
     
+    /**
+     * セルのフォーマットを取得する。
+     * @param row
+     * @param column
+     * @return セルのフォーマット。設定されていない場合はnull
+     */
+    public CellFormat getCellFormat(int row, int column) {
+        return this.getSpreadSheetModel().getCellFormatModel().get(row, column);
+    }
+
+    public void setCellFormat(int row, int column, CellFormat value) {
+        this.getSpreadSheetModel().getCellFormatModel().add(row, column, value);
+    }
+
+    public Color getCellBackground(int row, int column) {
+		CellFormat format = this.getCellFormat(row,  column);
+		Color color = null; 
+		if(format != null) {
+			color = format.getBackgroundColor();
+		}
+		if(color == null) {
+    		color = Color.WHITE; 
+		}
+		return color;
+    }
+
+    public void setCellBackground(int row, int column, Color color) {
+		CellFormat format = this.getCellFormat(row,  column);
+		if(format == null) {
+			format = new CellFormat();
+		}
+		format.setBackgroundColor(color);
+        this.setCellFormat(row, column, format);
+    }
+
     protected Color getCellBackground(boolean isSelected, boolean hasFocus, int row, int column) {
 		if(isSelected) {
 			return this.getSelectionBackground();
@@ -440,15 +475,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	    		return DEFAULT_HEADER_BACKGROUND_COLOR;
 	    	}
 	    	else {
-	    		CellFormat format = this.getSpreadSheetModel().getCellFormatModel().get(row,  column);
-	    		Color color = null; 
-	    		if(format != null) {
-	    			color = format.getBackgroundColor();
-	    		}
-	    		if(color == null) {
-		    		color = Color.WHITE; 
-	    		}
-	    		return color;
+	    		return this.getCellBackground(row, column);
 	    	}
 		}
     }
