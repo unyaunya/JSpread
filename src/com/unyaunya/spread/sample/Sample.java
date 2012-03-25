@@ -60,6 +60,7 @@ class MyFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private boolean isInited = false; 
 	private JSpread spread; 
+	private JSpreadPane spreadPane; 
 	private JFileChooser fileChooser;
 	private FileNameExtensionFilter csvFilter = new FileNameExtensionFilter(
 	        "CSV & TXT", "csv", "txt");
@@ -90,7 +91,8 @@ class MyFrame extends JFrame {
 		if(!isInited) {
 			this.setLayout(new BorderLayout());
 			this.add(BorderLayout.NORTH, createMenuBar());
-			add(BorderLayout.CENTER, createSpreadPane());
+			spreadPane = createSpreadPane();
+			add(BorderLayout.CENTER, spreadPane);
 			setSize(800,600);
 			setTitle("Spread");
 			setVisible(true);
@@ -203,6 +205,7 @@ class MyFrame extends JFrame {
 			    			tmp.getCellFormatModel().add(6, 6, f2);
 			    		}
 			    		getSpread().setSpreadSheetModel(tmp);
+			    		spreadPane.setSpread(getSpread());
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
 					} catch (IOException e) {

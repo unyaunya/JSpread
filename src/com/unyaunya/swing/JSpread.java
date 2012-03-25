@@ -103,20 +103,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		this.setFocusable(true);
 
 		this.config = config;
-		this.spreadSheetModel = new SpreadSheetModel();
-		this.getScrollModel().getRangeModel(Adjustable.VERTICAL).addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				repaint();
-			}
-		});
-		this.getScrollModel().getRangeModel(Adjustable.HORIZONTAL).addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				repaint();
-			}
-		});
-
+		this.setSpreadSheetModel(new SpreadSheetModel());
 		this.selectionModel = new DefaultSelectionModel();
         this.actions = new Actions(this);
     	this.defaultCellEditor = new DefaultCellEditor(this);
@@ -241,6 +228,18 @@ public class JSpread extends JComponent implements CellEditorListener {
 
 	public void setSpreadSheetModel(SpreadSheetModel model) {
 		spreadSheetModel = model;
+		this.getScrollModel().getRangeModel(Adjustable.VERTICAL).addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				repaint();
+			}
+		});
+		this.getScrollModel().getRangeModel(Adjustable.HORIZONTAL).addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				repaint();
+			}
+		});
 		repaint();
 	}
 

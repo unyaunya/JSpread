@@ -28,23 +28,31 @@ public class JSpreadPane extends JPanel {
 	 */
 	public JSpreadPane(JSpread spread) {
 		super(new Layout());
-		this.spread = spread;
-		this.add(this.spread, BorderLayout.CENTER);
+		this.add(spread, BorderLayout.CENTER);
 		this.add(this.horizontalBar, BorderLayout.SOUTH);
 		this.add(this.verticalBar, BorderLayout.EAST);
+		setSpread(spread);
+	}
+
+	private void resized() {
+		Rectangle rect = getSpread().getBounds();
+		getSpread().getRangeModel(Adjustable.HORIZONTAL).setComponentSize(rect.width);
+		getSpread().getRangeModel(Adjustable.VERTICAL).setComponentSize(rect.height);
+	}
+	
+	public void setSpread(JSpread spread) {
+		this.spread = spread;
 		this.horizontalBar.setModel(getSpread().getRangeModel(Adjustable.HORIZONTAL));
 		this.verticalBar.setModel(getSpread().getRangeModel(Adjustable.VERTICAL));
 		getSpread().addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				Rectangle rect = e.getComponent().getBounds();
-				getSpread().getRangeModel(Adjustable.HORIZONTAL).setComponentSize(rect.width);
-				getSpread().getRangeModel(Adjustable.VERTICAL).setComponentSize(rect.height);
+				resized();
 			}
 		});
-		
+		resized();
 	}
-
+	
 	JSpread getSpread() {
 		return spread;
 	}
