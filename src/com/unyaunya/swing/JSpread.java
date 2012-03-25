@@ -30,6 +30,7 @@ import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import com.unyaunya.spread.CellFormat;
 import com.unyaunya.spread.CellRange;
 import com.unyaunya.spread.Config;
 import com.unyaunya.spread.DefaultCellEditor;
@@ -440,7 +441,15 @@ public class JSpread extends JComponent implements CellEditorListener {
 	    		return DEFAULT_HEADER_BACKGROUND_COLOR;
 	    	}
 	    	else {
-	    		return Color.WHITE;
+	    		CellFormat format = this.getSpreadSheetModel().getCellFormatModel().get(row,  column);
+	    		Color color = null; 
+	    		if(format != null) {
+	    			color = format.getBackgroundColor();
+	    		}
+	    		if(color == null) {
+		    		color = Color.WHITE; 
+	    		}
+	    		return color;
 	    	}
 		}
     }

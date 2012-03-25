@@ -2,13 +2,26 @@ package com.unyaunya.spread;
 
 import java.io.Serializable;
 
+/**
+ * セル位置を表現するクラス
+ * 
+ * row,colのメンバを持つ。
+ * 
+ */
 public class CellPosition implements Serializable {
-	private int row;
-	private int column;
+	private int row;    //行
+	private int column; //列
 	
+	/**
+	 * コンストラクタ
+	 */
 	public CellPosition() {
 		this(0,0);
 	}
+
+	/**
+	 * コンストラクタ
+	 */
 	public CellPosition(int row, int column) {
 		this.row = row;
 		this.column = column;

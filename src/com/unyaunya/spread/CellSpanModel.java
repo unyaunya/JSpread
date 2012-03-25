@@ -3,13 +3,26 @@ package com.unyaunya.spread;
 import java.io.Serializable;
 import java.util.HashMap;
 
+/**
+ * セル結合に関するデータを格納するクラス
+ * 
+ * @author wata
+ *
+ */
 public class CellSpanModel implements Serializable {
 	private HashMap<CellPosition, ICellRange> cellRangeModel;
 
+	/**
+	 * コンストラクタ
+	 */
 	public CellSpanModel() {
 		 cellRangeModel = new HashMap<CellPosition, ICellRange>();
 	}
 
+	/**
+	 * row,colで指定されたセルの結合範囲を取得する。
+	 * セル結合していない場合は、nullが返される。
+	 */
     public ICellRange getCellRange(int row, int column) {
     	if(row <= 0 || column <= 0) {
     		return null;

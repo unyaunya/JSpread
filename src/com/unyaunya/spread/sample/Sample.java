@@ -1,6 +1,7 @@
 package com.unyaunya.spread.sample;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -29,6 +30,7 @@ import javax.swing.table.DefaultTableModel;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
+import com.unyaunya.spread.CellFormat;
 import com.unyaunya.spread.CsvTable;
 import com.unyaunya.spread.SpreadSheetModel;
 import com.unyaunya.swing.JSpread;
@@ -186,6 +188,20 @@ class MyFrame extends JFrame {
 				    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fc.getSelectedFile()));
 				    	SpreadSheetModel tmp = (SpreadSheetModel)ois.readObject();
 				    	ois.close();
+			    		{
+			    			CellFormat f1 = new CellFormat();
+			    			f1.setBackgroundColor(Color.CYAN);
+			    			CellFormat f2 = new CellFormat();
+			    			f2.setBackgroundColor(Color.ORANGE);
+			    			tmp.getCellFormatModel().add(3, 5, f1);
+			    			tmp.getCellFormatModel().add(4, 5, f1);
+			    			tmp.getCellFormatModel().add(5, 5, f1);
+			    			tmp.getCellFormatModel().add(6, 5, f1);
+			    			tmp.getCellFormatModel().add(3, 6, f2);
+			    			tmp.getCellFormatModel().add(4, 6, f2);
+			    			tmp.getCellFormatModel().add(5, 6, f2);
+			    			tmp.getCellFormatModel().add(6, 6, f2);
+			    		}
 			    		getSpread().setSpreadSheetModel(tmp);
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();

@@ -11,11 +11,13 @@ public class SpreadSheetModel implements Serializable {
 	private SpreadModel tableModel;
 	private ScrollModel scrollModel;
 	private CellSpanModel cellSpanModel;
+	private CellFormatModel cellFormatModel;
 	
 	public SpreadSheetModel() {
 		this.tableModel = new SpreadModel();
 		this.scrollModel = new ScrollModel();
 		this.cellSpanModel = new CellSpanModel();
+		this.cellFormatModel = new CellFormatModel();
 	}
 	
 	public SpreadModel getTableModel() {
@@ -34,7 +36,11 @@ public class SpreadSheetModel implements Serializable {
 		return cellSpanModel;
 	}
 
-    public ICellRange getCellRange(int row, int column) {
+	public CellFormatModel getCellFormatModel() {
+		return cellFormatModel;
+	}
+
+	public ICellRange getCellRange(int row, int column) {
    		return getCellSpanModel().getCellRange(row, column);
     }
     
