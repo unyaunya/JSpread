@@ -459,6 +459,18 @@ public class JSpread extends JComponent implements CellEditorListener {
 		return color;
     }
 
+    public Color getCellForeground(int row, int column) {
+		CellFormat format = this.getCellFormat(row,  column);
+		Color color = null; 
+		if(format != null) {
+			color = format.getForegroundColor();
+		}
+		if(color == null) {
+    		color = Color.BLACK; 
+		}
+		return color;
+    }
+    
     /**
      * 
      * @param color
@@ -473,8 +485,33 @@ public class JSpread extends JComponent implements CellEditorListener {
 			        setCellBackground(row, col, newColor);
 				}
 			}
-			
 		}
+    }
+
+    /**
+     * 
+     * @param color
+     */
+    public void setCellForeground(Color newColor) {
+    	ISpreadSelectionModel sm = getSelectionModel(); 
+		ArrayList<ICellRange> al = sm.getRangeDescriptor().getSelectedRangeList();
+		for(int i = 0; i < al.size(); i++) {
+			ICellRange r = al.get(i);
+			for(int row = r.getTop(); row <= r.getBottom(); row++) {
+				for(int col = r.getLeft(); col <= r.getRight(); col++) {
+			        setCellForeground(row, col, newColor);
+				}
+			}
+		}
+    }
+    
+    public void setCellForeground(int row, int column, Color color) {
+		CellFormat format = this.getCellFormat(row,  column);
+		if(format == null) {
+			format = new CellFormat();
+		}
+		format.setForegroundColor(color);
+        this.setCellFormat(row, column, format);
     }
 
     public void setCellBackground(int row, int column, Color color) {
@@ -561,6 +598,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
 		Border border = getCellBorder(hasFocus, row, col);
 		renderer.setBorder(border);
+		renderer.setForeground(this.getCellForeground(row, col));
 		renderer.setBackground(this.getCellBackground(isSelected, hasFocus, row, col));
 		renderer.setHorizontalAlignment(this.getHorizontalAlignment(row, col));
 		Component c = renderer.getSpreadCellRendererComponent(this, s, isSelected, hasFocus, row, col);

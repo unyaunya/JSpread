@@ -12,6 +12,7 @@ public interface ISpreadCellRenderer {
 	public Component getSpreadCellRendererComponent(JSpread spread, Object value, boolean isSelected, boolean hasFocus, int row, int column);
 	public void setBorder(Border border);
 	public Border getBorder();
+	public void setForeground(Color color);
 	public void setBackground(Color color);
 	public void setHorizontalAlignment(int alignment);
 }

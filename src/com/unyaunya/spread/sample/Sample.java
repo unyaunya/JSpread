@@ -138,6 +138,7 @@ class MyFrame extends JFrame {
 		menuBar.add(menu);
 		//Format menu
 		menu = createMenu("書式(O)", KeyEvent.VK_O);
+		menu.add(new JMenuItem(new ForegroundColorAction()));
 		menu.add(new JMenuItem(new BackgroundColorAction()));
 		menu.add(new JMenuItem(new CellCouplingAction()));
 		menuBar.add(menu);
@@ -349,12 +350,29 @@ class MyFrame extends JFrame {
 			Color currentColor = getSpread().getCellBackground(row, col);
 			Color newColor = JColorChooser.showDialog(MyFrame.this, "背景色を選択", currentColor);
 			if(newColor != null) {
-		        //getSpread().setCellBackground(row, col, newColor);
 		        getSpread().setCellBackground(newColor);
 		        getSpread().repaint();
 			}
 		}
 	}
+
+	class ForegroundColorAction extends AbstractAction {
+		public ForegroundColorAction() {
+			super("フォントの色");
+		}
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			int row = getSpread().getSelectionModel().getRowOfLeadCell();
+			int col = getSpread().getSelectionModel().getColumnOfLeadCell();
+			Color currentColor = getSpread().getCellBackground(row, col);
+			Color newColor = JColorChooser.showDialog(MyFrame.this, "フォントの色を選択", currentColor);
+			if(newColor != null) {
+		        getSpread().setCellForeground(newColor);
+		        getSpread().repaint();
+			}
+		}
+	}
+
 }
 
 public class Sample {
