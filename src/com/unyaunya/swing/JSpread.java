@@ -15,9 +15,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.logging.Logger;
 
+import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
@@ -455,6 +457,24 @@ public class JSpread extends JComponent implements CellEditorListener {
     		color = Color.WHITE; 
 		}
 		return color;
+    }
+
+    /**
+     * 
+     * @param color
+     */
+    public void setCellBackground(Color newColor) {
+    	ISpreadSelectionModel sm = getSelectionModel(); 
+		ArrayList<ICellRange> al = sm.getRangeDescriptor().getSelectedRangeList();
+		for(int i = 0; i < al.size(); i++) {
+			ICellRange r = al.get(i);
+			for(int row = r.getTop(); row <= r.getBottom(); row++) {
+				for(int col = r.getLeft(); col <= r.getRight(); col++) {
+			        setCellBackground(row, col, newColor);
+				}
+			}
+			
+		}
     }
 
     public void setCellBackground(int row, int column, Color color) {

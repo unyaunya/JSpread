@@ -349,7 +349,8 @@ class MyFrame extends JFrame {
 			Color currentColor = getSpread().getCellBackground(row, col);
 			Color newColor = JColorChooser.showDialog(MyFrame.this, "îwåiêFÇëIë", currentColor);
 			if(newColor != null) {
-		        getSpread().setCellBackground(row, col, newColor);
+		        //getSpread().setCellBackground(row, col, newColor);
+		        getSpread().setCellBackground(newColor);
 		        getSpread().repaint();
 			}
 		}
