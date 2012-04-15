@@ -4,19 +4,18 @@
 package com.unyaunya.spread;
 
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 /**
  * @author wata
  *
  */
-public class SpreadModel extends AbstractTableModel {
+public class SpreadModel extends AbstractTableModel implements ITableModel {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private TableModel tableModel = new DefaultTableModel();
+	private SpreadTableModel tableModel = new SpreadTableModel();
 	/**
 	 * 
 	 */
@@ -24,9 +23,9 @@ public class SpreadModel extends AbstractTableModel {
 
 	public SpreadModel(TableModel newModel) {
 		if(newModel == null) {
-			newModel = new DefaultTableModel();
+			newModel = new SpreadTableModel();
 		}
-		tableModel = newModel;
+		tableModel = new SpreadTableModel(newModel);
 	}
 
 	public TableModel getTableModel() {
@@ -72,5 +71,23 @@ public class SpreadModel extends AbstractTableModel {
 			return;
 		}
 		tableModel.setValueAt(aValue, rowIndex-1, columnIndex-1);
+	}
+
+	@Override
+	public void insertRow(int row, Object[] rowData) {
+		tableModel.insertRow(row, rowData);
+		this.fireTableStructureChanged();
+	}
+
+	@Override
+	public void insertColumn(int col, Object[] columnData) {
+		tableModel.insertColumn(col, columnData);
+		this.fireTableStructureChanged();
+	}
+
+	@Override
+	public void removeColumn(int column) {
+		tableModel.removeColumn(column-1);
+		this.fireTableStructureChanged();
 	}
 }

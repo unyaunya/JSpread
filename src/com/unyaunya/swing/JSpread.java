@@ -44,6 +44,7 @@ import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.ISpreadSelectionModel;
 import com.unyaunya.spread.DefaultSelectionModel;
+import com.unyaunya.spread.ITableModel;
 import com.unyaunya.spread.RangeDescriptor;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
@@ -141,8 +142,27 @@ public class JSpread extends JComponent implements CellEditorListener {
 		if(!getConfig().isRowInsertionSuppoorted()) {
 			throw new UnsupportedOperationException();
 		}
-		DefaultTableModel m = (DefaultTableModel)this.getModel().getTableModel();
+		SpreadModel m = this.getModel();
 		m.insertRow(row,  (Object[])null);
+		if(paint) {
+			repaint();
+		}
+	}
+
+	public void insertColumn() {
+		insertColumn(getSelectionModel().getColumnOfLeadCell()-1, true);
+	}
+
+	public void insertColumn(int row) {
+		insertColumn(row, true);
+	}
+
+	public void insertColumn(int col, boolean paint) {
+		if(!getConfig().isRowInsertionSuppoorted()) {
+			throw new UnsupportedOperationException();
+		}
+		SpreadModel m = this.getModel();
+		m.insertColumn(col,  (Object[])null);
 		if(paint) {
 			repaint();
 		}

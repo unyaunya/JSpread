@@ -315,7 +315,7 @@ class MyFrame extends JFrame {
 		}
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			throw new UnsupportedOperationException();
+			getSpread().insertColumn();
 		}
 	}
 
