@@ -10,6 +10,10 @@ import java.util.HashMap;
  *
  */
 public class CellSpanModel implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private HashMap<CellPosition, ICellRange> cellRangeModel;
 
 	/**
@@ -52,7 +56,7 @@ public class CellSpanModel implements Serializable {
 	}
 
 	private void _decoupleCells(ICellRange range) {
-		CellRange value = new CellRange(range);
+		//CellRange value = new CellRange(range);
 		for(int i = range.getTop(); i <= range.getBottom(); i++) {
 			for(int j = range.getLeft(); j <= range.getRight(); j++) {
 				cellRangeModel.remove(new CellPosition(i, j));

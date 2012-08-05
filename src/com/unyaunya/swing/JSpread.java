@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.logging.Logger;
 
-import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
@@ -44,7 +43,6 @@ import com.unyaunya.spread.ISpreadCellEditor;
 import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.ISpreadSelectionModel;
 import com.unyaunya.spread.DefaultSelectionModel;
-import com.unyaunya.spread.ITableModel;
 import com.unyaunya.spread.RangeDescriptor;
 import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;

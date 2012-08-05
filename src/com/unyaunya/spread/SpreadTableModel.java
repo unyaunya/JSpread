@@ -6,6 +6,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 public class SpreadTableModel extends DefaultTableModel implements ITableModel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Vector<Integer> columnIndexes = new Vector<Integer>();
 
 	/**

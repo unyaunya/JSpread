@@ -9,7 +9,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.logging.Logger;
 
 import javax.swing.ActionMap;
 import javax.swing.CellRendererPane;
@@ -19,7 +18,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.plaf.ComponentUI;
 
 import com.unyaunya.spread.Actions;
-import com.unyaunya.spread.CellRange;
 import com.unyaunya.spread.ICellRange;
 import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.RangeModel;
@@ -32,7 +30,7 @@ import com.unyaunya.swing.JSpread;
  *
  */
 public class SpreadUI extends ComponentUI {
-    private static final Logger LOG = Logger.getLogger(SpreadUI.class.getName());
+    //private static final Logger LOG = Logger.getLogger(SpreadUI.class.getName());
 
     private Actions actions;
 	
@@ -40,14 +38,14 @@ public class SpreadUI extends ComponentUI {
 	protected CellRendererPane rendererPane;
 
 	//
-//  The installation/uninstall procedures and support
-//
+	//  The installation/uninstall procedures and support
+	//
 
     public static ComponentUI createUI(JComponent c) {
         return new SpreadUI();
     }
 
-//  Installation
+    //  Installation
     public void installUI(JComponent c) {
         table = (JSpread)c;
         //actions = new Actions(table);
@@ -84,7 +82,7 @@ public class SpreadUI extends ComponentUI {
     	return null;
     }
 
-//  Uninstallation
+    //  Uninstallation
 
     public void uninstallUI(JComponent c) {
         //uninstallDefaults();

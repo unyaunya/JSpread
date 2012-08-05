@@ -20,6 +20,11 @@ public class Actions {
 	private InputMap inputMap;
 
     public class LeftAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			spread.getHandler().left();
@@ -27,30 +32,55 @@ public class Actions {
     }
 	
     public class RightAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			spread.getHandler().right();
 		}
     }
     public class UpAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			spread.getHandler().up();
 		}
     }
     public class DownAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			spread.getHandler().down();
 		}
     }
     public class PageUpAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			spread.getHandler().pageUp();
 		}
     }
     public class PageDownAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			spread.getHandler().pageDown();
