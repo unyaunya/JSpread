@@ -3,13 +3,13 @@ package com.unyaunya.spread.sample;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -23,20 +23,16 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-import com.unyaunya.gantt.GanttChart;
-import com.unyaunya.spread.CsvTable;
 import com.unyaunya.spread.SpreadSheetModel;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.JSpreadPane;
+import com.unyaunya.swing.application.AbstractFileMenuHandler;
+import com.unyaunya.swing.application.IFileMenuHandler;
 
 public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	private static Logger LOG = Logger.getLogger(AppWindow.class.getName());
 	private static final long serialVersionUID = 1L;
-	private JSpreadPane spreadPane; 
-	private FileNameExtensionFilter csvFilter = new FileNameExtensionFilter(
-	        "CSV & TXT", "csv", "txt");
-	private FileNameExtensionFilter ssdFilter = new FileNameExtensionFilter(
-	        "スプレッドシート", "ssd");
+	private CsvTable csvTable;
 
 	public AppWindow() {
 		super("Sample");
@@ -74,78 +70,130 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		return menu;
 	}
 
-	@Override
-	protected JComponent createMainComponent() {
-		return new GanttChart();
+	static List<String[]> createSampleData() {
+		List<String[]> data = new ArrayList<String[]>();
+		for(int i = 0; i < 200; i++) {
+			String[] row = new String[100];
+			for(int j = 0; j < 100; j++) {
+				row[j] = "(" + Integer.toString(i) + "," + Integer.toString(j) +")";
+			}
+			data.add(row);
+		}
+		return data;
 	}
 
 	@Override
-	protected JFileChooser createFileChooser() {
-		JFileChooser fc = super.createFileChooser();
-		fc.setAcceptAllFileFilterUsed(false);
-		fc.addChoosableFileFilter(ssdFilter);			
-		fc.addChoosableFileFilter(csvFilter);			
-		return fc;
+	protected JComponent createMainComponent() {
+		csvTable = (CsvTable)getFileMenuHandler().createNewDocument();
+		JSpread	spread = new JSpread();
+		spread.setModel(csvTable);
+		spread.getConfig().setRowInsertionSuppoorted(true);
+		return new JSpreadPane(spread);
 	}
-	
+
 	private JSpreadPane getSpreadPane() {
 		return (JSpreadPane)getMainComponent();
 	}
 	
 	private JSpread getSpread() {
-		return spreadPane.getSpread();
+		return getSpreadPane().getSpread();
 	}
 
 	//implementation of FileMenuHandler
-	public void OnFileOpen(File selectedFile){
-    	if(ssdFilter.accept(selectedFile)) {
-	    	try {
-		    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(selectedFile));
-		    	SpreadSheetModel tmp = (SpreadSheetModel)ois.readObject();
-		    	ois.close();
-	    		getSpread().setSpreadSheetModel(tmp);
-	    		getSpreadPane().setSpread(getSpread());
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
-    	else if(csvFilter.accept(selectedFile)) {
-	    	try {
-	    		CSVReader reader = new CSVReader(new FileReader(selectedFile));
-	    	    List<String[]> myEntries = reader.readAll();
-	    		getSpread().setModel(new CsvTable(myEntries));
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-    	}
+	@Override
+	protected IFileMenuHandler createFileMenuHandler() {
+		return new MyDocumentFileHandler();
 	}
 
-	public void OnFileSave(File selectedFile){
-    	if(ssdFilter.accept(selectedFile)) {
-			try {
-		        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(selectedFile));
-		    	oos.writeObject(getSpread().getSpreadSheetModel());
-		    	oos.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-    	}
-    	else if(csvFilter.accept(selectedFile)) {
-	    	CSVWriter writer;
-			try {
-				writer = new CSVWriter(new FileWriter(selectedFile));
-		        writer.writeAll(((CsvTable)getSpread().getModel().getTableModel()).getData());
-		        writer.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-    	}
+	class MyDocumentFileHandler extends AbstractFileMenuHandler {
+		private FileNameExtensionFilter csvFilter = new FileNameExtensionFilter(
+		        "CSV & TXT", "csv", "txt");
+		private FileNameExtensionFilter ssdFilter = new FileNameExtensionFilter(
+		        "スプレッドシート", "ssd");
+
+		MyDocumentFileHandler() {}
+
+		@Override
+		public Object createNewDocument() {
+    	    return new CsvTable(createSampleData());
+		}
+
+		@Override
+		public JFileChooser createFileChooser() {
+			JFileChooser fc = super.createFileChooser();
+			fc.setAcceptAllFileFilterUsed(false);
+			fc.addChoosableFileFilter(ssdFilter);			
+			fc.addChoosableFileFilter(csvFilter);			
+			return fc;
+		}
+
+		@Override
+		public void onFileOpen(JFileChooser fc){
+	    	if(ssdFilter.accept(fc.getSelectedFile())) {
+		    	try {
+			    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fc.getSelectedFile()));
+			    	SpreadSheetModel tmp = (SpreadSheetModel)ois.readObject();
+			    	ois.close();
+		    		getSpread().setSpreadSheetModel(tmp);
+		    		getSpreadPane().setSpread(getSpread());
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+	    	}
+	    	else if(csvFilter.accept(fc.getSelectedFile())) {
+		    	try {
+		    		CSVReader reader = new CSVReader(new FileReader(fc.getSelectedFile()));
+		    	    List<String[]> myEntries = reader.readAll();
+		    	    csvTable = new CsvTable(myEntries);
+		    		getSpread().setModel(csvTable);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	    	}
+		}
+
+		public void onFileSave(JFileChooser fc){
+	    	if(ssdFilter.accept(fc.getSelectedFile())) {
+				try {
+			        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fc.getSelectedFile()));
+			    	oos.writeObject(getSpread().getSpreadSheetModel());
+			    	oos.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+	    	}
+	    	else if(csvFilter.accept(fc.getSelectedFile())) {
+		    	CSVWriter writer;
+				try {
+					writer = new CSVWriter(new FileWriter(fc.getSelectedFile()));
+			        writer.writeAll(csvTable.getData());
+			        writer.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+	    	}
+		}
+
+		/**
+		 * 指定したファイルを読み込んでドキュメントを作成する
+		 * @param file
+		 * @return
+		 */
+		protected Object openDocument(File file) {
+			//TODO
+			return null;
+		}
+
+		/**
+		 * 指定したドキュメントをファイルに保存する
+		 * @param file
+		 * @return
+		 */
+		protected void saveDocument(Object document, File file) {
+			//TODO
+		}
+
 	}
 }

@@ -6,13 +6,8 @@ package com.unyaunya.swing;
 import java.awt.Adjustable;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -20,7 +15,6 @@ import javax.swing.JColorChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 
-import com.unyaunya.spread.CsvTable;
 import com.unyaunya.spread.Layout;
 
 class MyMouseListener extends MouseAdapter {
@@ -56,18 +50,6 @@ public class JSpreadPane extends JPanel {
 	JScrollBar horizontalBar = new JScrollBar(Adjustable.HORIZONTAL);
 	JScrollBar verticalBar = new JScrollBar(Adjustable.VERTICAL);
 
-	static List<String[]> createSampleData() {
-		List<String[]> data = new ArrayList<String[]>();
-		for(int i = 0; i < 200; i++) {
-			String[] row = new String[100];
-			for(int j = 0; j < 100; j++) {
-				row[j] = "(" + Integer.toString(i) + "," + Integer.toString(j) +")";
-			}
-			data.add(row);
-		}
-		return data;
-	}
-
 	public JSpreadPane() {
 		this(null);
 	}
@@ -81,11 +63,6 @@ public class JSpreadPane extends JPanel {
 	}
 
 	private void init(JSpread spread) {
-		if(spread == null) {
-			spread = new JSpread();
-			spread.setModel(new CsvTable(createSampleData()));
-			spread.getConfig().setRowInsertionSuppoorted(true);
-		}
 		spread.addMouseListener(new MyMouseListener(spread));
 		this.add(spread, BorderLayout.CENTER);
 		this.add(this.horizontalBar, BorderLayout.SOUTH);
@@ -93,23 +70,12 @@ public class JSpreadPane extends JPanel {
 		setSpread(spread);
 	}
 
-	private void resized() {
-		Rectangle rect = getSpread().getBounds();
-		getSpread().getRangeModel(Adjustable.HORIZONTAL).setComponentSize(rect.width);
-		getSpread().getRangeModel(Adjustable.VERTICAL).setComponentSize(rect.height);
-	}
-	
+	/**
+	 * @param spread
+	 */
 	public void setSpread(JSpread spread) {
 		this.spread = spread;
-		this.horizontalBar.setModel(getSpread().getRangeModel(Adjustable.HORIZONTAL));
-		this.verticalBar.setModel(getSpread().getRangeModel(Adjustable.VERTICAL));
-		getSpread().addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				resized();
-			}
-		});
-		resized();
+		spread.setScrollBar(this.horizontalBar, this.verticalBar);
 	}
 	
 	public JSpread getSpread() {

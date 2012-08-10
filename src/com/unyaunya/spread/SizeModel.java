@@ -12,9 +12,13 @@ import javax.swing.SizeSequence;
 
 /**
  * @author wata
- *
+ *　行高さまたは列幅を管理するクラス
  */
 class SizeModel extends SizeSequence implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int defaultSize = 20;
 	private int length = 0;
 
@@ -72,10 +76,12 @@ class SizeModel extends SizeSequence implements Serializable {
 		this.setSizes(sizes);
 	}
 
-	public int getPreferredSize() {
-		return getPosition(getLength());
+	public void reset(int count, int defaultSize) {
+		removeAll();
+		setDefaultSize(defaultSize);
+		insertEntries(0, count, getDefaultSize());
 	}
-
+	
 	public void setDefaultSize(int defaultSize) {
 		this.defaultSize = defaultSize;
 	}

@@ -2,34 +2,28 @@ package com.unyaunya.spread;
 
 import java.io.Serializable;
 
-public class SpreadSheetModel implements Serializable {
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
+public class SpreadSheetModel implements TableModel, Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
 	private SpreadModel tableModel;
-	private ScrollModel scrollModel;
 	private CellSpanModel cellSpanModel;
 	private CellFormatModel cellFormatModel;
 	
 	public SpreadSheetModel() {
-		this.tableModel = new SpreadModel();
-		this.scrollModel = new ScrollModel();
-		this.cellSpanModel = new CellSpanModel();
-		this.cellFormatModel = new CellFormatModel();
+		setTableModel(new SpreadModel());
 	}
 	
-	public SpreadModel getTableModel() {
-		return tableModel;
-	}
-
 	public void setTableModel(SpreadModel model) {
 		tableModel = model;
-	}
-
-	public ScrollModel getScrollModel() {
-		return scrollModel;
+		this.cellSpanModel = new CellSpanModel();
+		this.cellFormatModel = new CellFormatModel();
 	}
 
 	public CellSpanModel getCellSpanModel() {
@@ -48,4 +42,65 @@ public class SpreadSheetModel implements Serializable {
    		getCellSpanModel().coupleCells(range);
 	}
     
+	public void insertRow(int row) {
+		tableModel.insertRow(row,  (Object[])null);
+	}
+
+	public void insertColumn(int column) {
+		tableModel.insertColumn(column, (Object[])null);
+	}
+
+	public void removeRow(int row) {
+		DefaultTableModel m = (DefaultTableModel)tableModel.getTableModel();
+		m.removeRow(row);
+	}
+
+	/*
+	 * implementation of TableModel interface
+	 */
+
+	@Override
+	public int getColumnCount() {
+		return tableModel.getColumnCount();
+	}
+
+	@Override
+	public int getRowCount() {
+		return tableModel.getRowCount();
+	}
+	
+	@Override
+	public Object getValueAt(int row, int column) {
+		return tableModel.getValueAt(row, column);
+	}
+
+	@Override
+	public void setValueAt(Object value, int row, int column) {
+		tableModel.setValueAt(value, row, column);
+	}
+
+	@Override
+	public void addTableModelListener(TableModelListener l) {
+		tableModel.addTableModelListener(l);
+	}
+
+	@Override
+	public Class<?> getColumnClass(int col) {
+		return tableModel.getColumnClass(col);
+	}
+
+	@Override
+	public String getColumnName(int col) {
+		return tableModel.getColumnName(col);
+	}
+
+	@Override
+	public boolean isCellEditable(int row, int col) {
+		return tableModel.isCellEditable(row, col);
+	}
+
+	@Override
+	public void removeTableModelListener(TableModelListener l) {
+		tableModel.removeTableModelListener(l);
+	}
 }

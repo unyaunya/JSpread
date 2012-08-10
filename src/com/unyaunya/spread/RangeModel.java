@@ -7,27 +7,67 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import javax.swing.BoundedRangeModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 /**
+ * ・縦または横方向のスクロール関連座標変換処理を行う。
+ * ・スクロールしない行または列数が設定できる。
+ * ・JSpreadPaneが使用するJScrollBarにスクロールに関係する値を伝達する。
+ * ・座標変換及びスクロール関係量の算出するには、各行/列の高さ/幅及びコンポーネントの高さ/幅が必要である。
+ * ・各行または列の高さは、次のメソッドで変更する。
+ * 　　setDefaultSize(), setSize(), reset()
+ * ・コンポーネントのサイズ(幅または高さ)は、ScrollModelから提供を受ける。
+ * 
  * @author wata
  *
  */
-public class RangeModel implements BoundedRangeModel, Serializable {
-	private SizeModel sizeModel;
-	private int componentSize;
-	private int value;
-	transient private ArrayList<ChangeListener> changeListenerList;
-	transient private ChangeEvent event;
-	transient private int extent;
-	transient private int fixedPartNum;
+class RangeModel implements BoundedRangeModel, Serializable {
+    private static final Logger LOG = Logger.getLogger(RangeModel.class.getName());
 	
-	RangeModel(SizeModel sizeModel) {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 各行の高さまたは各列の幅
+	 */
+	private SizeModel sizeModel;
+	
+	/**
+	 * コンポーネントの高さまたは幅
+	 */
+	private int componentSize;
+	
+	/**
+	 * スクロールしない固定領域の行または列数
+	 */
+	transient private int fixedPartNum;
+
+	/**
+	 * スクロール値
+	 */
+	private int value;
+	
+	transient private int extent;
+
+	/**
+	 * 変更リスナーのリスト。基本的にJSpreadPaneのスクロールバーがリスナーとして設定される。
+	 */
+	transient private ArrayList<ChangeListener> changeListenerList;
+	/**
+	 * リスナーへの伝達に使用するイベント
+	 */
+	transient private ChangeEvent event;
+
+	/**
+	 * コンストラクタ
+	 */
+	RangeModel() {
 		setup();
-		this.sizeModel = sizeModel;
+		this.sizeModel = new SizeModel();
+		setComponentSize(0);
 	}
 	
 	private void setup() {
@@ -36,7 +76,62 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 		extent = 1;
 		fixedPartNum = 1;
 	}
+
+	public void reset(int count) {
+		reset(count, sizeModel.getDefaultSize());
+	}
+
+	public void reset(int count, int defaultSize) {
+		sizeModel.reset(count, defaultSize);
+	}
+
+	/**
+	 * indexで指定された行または列の高さ/幅を取得する。
+	 * @param index　行または列のインデックス
+	 * @return
+	 */
+	public int getSize(int index) {
+		return sizeModel.getSize(index);
+	}
 	
+	/**
+	 * indexで指定された行または列の高さ/幅を設定する。
+	 * @param index　行または列のインデックス
+	 * @param width 行または列の高さ/幅
+	 */
+	public void setSize(int index, int width) {
+		sizeModel.setSize(index, width);
+	}
+	
+	/**
+	 * 行または列のデフォルトの高さ/幅を設定する。
+	 * @param width　行または列のデフォルトの高さ/幅
+	 */
+	public void setDefaultSize(int width) {
+		sizeModel.setDefaultSize(width);
+	}
+
+	/**
+	 * 行または列のデフォルトの高さ/幅を取得する。
+	 * @return
+	 */
+	public int getDefaultSize() {
+		return sizeModel.getDefaultSize();
+	}
+
+	/**
+	 * スクロールが不要なになるコンポーネントの高さまたは幅を取得する。
+	 * @return
+	 */
+	public int getPreferredSize() {
+		return sizeModel.getPosition(sizeModel.getLength());
+	}
+
+	/**
+	 * 固定領域の行または列数を設定する。
+	 * 
+	 * @param fixedPartNum
+	 */
 	public void setFixedPartNum(int fixedPartNum) {
 		if(fixedPartNum < 0) {
 			fixedPartNum = 0;
@@ -44,21 +139,45 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 		this.fixedPartNum = fixedPartNum;
 	}
 
+	/**
+	 * 固定領域の行または列数を取得する。
+	 * @return
+	 */
 	public int getFixedPartNum() {
 		return fixedPartNum;
 	}
 
+	/**
+	 * コンポーネントの高さまたは幅をセットする。
+	 * スクロールのextent及びvalueが再計算される。
+	 * @param componentSize
+	 */
 	public void setComponentSize(int componentSize) {
 		this.componentSize = componentSize;
+		int currentExtent = getExtent();
+		int currentValue = getValue();
 		setExtent(calcExtent());
 		setValue(getValue());
-		fireChangeEvent();
+		if(currentExtent != getExtent() || currentValue != getValue()) {
+			fireChangeEvent();
+		}
 	}
 
+	/**
+	 * コンポーネントの高さまたは幅を取得する。
+	 * @return
+	 */
+	public int getComponentSize() {
+		return this.componentSize;
+	}
+
+	/**
+	 * スクロールのextent及びvalueの変更を通知する。
+	 */
 	public void fireChangeEvent() {
-		System.out.println("fireChangeEvent");
+		LOG.info("fireChangeEvent");
 		if(changeListenerList == null) {
-			System.out.println("\tchangeListenerList=null");
+			LOG.info("\tchangeListenerList=null");
 		}
 		else {
 			for(ChangeListener l: changeListenerList) {
@@ -66,27 +185,46 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 			}
 		}
 	}
-	public int getComponentSize() {
-		return this.componentSize;
-	}
 
+	/**
+	 * 固定領域全体の高さまたは幅
+	 * @return
+	 */
 	public int getPreferredFixedPartSize() {
 		return sizeModel.getPosition(getFixedPartNum());
 	}
 
+	/**
+	 * 固定領域の高さまたは幅。
+	 * コンポーネント領域の高さまたは幅に制約されなければ、固定領域全体の高さまたは幅と等しくなる。
+	 * @return
+	 */
 	public int getFixedPartSize() {
 		return Math.min(getComponentSize(), getPreferredFixedPartSize());
 	}
 	
+	/**
+	 * getPreferredSize() - getPreferredFixedPartSize()
+	 * @return
+	 */
+	public int getPreferredScrollPartSize() {
+		return getPreferredSize() - getPreferredFixedPartSize();
+	}
+
+	/**
+	 * getComponentSize() - getFixedPartSize()
+	 * @return
+	 */
 	public int getScrollPartSize() {
 		return getComponentSize() - getFixedPartSize();
 	}
-
-	public int getPreferredScrollPartSize() {
-		return sizeModel.getPreferredSize() - getPreferredFixedPartSize();
-	}
 	
-	//
+	/**
+	 * indexで指定した行または列の開始位置。
+	 * スクロール考慮された値が算出される。
+	 * @param index
+	 * @return
+	 */
 	public int getPosition(int index) {
 		if(index < getFixedPartNum()) {
 			return sizeModel.getPosition(index);
@@ -120,7 +258,8 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 		return logicalCoord - sizeModel.getPosition(getFixedPartNum()+getValue()) + getFixedPartSize();
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * リスナーを登録する。
 	 * @see javax.swing.BoundedRangeModel#addChangeListener(javax.swing.event.ChangeListener)
 	 */
 	@Override
@@ -128,7 +267,8 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 		changeListenerList.add(l);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * リスナーを削除する
 	 * @see javax.swing.BoundedRangeModel#removeChangeListener(javax.swing.event.ChangeListener)
 	 */
 	@Override
@@ -172,8 +312,8 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 			//- sizeModel.getPosition(this.getFixedPartNum());
 			//可変部分下端の論理位置：
 			int endPos = startPos + scrollPartSize;
-			if(endPos > sizeModel.getPreferredSize()) {
-				endPos = sizeModel.getPreferredSize();
+			if(endPos > getPreferredSize()) {
+				endPos = getPreferredSize();
 				startPos = endPos - scrollPartSize;
 				return getMaximum() - (sizeModel.getIndex(startPos) + 0);
 			}
@@ -183,6 +323,34 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 		}
 	}
 
+	public void scrollToVisible(int index) {
+		//固定領域が指定されたら、setValue(0)
+		if(index < getFixedPartNum()) {
+			setValue(0);
+		}
+		//指定された箇所が可変領域の前にある場合
+		else if(index < (getFixedPartNum()+getValue())) {
+			System.out.println("scrollToVisible:getFixedPartNum()");
+			setValue(index - getFixedPartNum());
+		}
+		//可変領域のサイズが、セル自体のサイズよりも小さい場合
+		else if(getScrollPartSize() <= sizeModel.getSize(index)) {
+			System.out.println("getScrollPartSize() <= size");
+			setValue(index - getFixedPartNum());
+		}
+		//指定された箇所が可変領域の後にある場合
+		else {
+			int gap = getScrollPartSize() - (sizeModel.getPosition(index+1) - sizeModel.getPosition(getFixedPartNum() + getValue()));
+			LOG.info("scrollToVisible:getScrollPartSize() - (sizeModel.getPosition(index+1) - sizeModel.getPosition(getFixedPartNum() + getValue())) = " + gap);
+			int n = 0;
+			while(gap < 0) {
+				gap += sizeModel.getSize(getFixedPartNum() + getValue()+n);
+				n++;
+			}
+			setValue(getValue()+n);
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see javax.swing.BoundedRangeModel#getMaximum()
 	 */
@@ -191,7 +359,9 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 		return Math.max(0, sizeModel.getLength() - getFixedPartNum());
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * スクロール量の最小値を取得する
+	 * 
 	 * @see javax.swing.BoundedRangeModel#getMinimum()
 	 */
 	@Override
@@ -199,7 +369,9 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * 現在のスクロール量を取得する。
+	 * 
 	 * @see javax.swing.BoundedRangeModel#getValue()
 	 */
 	@Override
@@ -221,7 +393,7 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 	 */
 	@Override
 	public void setExtent(int extent) {
-		System.out.println("setExtent(" + extent + ")");
+		LOG.info("setExtent(" + extent + ")");
 		this.extent = extent;
 		fireChangeEvent();
 	}
@@ -231,7 +403,7 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 	 */
 	@Override
 	public void setMaximum(int arg0) {
-		System.out.println("setMaximum(" + arg0 + ")");
+		LOG.info("setMaximum(" + arg0 + ")");
 		fireChangeEvent();
 	}
 
@@ -240,7 +412,7 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 	 */
 	@Override
 	public void setMinimum(int arg0) {
-		System.out.println("setMinimum(" + arg0 + ")");
+		LOG.info("setMinimum(" + arg0 + ")");
 		fireChangeEvent();
 	}
 
@@ -250,7 +422,7 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 	@Override
 	public void setRangeProperties(int arg0, int arg1, int arg2, int arg3,
 			boolean arg4) {
-		System.out.println("setRangeProperties(" + arg0 + ", " + arg1 + ", " + arg2 + ", " + arg3 + ")");
+		LOG.info("setRangeProperties(" + arg0 + ", " + arg1 + ", " + arg2 + ", " + arg3 + ")");
 		fireChangeEvent();
 	}
 
@@ -266,7 +438,7 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 			value = 0;
 		}
 		this.value = value;
-		System.out.println("setValue(" + value + ")");
+		LOG.info("setValue(" + value + ")");
 		fireChangeEvent();
 	}
 
@@ -277,34 +449,6 @@ public class RangeModel implements BoundedRangeModel, Serializable {
 	public void setValueIsAdjusting(boolean arg0) {
 		// TODO Auto-generated method stub
 		fireChangeEvent();
-	}
-
-	public void scrollToVisible(int index) {
-		//固定領域が指定されたら、setValue(0)
-		if(index < getFixedPartNum()) {
-			setValue(0);
-		}
-		//指定された箇所が可変領域の前にある場合
-		else if(index < (getFixedPartNum()+getValue())) {
-			System.out.println("scrollToVisible:getFixedPartNum()");
-			setValue(index - getFixedPartNum());
-		}
-		//可変領域のサイズが、セル自体のサイズよりも小さい場合
-		else if(getScrollPartSize() <= sizeModel.getSize(index)) {
-			System.out.println("getScrollPartSize() <= size");
-			setValue(index - getFixedPartNum());
-		}
-		//指定された箇所が可変領域の後にある場合
-		else {
-			int gap = getScrollPartSize() - (sizeModel.getPosition(index+1) - sizeModel.getPosition(getFixedPartNum() + getValue()));
-			System.out.println("scrollToVisible:getScrollPartSize() - (sizeModel.getPosition(index+1) - sizeModel.getPosition(getFixedPartNum() + getValue())) = " + gap);
-			int n = 0;
-			while(gap < 0) {
-				gap += sizeModel.getSize(getFixedPartNum() + getValue()+n);
-				n++;
-			}
-			setValue(getValue()+n);
-		}
 	}
 
 	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {

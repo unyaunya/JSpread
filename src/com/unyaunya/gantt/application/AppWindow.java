@@ -1,7 +1,6 @@
 package com.unyaunya.gantt.application;
 
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,29 +17,36 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 import com.unyaunya.gantt.GanttChart;
+import com.unyaunya.gantt.GanttDocument;
 import com.unyaunya.spread.SpreadSheetModel;
 import com.unyaunya.swing.JSpread;
+import com.unyaunya.swing.application.AbstractFileMenuHandler;
+import com.unyaunya.swing.application.IFileMenuHandler;
 
 public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	private static Logger LOG = Logger.getLogger(AppWindow.class.getName());
 	private static final long serialVersionUID = 1L;
 	private GanttChart gantt; 
-	private FileNameExtensionFilter ssdFilter = new FileNameExtensionFilter(
-	        "スプレッドシート", "ssd");
 
 	public AppWindow() {
 		super("工程表");
 		LOG.info("AppWindow()");
 	}
 
+	private JMenu createEditMenu() {
+		JMenu menu = createMenu("編集(E)", KeyEvent.VK_E);
+		menu.add(new JMenuItem(getGanttChart().getDeleteAction()));
+		menu.add(new JMenuItem(getGanttChart().getLevelUpAction()));
+		menu.add(new JMenuItem(getGanttChart().getLevelDownAction()));
+		return menu;
+	}
+	
 	@Override
 	protected JMenuBar createMenuBar() {
 		JMenuBar menuBar = super.createMenuBar();
 		JMenu menu;
 		//Edit menu
-		menu = createMenu("編集(E)", KeyEvent.VK_E);
-		menu.add(new JMenuItem(getGanttChart().getDeleteAction()));
-		menuBar.add(menu);
+		menuBar.add(createEditMenu());
 		//Insert menu
 		menu = createInsertMenu();
 		menuBar.add(menu);
@@ -69,14 +75,6 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		return new GanttChart();
 	}
 
-	@Override
-	protected JFileChooser createFileChooser() {
-		JFileChooser fc = super.createFileChooser();
-		fc.setAcceptAllFileFilterUsed(false);
-		fc.addChoosableFileFilter(ssdFilter);			
-		return fc;
-	}
-	
 	private GanttChart getGanttChart() {
 		return (GanttChart)getMainComponent();
 	}
@@ -86,34 +84,63 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	}
 
 	//implementation of FileMenuHandler
-	public void OnFileOpen(File selectedFile) {
-    	if(!ssdFilter.accept(selectedFile)) {
-    		return;
-    	}
-		try {
-	    	ObjectInputStream ois;
-			ois = new ObjectInputStream(new FileInputStream(selectedFile));
-	    	SpreadSheetModel tmp = (SpreadSheetModel)ois.readObject();
-	    	ois.close();
-    		getSpread().setSpreadSheetModel(tmp);
-    		getGanttChart().setSpread(getSpread());
-		} catch (ClassNotFoundException e) {
-			LOG.info(e.getMessage());
-		} catch (IOException e) {
-			LOG.info(e.getMessage());
-		}
+
+	//implementation of FileMenuHandler
+	@Override
+	protected IFileMenuHandler createFileMenuHandler() {
+		return new MyFileMenuHandler();
 	}
 
-	public void OnFileSave(File selectedFile){
-    	if(!ssdFilter.accept(selectedFile)) {
-    		return;
-    	}
-		try {
-	        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(selectedFile));
-	    	oos.writeObject(getSpread().getSpreadSheetModel());
-	    	oos.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
+	class MyFileMenuHandler extends AbstractFileMenuHandler {
+		private FileNameExtensionFilter ssdFilter = new FileNameExtensionFilter(
+		        "ガントチャート", "xml");
+		
+		MyFileMenuHandler(){}
+
+		@Override
+		public JFileChooser createFileChooser() {
+			JFileChooser fc = super.createFileChooser();
+			fc.setAcceptAllFileFilterUsed(false);
+			fc.addChoosableFileFilter(ssdFilter);			
+			return fc;
+		}
+
+		@Override
+		public Object createNewDocument() {
+			return new GanttDocument();
+		}
+		
+		
+		@Override
+		public void onFileOpen(JFileChooser fc) {
+	    	if(!ssdFilter.accept(fc.getSelectedFile())) {
+	    		return;
+	    	}
+			try {
+		    	ObjectInputStream ois;
+				ois = new ObjectInputStream(new FileInputStream(fc.getSelectedFile()));
+		    	SpreadSheetModel tmp = (SpreadSheetModel)ois.readObject();
+		    	ois.close();
+	    		getSpread().setSpreadSheetModel(tmp);
+	    		getGanttChart().setSpread(getSpread());
+			} catch (ClassNotFoundException e) {
+				LOG.info(e.getMessage());
+			} catch (IOException e) {
+				LOG.info(e.getMessage());
+			}
+		}
+
+		public void onFileSaveAs(JFileChooser fc){
+	    	if(!ssdFilter.accept(fc.getSelectedFile())) {
+	    		return;
+	    	}
+			try {
+		        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fc.getSelectedFile()));
+		    	oos.writeObject(getSpread().getSpreadSheetModel());
+		    	oos.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		}
 	}
 }

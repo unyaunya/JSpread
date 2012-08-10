@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -20,16 +19,16 @@ import javax.swing.JPanel;
  * @author wata
  * swingアプリケーションのメインウィンドウの基底クラス
  */
-public class AppFrame extends JFrame implements FileMenuHandler {
+public abstract class AppFrame extends JFrame {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private static Logger LOG = Logger.getLogger(AppFrame.class.getName());
-
+	
 	private boolean isInited = false; 
 	private JComponent	mainComponent;
-	private JFileChooser fileChooser;
+	transient IFileMenuHandler fileMenuHandler; 
 	
 	public AppFrame(String title) {
 		super();
@@ -56,13 +55,42 @@ public class AppFrame extends JFrame implements FileMenuHandler {
 
 	protected JMenu createFileMenu() {
 		JMenu menu = createMenu("ファイル(F)", KeyEvent.VK_F);
-		menu.add(createMenuItem(new OpenAction(), KeyEvent.VK_F));
-		menu.add(new JMenuItem(new SaveAsAction()));
+		menu.add(createMenuItem(new AbstractAction("新規作成"){
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				getFileMenuHandler().onFileNew();
+			}
+		}, KeyEvent.VK_N));
+		menu.add(createMenuItem(getFileMenuHandler().getOpenAction(), KeyEvent.VK_O));
+		menu.add(createMenuItem(new AbstractAction("保存"){
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				getFileMenuHandler().onFileSave();
+			}
+		}, KeyEvent.VK_S));
+		menu.add(createMenuItem(getFileMenuHandler().getSaveAsAction(), KeyEvent.VK_A));
 		menu.addSeparator();
-		menu.add(new JMenuItem(new ExitAction()));
+		menu.add(createMenuItem(new AbstractAction("印刷プレビュー"){
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				getFileMenuHandler().onFilePrintPreview();
+			}
+		}, KeyEvent.VK_V));
+		menu.add(createMenuItem(new AbstractAction("印刷"){
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				getFileMenuHandler().onFilePrint();
+			}
+		}, KeyEvent.VK_P));
+		menu.addSeparator();
+		menu.add(new JMenuItem(getFileMenuHandler().getExitAction()));
 		return menu;
 	}
-	
+
 	protected JComponent createMainComponent() {
 		return new JPanel();
 	}
@@ -85,74 +113,14 @@ public class AppFrame extends JFrame implements FileMenuHandler {
 		return mi;
 	}
 
-	protected final JFileChooser getFileChooser() {
-		if(this.fileChooser == null) {
-			this.fileChooser = createFileChooser();
-		}
-		return this.fileChooser;
-	}
-
-	protected JFileChooser createFileChooser() {
-		return new JFileChooser();
-	}
-
 	//implementation of FileMenuHandler
-	public void OnFileOpen(JFileChooser fc){
-    	LOG.info("You chose to open data in this file: " +
-    			fc.getSelectedFile().toString() + "/" +
-    			fc.getTypeDescription(fc.getSelectedFile()));
-	}
-	public void OnFileSave(JFileChooser fc){
-    	LOG.info("You chose to save data in this file: " +
-    			fc.getSelectedFile().toString() + "/" +
-    			fc.getTypeDescription(fc.getSelectedFile()));
-	}
-
-	public void OnExit() {
-    	LOG.info("OnExit() called.");
-    	System.exit(0);
-	}
+	abstract protected IFileMenuHandler createFileMenuHandler();
 	
-	final class OpenAction extends AbstractAction {
-		private static final long serialVersionUID = 1L;
-		public OpenAction() {
-			super("開く...");
+	protected IFileMenuHandler getFileMenuHandler() {
+		if(this.fileMenuHandler == null) {
+			this.fileMenuHandler = createFileMenuHandler();
 		}
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			JFileChooser fc = getFileChooser();
-			int returnVal = fc.showOpenDialog(AppFrame.this);
-		    if(returnVal == JFileChooser.APPROVE_OPTION) {
-		    	OnFileOpen(fc);
-		    }
-		}
+		return this.fileMenuHandler;
 	}
 
-	final class SaveAsAction extends AbstractAction {
-		private static final long serialVersionUID = 1L;
-		public SaveAsAction() {
-			super("名前をつけて保存...");
-		}
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			JFileChooser fc = getFileChooser();
-			fc.setDialogTitle("名前をつけて保存");
-			int returnVal = fc.showSaveDialog(AppFrame.this);
-		    if(returnVal == JFileChooser.APPROVE_OPTION) {
-		    	OnFileSave(fc);
-		    }
-		}
-	}
-
-	final class ExitAction extends AbstractAction {
-		private static final long serialVersionUID = 1L;
-		public ExitAction() {
-			super("終了");
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			OnExit();
-		}
-	}
 }

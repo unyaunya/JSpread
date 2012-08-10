@@ -1,35 +1,75 @@
 package com.unyaunya.spread;
 
 import java.awt.Adjustable;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.Serializable;
 
+import javax.swing.JComponent;
+import javax.swing.JScrollBar;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-public class ScrollModel implements TableModelListener, Serializable {
-	private SizeModel colSizeModel;
-	private SizeModel rowSizeModel;
+/**
+ * JSpreadのスクロール処理を処理するクラス
+ * 行方向/列方向それぞれに、内部的にRangeModelを保持している。
+ * 
+ * @author wata
+ *
+ */
+public class ScrollModel implements ComponentListener, TableModelListener, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private RangeModel colRangeModel;
 	private RangeModel rowRangeModel;
 	private TableModel tableModel;
+	private JComponent component;
 
-	public ScrollModel() {
+	public ScrollModel(JComponent c) {
 		this(23, 60);
+		setComponent(c);
 	}
 
 	private ScrollModel(int defaultRowHeight, int defaultColumnWidth) {
-		this.rowSizeModel = new SizeModel();
-		this.colSizeModel = new SizeModel();
-		this.rowRangeModel = new RangeModel(rowSizeModel);
-		this.colRangeModel = new RangeModel(colSizeModel);
+		this.rowRangeModel = new RangeModel();
+		this.colRangeModel = new RangeModel();
 		this.setDefaultRowHeight(defaultRowHeight);
 		this.setDefaultColumnWidth(defaultColumnWidth);
 	}
 
+	/**
+	 * スクロール対象のコンポーネントを設定する。
+	 */
+	private void setComponent(JComponent component) {
+		if(this.component != null) {
+			throw new RuntimeException("Can't reset the component");
+		}
+		this.component = component;
+		component.addComponentListener(this);
+		colRangeModel.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				ScrollModel.this.component.repaint();
+			}
+		});
+		rowRangeModel.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				ScrollModel.this.component.repaint();
+			}
+		});
+		this.component.repaint();
+	}
+	
 	/**
 	 * @param tableModel the tableModel to set
 	 */
@@ -38,16 +78,21 @@ public class ScrollModel implements TableModelListener, Serializable {
 		tableModel.addTableModelListener(this);
 		tableChanged(new TableModelEvent(tableModel));
 	}
-
+	
 	@Override
 	public void tableChanged(TableModelEvent e) {
-		rowSizeModel.removeAll();
-		rowSizeModel.insertEntries(0, tableModel.getRowCount(), rowSizeModel.getDefaultSize());
-		colSizeModel.removeAll();
-		colSizeModel.insertEntries(0, tableModel.getColumnCount(), colSizeModel.getDefaultSize());
-		colSizeModel.setSize(0, 40);
+		rowRangeModel.reset(tableModel.getRowCount());
+		colRangeModel.reset(tableModel.getColumnCount(), 40);
 		this.rowRangeModel.setValue(0);
 		this.colRangeModel.setValue(0);
+	}
+
+	/**
+	 * スクロールバーを設定する。
+	 */
+	public void setScrollBar(JScrollBar horizontalBar, JScrollBar verticalBar) {
+		horizontalBar.setModel(colRangeModel);
+		verticalBar.setModel(rowRangeModel);
 	}
 	
 	/**
@@ -64,71 +109,51 @@ public class ScrollModel implements TableModelListener, Serializable {
 		}
 	}
 
-	/**
-	 * @return the sizeModel
-	 */
-	public SizeModel getSizeModel(int direction) {
-		switch(direction) {
-		case Adjustable.HORIZONTAL:
-			return colSizeModel;
-		case Adjustable.VERTICAL:
-			return rowSizeModel;
-		default:
-			throw new RuntimeException("illegal direction value.");
-		}
-	}
-
 	public Rectangle getGridRect(int rowIndex, int colIndex) {
 		return new Rectangle(
 					colRangeModel.getPosition(colIndex),
 					rowRangeModel.getPosition(rowIndex),
-					colSizeModel.getSize(colIndex),
-					rowSizeModel.getSize(rowIndex));
+					colRangeModel.getSize(colIndex),
+					rowRangeModel.getSize(rowIndex));
 	}
 	
 	public Dimension getPreferredSize() {
 		return new Dimension(
-				colSizeModel.getPreferredSize(),
-				rowSizeModel.getPreferredSize());
-	}
-
-	public int getRowExtent() {
-		return rowRangeModel.getExtent();
-	}
-	public int getColumnExtent() {
-		return colRangeModel.getExtent();
+				colRangeModel.getPreferredSize(),
+				rowRangeModel.getPreferredSize());
 	}
 
 	public int getRowPosition(int rowIndex) {
 		return rowRangeModel.getPosition(rowIndex);
 	}
 	public int getDefaultRowHeight() {
-		return rowSizeModel.getDefaultSize();
+		return rowRangeModel.getDefaultSize();
 	}
 	public void setDefaultRowHeight(int height) {
-		rowSizeModel.setDefaultSize(height);
+		rowRangeModel.setDefaultSize(height);
 	}
 	public int getDefaultColumnWidth() {
-		return colSizeModel.getDefaultSize();
+		return colRangeModel.getDefaultSize();
 	}
 	public void setDefaultColumnWidth(int width) {
-		colSizeModel.setDefaultSize(width);
+		colRangeModel.setDefaultSize(width);
 	}
 	public int getRowHeight(int rowIndex) {
-		return rowSizeModel.getSize(rowIndex);
+		return rowRangeModel.getSize(rowIndex);
 	}
+	
 	public void setRowHeight(int rowIndex, int height) {
-		rowSizeModel.setSize(rowIndex, height);
+		rowRangeModel.setSize(rowIndex, height);
 	}
 
 	public int getColumnPosition(int columnIndex) {
 		return colRangeModel.getPosition(columnIndex);
 	}
 	public int getColumnWidth(int columnIndex) {
-		return colSizeModel.getSize(columnIndex);
+		return colRangeModel.getSize(columnIndex);
 	}
 	public void setColumnWidth(int colIndex, int width) {
-		colSizeModel.setSize(colIndex, width);
+		colRangeModel.setSize(colIndex, width);
 	}
 	
 	public int rowAtPoint(Point pt) {
@@ -147,12 +172,32 @@ public class ScrollModel implements TableModelListener, Serializable {
 		return colRangeModel.getFixedPartNum();
 	}
 
-	public int getFixedRowSize() {
+	public int getFixedAreaHight() {
 		return rowRangeModel.getFixedPartSize();
 	}
-
-	public int getFixedColumnSize() {
+	public int getFixedAreaWidth() {
 		return colRangeModel.getFixedPartSize();
+	}
+	public int getScrollAreaHeight() {
+		return rowRangeModel.getScrollPartSize();
+	}
+	public int getScrollAreaWidth() {
+		return colRangeModel.getScrollPartSize();
+	}
+
+	/**
+	 * 行方向のextentを取得する。
+	 * @return
+	 */
+	public int getRowExtent() {
+		return rowRangeModel.getExtent();
+	}
+	/**
+	 * 列方向のextentを取得する。
+	 * @return
+	 */
+	public int getColumnExtent() {
+		return colRangeModel.getExtent();
 	}
 
 	public void scrollToVisible(int rowIndex, int columnIndex) {
@@ -174,4 +219,25 @@ public class ScrollModel implements TableModelListener, Serializable {
 		rowRangeModel.setFixedPartNum(1);
 	}
 
+	@Override
+	public void componentHidden(ComponentEvent e) {
+		//nothing to do
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+		//nothing to do
+	}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		Component c = e.getComponent();
+		colRangeModel.setComponentSize(c.getWidth());
+		rowRangeModel.setComponentSize(c.getHeight());
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+		//nothing to do
+	}
 }

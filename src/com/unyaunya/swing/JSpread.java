@@ -3,7 +3,6 @@
  */
 package com.unyaunya.swing;
 
-import java.awt.Adjustable;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -20,15 +19,14 @@ import java.util.EventObject;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
+import javax.swing.JScrollBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.UIDefaults;
 import javax.swing.border.Border;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import com.unyaunya.spread.CellFormat;
@@ -44,7 +42,6 @@ import com.unyaunya.spread.ISpreadCellRenderer;
 import com.unyaunya.spread.ISpreadSelectionModel;
 import com.unyaunya.spread.DefaultSelectionModel;
 import com.unyaunya.spread.RangeDescriptor;
-import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
 import com.unyaunya.spread.SpreadBorder;
 import com.unyaunya.spread.SpreadModel;
@@ -82,6 +79,11 @@ public class JSpread extends JComponent implements CellEditorListener {
 	private ISpreadSelectionModel selectionModel;
 	private Actions actions;
 	private Handler handler;
+
+	/**
+	 * ヘッダ領域の高さ
+	 */
+	private int headerHeight = 16;
 	
 	transient ISpreadCellEditor defaultCellEditor;
 	transient ISpreadCellEditor cellEditor = null;
@@ -89,6 +91,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	transient protected int editingColumn;
 	transient protected int editingRow;
 	transient protected boolean isProcessingKeyboardEvent;
+	transient private ScrollModel scrollModel;
 
 	/**
 	 * constructor
@@ -104,8 +107,9 @@ public class JSpread extends JComponent implements CellEditorListener {
 		this.setFocusable(true);
 
 		this.config = config;
-		this.setSpreadSheetModel(new SpreadSheetModel());
+		this.scrollModel = new ScrollModel(this);
 		this.selectionModel = new DefaultSelectionModel();
+		this.setSpreadSheetModel(new SpreadSheetModel());
         this.actions = new Actions(this);
     	this.defaultCellEditor = new DefaultCellEditor(this);
 
@@ -124,6 +128,13 @@ public class JSpread extends JComponent implements CellEditorListener {
 	public Config getConfig() {
 		return config;
 	}
+
+	/**
+	 * ヘッダ領域の高さを取得する
+	 */
+	public int getHeaderHeight() {
+		return headerHeight;
+	}
 	
 	//
 	// Operation of the SpreadSheet
@@ -140,8 +151,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		if(!getConfig().isRowInsertionSuppoorted()) {
 			throw new UnsupportedOperationException();
 		}
-		SpreadModel m = this.getModel();
-		m.insertRow(row,  (Object[])null);
+		getSpreadSheetModel().insertRow(row);
 		if(paint) {
 			repaint();
 		}
@@ -159,8 +169,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		if(!getConfig().isRowInsertionSuppoorted()) {
 			throw new UnsupportedOperationException();
 		}
-		SpreadModel m = this.getModel();
-		m.insertColumn(col,  (Object[])null);
+		getSpreadSheetModel().insertColumn(col);
 		if(paint) {
 			repaint();
 		}
@@ -176,8 +185,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		if(!getConfig().isRowInsertionSuppoorted()) {
 			throw new UnsupportedOperationException();
 		}
-		DefaultTableModel m = (DefaultTableModel)this.getModel().getTableModel();
-		m.removeRow(row);
+		getSpreadSheetModel().removeRow(row);
 		if(paint) {
 			repaint();
 		}
@@ -226,6 +234,17 @@ public class JSpread extends JComponent implements CellEditorListener {
         return uiClassID;
     }
 
+	public SpreadSheetModel getSpreadSheetModel() {
+		return spreadSheetModel;
+	}
+
+	public void setSpreadSheetModel(SpreadSheetModel model) {
+		spreadSheetModel = model;
+		this.getSelectionModel().reset();
+		getScrollModel().setTableModel(this.getSpreadSheetModel());
+		this.repaint(this.getBounds());
+	}
+
 	/*
 	 * methods set/get various models.
 	 */
@@ -238,50 +257,25 @@ public class JSpread extends JComponent implements CellEditorListener {
 		}
 		this.getSpreadSheetModel().setTableModel((SpreadModel)model);
 		this.getSelectionModel().reset();
-		getScrollModel().setTableModel(this.getModel());
+		getScrollModel().setTableModel(this.getSpreadSheetModel());
 		this.repaint(this.getBounds());
 	}
-	
-	public SpreadSheetModel getSpreadSheetModel() {
-		return spreadSheetModel;
-	}
 
-	public void setSpreadSheetModel(SpreadSheetModel model) {
-		spreadSheetModel = model;
-		this.getScrollModel().getRangeModel(Adjustable.VERTICAL).addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				repaint();
-			}
-		});
-		this.getScrollModel().getRangeModel(Adjustable.HORIZONTAL).addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				repaint();
-			}
-		});
-		repaint();
-	}
-
-	public SpreadModel getModel() {
-		return this.getSpreadSheetModel().getTableModel();
+	/**
+	 * スクロールバーを設定する。
+	 */
+	public void setScrollBar(JScrollBar horizontalBar, JScrollBar verticalBar) {
+		getScrollModel().setScrollBar(horizontalBar, verticalBar);
 	}
 
 	public ScrollModel getScrollModel() {
-		return this.getSpreadSheetModel().getScrollModel();
+		return this.scrollModel;
 	}
 
     public Actions getActions() {
     	return this.actions;
     }
 	
-	/**
-	 * @return the rangeModel
-	 */
-	public RangeModel getRangeModel(int direction) {
-		return getScrollModel().getRangeModel(direction);
-	}
-
 	public ISpreadSelectionModel getSelectionModel() {
 		return this.selectionModel;
 	}
@@ -290,11 +284,11 @@ public class JSpread extends JComponent implements CellEditorListener {
 	 * methods delegating to TableModel
 	 */
 	public int getRowCount() {
-		return getModel().getRowCount();
+		return getSpreadSheetModel().getRowCount();
 	}
 	
 	public int getColumnCount() {
-		return getModel().getColumnCount();
+		return getSpreadSheetModel().getColumnCount();
 	}
 
 	/*
@@ -596,7 +590,7 @@ public class JSpread extends JComponent implements CellEditorListener {
     }
 
 	public Component prepareRenderer(ISpreadCellRenderer renderer, int row, int col) {
-		SpreadModel m = getModel();
+		SpreadSheetModel m = getSpreadSheetModel();
 		Object s = m.getValueAt(row, col);
 		boolean hasFocus = this.hasFocus(row, col);
 		boolean isSelected = false;
@@ -706,7 +700,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 	}
 
 	public Component prepareEditor(ISpreadCellEditor editor, int row, int column) {
-		Object value = getModel().getValueAt(row, column);
+		Object value = getSpreadSheetModel().getValueAt(row, column);
 		boolean hasFocus = getSelectionModel().isLeadCell(row, column);
 		Component comp = editor.getCellEditorComponent(this, value, hasFocus, row, column);
 		/*
@@ -814,7 +808,7 @@ public class JSpread extends JComponent implements CellEditorListener {
 		ISpreadCellEditor editor = getCellEditor();
 		if (editor != null) {
 			Object value = editor.getCellEditorValue();
-			getModel().setValueAt(value, editingRow, editingColumn);
+			getSpreadSheetModel().setValueAt(value, editingRow, editingColumn);
 			removeEditor();
 			LOG.info("editingStopped(" + value +  ")");
 		}
@@ -1118,16 +1112,16 @@ public class JSpread extends JComponent implements CellEditorListener {
 			move(+1, 0);
 		}
 		public void pageLeft() {
-			move(0, - getRangeModel(Adjustable.HORIZONTAL).getExtent());
+			move(0, - getScrollModel().getColumnExtent());
 		}
 		public void pageRight() {
-			move(0, + getRangeModel(Adjustable.HORIZONTAL).getExtent());
+			move(0, + getScrollModel().getColumnExtent());
 		}
 		public void pageUp() {
-			move(- getRangeModel(Adjustable.VERTICAL).getExtent(), 0);
+			move(- getScrollModel().getRowExtent(), 0);
 		}
 		public void pageDown() {
-			move(+ getRangeModel(Adjustable.VERTICAL).getExtent(), 0);
+			move(+ getScrollModel().getRowExtent(), 0);
 		}
 	}
 }

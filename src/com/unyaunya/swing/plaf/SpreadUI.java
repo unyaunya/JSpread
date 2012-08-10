@@ -3,12 +3,12 @@
  */
 package com.unyaunya.swing.plaf;
 
-import java.awt.Adjustable;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.logging.Logger;
 
 import javax.swing.ActionMap;
 import javax.swing.CellRendererPane;
@@ -20,9 +20,8 @@ import javax.swing.plaf.ComponentUI;
 import com.unyaunya.spread.Actions;
 import com.unyaunya.spread.ICellRange;
 import com.unyaunya.spread.ISpreadCellRenderer;
-import com.unyaunya.spread.RangeModel;
 import com.unyaunya.spread.ScrollModel;
-import com.unyaunya.spread.SpreadModel;
+import com.unyaunya.spread.SpreadSheetModel;
 import com.unyaunya.swing.JSpread;
 
 /**
@@ -30,11 +29,11 @@ import com.unyaunya.swing.JSpread;
  *
  */
 public class SpreadUI extends ComponentUI {
-    //private static final Logger LOG = Logger.getLogger(SpreadUI.class.getName());
+    private static final Logger LOG = Logger.getLogger(SpreadUI.class.getName());
 
     private Actions actions;
 	
-	protected JSpread table;
+	protected JSpread spread;
 	protected CellRendererPane rendererPane;
 
 	//
@@ -47,11 +46,11 @@ public class SpreadUI extends ComponentUI {
 
     //  Installation
     public void installUI(JComponent c) {
-        table = (JSpread)c;
+        spread = (JSpread)c;
         //actions = new Actions(table);
-        actions = table.getActions();
+        actions = spread.getActions();
         rendererPane = new CellRendererPane();
-        table.add(rendererPane);
+        spread.add(rendererPane);
         //installDefaults();
         //installDefaults2();
         //installListeners();
@@ -63,9 +62,9 @@ public class SpreadUI extends ComponentUI {
      */
     protected void installKeyboardActions() {
     	InputMap keyMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-    	SwingUtilities.replaceUIInputMap(table, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyMap);
+    	SwingUtilities.replaceUIInputMap(spread, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyMap);
     	ActionMap map = getActionMap();
-        SwingUtilities.replaceUIActionMap(table, map);
+        SwingUtilities.replaceUIActionMap(spread, map);
     }
 
     InputMap getInputMap(int condition) {
@@ -89,9 +88,9 @@ public class SpreadUI extends ComponentUI {
         //uninstallListeners();
         //uninstallKeyboardActions();
 
-        table.remove(rendererPane);
+        spread.remove(rendererPane);
         rendererPane = null;
-        table = null;
+        spread = null;
     }
 
     /**
@@ -100,20 +99,23 @@ public class SpreadUI extends ComponentUI {
      * The preferred width is the sum of the preferred widths of each column.
      */
     public Dimension getPreferredSize(JComponent c) {
-    	return table.getScrollModel().getPreferredSize();
+    	return spread.getScrollModel().getPreferredSize();
     }
 
     public Dimension getMaximumSize(JComponent c) {
-    	return table.getScrollModel().getPreferredSize();
+    	return getPreferredSize(c);
     }
 
     public void paint(Graphics g, JComponent c) {
-		SpreadModel m = table.getModel();
+		LOG.info("SpreadUI::paint():start");
+		SpreadSheetModel m = spread.getSpreadSheetModel();
+		LOG.info("row="+m.getRowCount());
+		LOG.info("col="+m.getColumnCount());
 		if (m.getRowCount() <= 0 || m.getColumnCount() <= 0) {
 			return;
 		}
 		Rectangle clip = g.getClipBounds();
-		Rectangle bounds = table.getBounds();
+		Rectangle bounds = spread.getBounds();
 		bounds.x = bounds.y = 0;
 		if (!bounds.intersects(clip)) {
             // this check prevents us from painting the entire table
@@ -123,36 +125,44 @@ public class SpreadUI extends ComponentUI {
 		//LOG.info("paintComponent():start");
 		//LOG.info("\tclipingRect:"+clip);
 		Rectangle rect = new Rectangle(bounds);
-		RangeModel colRangeModel = table.getRangeModel(Adjustable.HORIZONTAL);
-		RangeModel rowRangeModel = table.getRangeModel(Adjustable.VERTICAL);
-		//
+		ScrollModel scrollModel = spread.getScrollModel();
+		int fixedRowSize = scrollModel.getFixedAreaHight();
+		int fixedColumnSize = scrollModel.getFixedAreaWidth();
+		int scrollRowSize = scrollModel.getScrollAreaHeight();
+		int scrollColumnSize = scrollModel.getScrollAreaWidth();
+		LOG.info("\nfixedRowSize:"+fixedRowSize);
+		LOG.info("\nfixedColumnSize:"+fixedColumnSize);
+		LOG.info("\nscrollRowSize:"+scrollRowSize);
+		LOG.info("\nscrollColumnSize:"+scrollColumnSize);
+		
+		//	¶ã•”•ª‚Ì•`‰æ
 		rect.x = bounds.x;
 		rect.y = bounds.y;
-		rect.width = colRangeModel.getFixedPartSize();
-		rect.height = rowRangeModel.getFixedPartSize();
+		rect.width = fixedColumnSize;
+		rect.height = fixedRowSize;
 		paintQuadrant(g, clip, rect);
-		//
-		rect.x = bounds.x + colRangeModel.getFixedPartSize();
+		//	‰Eã•”•ª‚Ì•`‰æ
+		rect.x = bounds.x + fixedColumnSize;
 		rect.y = bounds.y;
-		rect.width = colRangeModel.getScrollPartSize();
-		rect.height = rowRangeModel.getFixedPartSize();
+		rect.width = scrollColumnSize;
+		rect.height = fixedRowSize;
 		paintQuadrant(g, clip, rect);
-		//
+		//	¶‰º•”•ª‚Ì•`‰æ
 		rect.x = bounds.x;
-		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
-		rect.width = colRangeModel.getFixedPartSize();
-		rect.height = rowRangeModel.getScrollPartSize();
+		rect.y = bounds.y + fixedRowSize;
+		rect.width = fixedColumnSize;
+		rect.height = scrollRowSize;
 		paintQuadrant(g, clip, rect);
-		//
-		rect.x = bounds.x + colRangeModel.getFixedPartSize();
-		rect.y = bounds.y + rowRangeModel.getFixedPartSize();
-		rect.width = colRangeModel.getScrollPartSize();
-		rect.height = rowRangeModel.getScrollPartSize();
+		//	‰E‰º•”•ª‚Ì•`‰æ
+		rect.x = bounds.x + fixedColumnSize;
+		rect.y = bounds.y + fixedRowSize;
+		rect.width = scrollColumnSize;
+		rect.height = scrollRowSize;
 		paintQuadrant(g, clip, rect);
 		//ƒEƒBƒ“ƒhƒEŒÅ’è‚Ìê‡AŒÅ’è•”‚Æ‚Ì‹«ŠEü‚ðˆø‚­B
-		if(table.arePanesFreezed()) {
-			int x = bounds.x + colRangeModel.getFixedPartSize();
-			int y = bounds.y + rowRangeModel.getFixedPartSize();
+		if(spread.arePanesFreezed()) {
+			int x = bounds.x + fixedColumnSize;
+			int y = bounds.y + fixedRowSize;
 			//‰¡ü
 			g.drawLine(bounds.x, y, bounds.x + bounds.width, y);
 			//cü
@@ -162,7 +172,7 @@ public class SpreadUI extends ComponentUI {
 	}
 	
     private void paintQuadrant(Graphics g, Rectangle clipingRect, Rectangle rect){
-		ScrollModel scrollModel = table.getScrollModel();
+		ScrollModel scrollModel = spread.getScrollModel();
 		//LOG.info("\tpaintCells(clipingRect,rect):");
 		//LOG.info("\t\trect:"+clipingRect);
 		Rectangle clip = rect.intersection(clipingRect);
@@ -179,7 +189,7 @@ public class SpreadUI extends ComponentUI {
 	}
 
 	private void paintCells(Graphics g, int rMin, int rMax, int cMin, int cMax) {
-		SpreadModel m = table.getModel();
+		SpreadSheetModel m = spread.getSpreadSheetModel();
 		rMax = Math.min(rMax, m.getRowCount()-1);
 		cMax = Math.min(cMax, m.getColumnCount()-1);
 		int rowSpan = rMax - rMin + 1;
@@ -193,11 +203,11 @@ public class SpreadUI extends ComponentUI {
 				if(!map[i][j]) {
 					int row = rMin+i;
 					int col = cMin+j;
-					ICellRange range = table.getCellRange(row, col);
+					ICellRange range = spread.getCellRange(row, col);
 					Rectangle cellRect;
 					if(range == null) {
 						map[i][j] = true;
-						cellRect = table.getCellRect(row, col);
+						cellRect = spread.getCellRect(row, col);
 						if(cellRect != null) {
 							paintCell(g, cellRect, row, col);
 						}
@@ -210,7 +220,7 @@ public class SpreadUI extends ComponentUI {
 								}
 							}
 						}
-						cellRect = table.getCellRect(range.getTop(), range.getLeft());
+						cellRect = spread.getCellRect(range.getTop(), range.getLeft());
 						if(cellRect != null) {
 							paintCell(g, cellRect, range.getTop(), range.getLeft());
 						}
@@ -221,8 +231,8 @@ public class SpreadUI extends ComponentUI {
 	}
 
 	private void paintCell(Graphics g, Rectangle cellRect, int row, int col) {
-		ISpreadCellRenderer tcr = table.getCellRenderer(row,col);
-		Component c = table.prepareRenderer(tcr, row, col);
-		rendererPane.paintComponent(g, c, table, cellRect);
+		ISpreadCellRenderer tcr = spread.getCellRenderer(row,col);
+		Component c = spread.prepareRenderer(tcr, row, col);
+		rendererPane.paintComponent(g, c, spread, cellRect);
 	}
 }

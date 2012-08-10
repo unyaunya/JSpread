@@ -5,7 +5,7 @@ import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-public class SpreadTableModel extends DefaultTableModel implements ITableModel {
+class SpreadTableModel extends DefaultTableModel implements ITableModel {
 	/**
 	 * 
 	 */

@@ -16,7 +16,6 @@ import org.junit.Test;
  *
  */
 public class RangeModelTest {
-	SizeModel sizeModel;
 	RangeModel rangeModel;
 
 	/**
@@ -38,8 +37,8 @@ public class RangeModelTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		sizeModel = new SizeModel(10, 10);
-		rangeModel = new RangeModel(sizeModel);
+		rangeModel = new RangeModel();
+		rangeModel.reset(10, 10);
 	}
 
 	/**
@@ -62,8 +61,8 @@ public class RangeModelTest {
 
 	@Test
 	public void testSetComponentSize() {
-		sizeModel = new SizeModel(201, 16);
-		rangeModel = new RangeModel(sizeModel);
+		rangeModel = new RangeModel();
+		rangeModel.reset(201, 16);
 		rangeModel.setComponentSize(524);
 		assertEquals(524, rangeModel.getComponentSize());
 		assertEquals(16, rangeModel.getFixedPartSize());
@@ -146,8 +145,8 @@ public class RangeModelTest {
 
 	@Test
 	public void testGetIndexFromDeviceCoord() {
-		sizeModel = new SizeModel(201, 16);
-		rangeModel = new RangeModel(sizeModel);
+		rangeModel = new RangeModel();
+		rangeModel.reset(201, 16);
 		rangeModel.setComponentSize(524);
 		assertEquals(0, rangeModel.getIndexFromDeviceCoord(0));
 		assertEquals(0, rangeModel.getIndexFromDeviceCoord(15));
@@ -157,8 +156,8 @@ public class RangeModelTest {
 
 	@Test
 	public void testTranslate() {
-		sizeModel = new SizeModel(201, 16);
-		rangeModel = new RangeModel(sizeModel);
+		rangeModel = new RangeModel();
+		rangeModel.reset(201, 16);
 		rangeModel.setComponentSize(524);
 		assertEquals(0, rangeModel.componentCoord2logicalCoord(0));
 		assertEquals(15, rangeModel.componentCoord2logicalCoord(15));
