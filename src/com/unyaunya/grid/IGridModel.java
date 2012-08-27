@@ -1,14 +1,28 @@
 package com.unyaunya.grid;
 
-import java.awt.Color;
-
-import javax.swing.border.Border;
 import javax.swing.table.TableModel;
 
 public interface IGridModel extends TableModel {
-	public Color getForegroundColor(int row, int col);
-	public Color getBackgroundColor(int row, int col);
-	public Border getBorder(int row, int col);
-	public int getHorizontalAlignment(int row, int col);
-	public ICellRange getCellRange(int row, int col);
+	//書式はＩＣｅｌｌインタフェースにまとめる。
+	/**
+	 * セルを取得する。
+	 */
+	public ICell getCellAt(int row, int col);
+
+	/**
+	 * セルの値を取得する。
+	 * getCellAt(row, col).getValue()と同じ。
+	 */
+	public Object getValueAt(int row, int col);
+
+	/**
+	 * セルの値を設定する。
+	 * 次の処理とほぼ等しい
+	 * {
+	 * 		Cell cell = getCellAt(row, col);
+	 * 		cell.setvalue(value);
+	 * 		setCellAt(cell, row, col);
+	 * }
+	 */
+	public void setValueAt(Object value, int row, int col);
 }

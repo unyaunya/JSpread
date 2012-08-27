@@ -1,6 +1,6 @@
 package com.unyaunya.spread;
 
-import com.unyaunya.grid.IGridSelectionModel;
+import com.unyaunya.grid.selection.IGridSelectionModel;
 
 /**
  * SHIFTキーが押された状態のクリック、カーソル移動は、現在の選択範囲を変更する。

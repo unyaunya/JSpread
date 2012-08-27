@@ -15,19 +15,21 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import com.unyaunya.grid.Actions;
+import com.unyaunya.grid.Cell;
 import com.unyaunya.grid.CellPosition;
 import com.unyaunya.grid.Columns;
 import com.unyaunya.grid.DefaultCellRenderer;
 import com.unyaunya.grid.Handler;
+import com.unyaunya.grid.ICell;
 import com.unyaunya.grid.ICellRange;
 import com.unyaunya.grid.IGridCellRenderer;
 import com.unyaunya.grid.IGridModel;
-import com.unyaunya.grid.IGridSelectionModel;
 import com.unyaunya.grid.Rows;
 import com.unyaunya.grid.ScrollModel;
-import com.unyaunya.grid.SingleCellSelectionModel;
-import com.unyaunya.spread.Actions;
-import com.unyaunya.spread.SpreadBorder;
+import com.unyaunya.grid.format.SpreadBorder;
+import com.unyaunya.grid.selection.IGridSelectionModel;
+import com.unyaunya.grid.selection.SingleCellSelectionModel;
 import com.unyaunya.swing.plaf.GridUI;
 
 class GridModelAdapter implements IGridModel {
@@ -37,21 +39,6 @@ class GridModelAdapter implements IGridModel {
 		this.tableModel = tableModel;
 	}
 	
-	@Override
-	public Color getBackgroundColor(int row, int col) {
-		return Color.WHITE; 
-	}
-
-	@Override
-	public Border getBorder(int row, int col) {
-		return null;
-	}
-
-	@Override
-	public Color getForegroundColor(int row, int col) {
-		return Color.BLACK; 
-	}
-
 	public int getHorizontalAlignment(int row, int col) {
 		return SwingConstants.LEFT;
 	}
@@ -102,8 +89,8 @@ class GridModelAdapter implements IGridModel {
 	}
 
 	@Override
-	public ICellRange getCellRange(int row, int col) {
-		return null;
+	public ICell getCellAt(int row, int col) {
+		return new Cell(row, col, getValueAt(row, col));
 	}
 }
 
@@ -118,7 +105,6 @@ public class JGrid extends JComponent {
  
 	protected Color selectionBackground = DEFAULT_SELECTION_BACKGROUND_COLOR;
 	protected Color selectionForeground = DEFAULT_FOREGROUND_COLOR;
-
 
 	protected static IGridCellRenderer defaultCellRenderer = new DefaultCellRenderer();
 	
@@ -304,7 +290,7 @@ public class JGrid extends JComponent {
 
 	public Component prepareRenderer(IGridCellRenderer renderer, int row, int col) {
 		IGridModel m = getGridModel();
-		Object s = m.getValueAt(row, col);
+		ICell cell = m.getCellAt(row, col);
 		boolean hasFocus = getGridSelectionModel().hasFocus(row, col);
 		boolean isSelected = false;
 		if(!hasFocus) {
@@ -323,10 +309,10 @@ public class JGrid extends JComponent {
 		}
 		Border border = getCellBorder(hasFocus, row, col);
 		renderer.setBorder(border);
-		renderer.setForeground(m.getForegroundColor(row, col));
+		renderer.setForeground(cell.getForegroundColor());
 		renderer.setBackground(this.getCellBackground(isSelected, hasFocus, row, col));
-		renderer.setHorizontalAlignment(m.getHorizontalAlignment(row, col));
-		Component c = renderer.getGridCellRendererComponent(this, s, isSelected, hasFocus, row, col);
+		renderer.setHorizontalAlignment(cell.getHorizontalAlignment());
+		Component c = renderer.getGridCellRendererComponent(this, cell.getValue(), isSelected, hasFocus, row, col);
 		return c;
 	}
 	
@@ -389,7 +375,12 @@ public class JGrid extends JComponent {
 	public boolean arePanesFreezed() {
 		return getScrollModel().arePanesFreezed();
 	}
-	
+
+	public void freezePanes() {
+		getScrollModel().freezePanes(getGridSelectionModel().getFocusedRow(), getGridSelectionModel().getFocusedColumn());
+		repaint();
+	}
+
 	public void unfreezePanes() {
 		getScrollModel().unfreezePanes();
 		repaint();
@@ -427,7 +418,7 @@ public class JGrid extends JComponent {
 	    		return DEFAULT_HEADER_BACKGROUND_COLOR;
 	    	}
 	    	else {
-	    		return this.getGridModel().getBackgroundColor(row, column);
+	    		return this.getGridModel().getCellAt(row, column).getBackgroundColor();
 	    	}
 		}
     }

@@ -7,19 +7,17 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import javax.swing.JComponent;
-import javax.swing.UIDefaults;
 import javax.swing.table.TableModel;
 
 import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.ICellRange;
-import com.unyaunya.spread.CellFormat;
+import com.unyaunya.grid.format.CellFormat;
+import com.unyaunya.grid.selection.DefaultSelectionModel;
 import com.unyaunya.spread.Config;
 import com.unyaunya.spread.ISpreadSelectionModel;
-import com.unyaunya.spread.DefaultSelectionModel;
 import com.unyaunya.spread.RangeDescriptor;
 import com.unyaunya.spread.SpreadSheetModel;
-import com.unyaunya.swing.plaf.SpreadUI;
+import com.unyaunya.swing.plaf.GridUI;
 
 /**
  * @author wata
@@ -29,12 +27,6 @@ import com.unyaunya.swing.plaf.SpreadUI;
 public class JSpread extends JEditableGrid  {
     private static final Logger LOG = Logger.getLogger(JSpread.class.getName());
     
-	/**
-     * @see #getUIClassID
-     * @see #readObject
-     */
-    private static final String uiClassID = "SpreadUI";
-
 	private Config config;
 
 	/**
@@ -56,55 +48,12 @@ public class JSpread extends JEditableGrid  {
 		super(new SpreadSheetModel());
 		this.config = config;
 		this.setGridSelectionModel(new DefaultSelectionModel(this));
-		setUI(new SpreadUI());
+		setUI(new GridUI());
 	}
 
 	public Config getConfig() {
 		return config;
 	}
-
-	//
-	// Managing TableUI
-	//
-
-	/**
-	 * Returns the L&F object that renders this component.
-	 *
-	 * @return the <code>SpreadUI</code> object that renders this component
-	 */
-	public SpreadUI getUI() {
-	    return (SpreadUI)ui;
-	}
-
-	/**
-	 * Sets the L&F object that renders this component and repaints.
-	 *
-	 * @param ui  the TableUI L&F object
-	 * @see UIDefaults#getUI
-	 * @beaninfo
-	 *        bound: true
-	 *       hidden: true
-	 *    attribute: visualUpdate true
-	 *  description: The UI object that implements the Component's LookAndFeel.
-	 */
-	public void setUI(SpreadUI ui) {
-	    if (this.ui != ui) {
-	        super.setUI(ui);
-	        repaint();
-	    }
-	}
-
-	 /**
-     * Returns the suffix used to construct the name of the L&F class used to
-     * render this component.
-     *
-     * @return the string "SpreadUI"
-     * @see JComponent#getUIClassID
-     * @see UIDefaults#getUI
-     */
-    public String getUIClassID() {
-        return uiClassID;
-    }
 
 	/**
 	 * ÉwÉbÉ_óÃàÊÇÃçÇÇ≥ÇéÊìæÇ∑ÇÈ
@@ -201,11 +150,6 @@ public class JSpread extends JEditableGrid  {
 		}
 	}
 	
-	public void freezePanes() {
-		getScrollModel().freezePanes(getSelectionModel().getRowOfLeadCell(), getSelectionModel().getColumnOfLeadCell());
-		repaint();
-	}
-
 	public void coupleCells(RangeDescriptor desc) {
 		if(desc.isMultiRange()) {
 			return;

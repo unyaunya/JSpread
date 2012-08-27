@@ -1,4 +1,4 @@
-package com.unyaunya.grid;
+package com.unyaunya.grid.selection;
 
 public interface IGridSelectionModel {
 	public void focus(int row, int column);

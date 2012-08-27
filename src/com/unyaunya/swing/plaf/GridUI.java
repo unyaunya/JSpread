@@ -7,10 +7,14 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.logging.Logger;
 
+import javax.swing.ActionMap;
 import javax.swing.CellRendererPane;
+import javax.swing.InputMap;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import javax.swing.plaf.ComponentUI;
 
+import com.unyaunya.grid.Actions;
 import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.ICellRange;
 import com.unyaunya.grid.IGridCellRenderer;
@@ -22,6 +26,7 @@ public class GridUI extends ComponentUI {
 
 	protected JGrid grid;
 	protected CellRendererPane rendererPane;
+    private Actions actions;
 
 	//
 	//  The installation/uninstall procedures and support
@@ -36,6 +41,11 @@ public class GridUI extends ComponentUI {
     	grid = (JGrid)c;
         rendererPane = new CellRendererPane();
         grid.add(rendererPane);
+        actions = grid.getActions();
+        //installDefaults();
+        //installDefaults2();
+        //installListeners();
+        installKeyboardActions();
     }
 
     public void uninstallUI(JComponent c) {
@@ -230,4 +240,29 @@ public class GridUI extends ComponentUI {
 		}
 		return range;
 	}
+
+	protected InputMap getInputMap(int condition) {
+    	if(actions != null) {
+        	return actions.getInputMap(condition);
+    	}
+    	return null;
+    }
+    
+    protected ActionMap getActionMap() {
+    	if(actions != null) {
+        	return actions.getActionMap();
+    	}
+    	return null;
+    }
+
+    /**
+     * Register all keyboard actions on the JSpread.
+     */
+    protected void installKeyboardActions() {
+    	InputMap keyMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    	SwingUtilities.replaceUIInputMap(grid, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyMap);
+    	ActionMap map = getActionMap();
+        SwingUtilities.replaceUIActionMap(grid, map);
+    }
+
 }

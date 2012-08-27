@@ -11,11 +11,11 @@ import javax.swing.table.TableModel;
  * @author wata
  *
  */
+@SuppressWarnings("serial")
 class SpreadModel extends AbstractTableModel implements ITableModel {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
 	private SpreadTableModel tableModel = new SpreadTableModel();
 	/**
 	 * 

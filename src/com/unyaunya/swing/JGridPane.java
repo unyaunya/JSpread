@@ -6,7 +6,7 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 
-import com.unyaunya.spread.Layout;
+import com.unyaunya.grid.Layout;
 
 @SuppressWarnings("serial")
 public class JGridPane extends JPanel {

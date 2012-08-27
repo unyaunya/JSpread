@@ -1,7 +1,8 @@
-package com.unyaunya.spread;
+package com.unyaunya.grid.format;
 
 import java.io.Serializable;
 import java.util.HashMap;
+
 
 /**
  * セル書式データを格納するクラス

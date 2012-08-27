@@ -13,8 +13,8 @@ import javax.swing.table.TableModel;
 
 import com.unyaunya.grid.CellPosition;
 import com.unyaunya.grid.ICellRange;
-import com.unyaunya.spread.DefaultCellEditor;
-import com.unyaunya.spread.IGridCellEditor;
+import com.unyaunya.grid.editor.DefaultCellEditor;
+import com.unyaunya.grid.editor.IGridCellEditor;
 
 @SuppressWarnings("serial")
 public class JEditableGrid extends JGrid implements CellEditorListener {
@@ -32,14 +32,6 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
     	this.defaultCellEditor = new DefaultCellEditor(this);
 	}
 
-	@Override
-	public void editingStopped(ChangeEvent e) {
-		stopEditing();
-	}
-
-	/*
-	 * methods related to cell editing 
-	 */
 	public IGridCellEditor getCellEditor(int row, int col) {
 		IGridCellEditor editor = getCellEditor();
 		if(editor == null) {
@@ -103,6 +95,30 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 		return true;
 	}
 
+	@Override
+	public void editingStopped(ChangeEvent e) {
+		stopEditing();
+	}
+
+	@Override
+	public void editingCanceled(ChangeEvent arg0) {
+		removeEditor();
+		LOG.info("editingCanceled");
+	}
+
+	public void stopEditing() {
+		IGridCellEditor editor = getCellEditor();
+		if (editor != null) {
+			Object value = editor.getCellEditorValue();
+			getGridModel().setValueAt(value, editingRow, editingColumn);
+			removeEditor();
+			LOG.info("editingStopped(" + value +  ")");
+		}
+		else {
+			LOG.info("editingStopped():editor = null");
+		}
+	}
+	
 	public Component prepareEditor(IGridCellEditor editor, int row, int column) {
 		Object value = getGridModel().getValueAt(row, column);
 		boolean hasFocus = getGridSelectionModel().hasFocus(row, column);
@@ -133,6 +149,7 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 			repaint();
 		}
 	}
+
 	@Override
 	protected boolean processKeyBinding(KeyStroke ks,
             KeyEvent e,
@@ -186,25 +203,12 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 		return retValue;
 	}
 
-	@Override
-	public void editingCanceled(ChangeEvent arg0) {
-		removeEditor();
-		LOG.info("editingCanceled");
-	}
-
-	public void stopEditing() {
-		IGridCellEditor editor = getCellEditor();
-		if (editor != null) {
-			Object value = editor.getCellEditorValue();
-			getGridModel().setValueAt(value, editingRow, editingColumn);
-			removeEditor();
-			LOG.info("editingStopped(" + value +  ")");
-		}
-		else {
-			LOG.info("editingStopped():editor = null");
-		}
-	}
-
+	/**
+	 * 実効セル(連結した場合は、左上隅)を取得する。
+	 * @param row
+	 * @param col
+	 * @return
+	 */
 	private CellPosition getEffectiveCell(int row, int col) {
 		ICellRange range = getCellRange(row, col);
 		if(range == null) {
@@ -214,6 +218,4 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 			return new CellPosition(range.getTop(), range.getLeft());
 		}
 	}
-	
-
 }

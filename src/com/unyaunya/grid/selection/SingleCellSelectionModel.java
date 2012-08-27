@@ -1,4 +1,4 @@
-package com.unyaunya.grid;
+package com.unyaunya.grid.selection;
 
 import com.unyaunya.swing.JGrid;
 

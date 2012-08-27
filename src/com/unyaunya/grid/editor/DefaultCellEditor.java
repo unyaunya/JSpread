@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.unyaunya.spread;
+package com.unyaunya.grid.editor;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -18,7 +18,6 @@ import javax.swing.KeyStroke;
 
 
 import com.unyaunya.grid.IGridCellRenderer;
-import com.unyaunya.spread.IGridCellEditor;
 import com.unyaunya.swing.JEditableGrid;
 
 class TextField extends JTextField {

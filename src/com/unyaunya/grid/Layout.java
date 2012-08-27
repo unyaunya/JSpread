@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.unyaunya.spread;
+package com.unyaunya.grid;
 
 import java.awt.BorderLayout;
 import java.awt.Component;

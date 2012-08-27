@@ -26,11 +26,10 @@ import javax.swing.event.ChangeListener;
  * @author wata
  *
  */
+@SuppressWarnings("serial")
 class RangeModel implements BoundedRangeModel, Serializable {
     private static final Logger LOG = Logger.getLogger(RangeModel.class.getName());
 	
-	private static final long serialVersionUID = 1L;
-
 	/**
 	 * 各行の高さまたは各列の幅
 	 */
@@ -54,7 +53,7 @@ class RangeModel implements BoundedRangeModel, Serializable {
 	transient private int extent;
 
 	/**
-	 * 変更リスナーのリスト。基本的にJSpreadPaneのスクロールバーがリスナーとして設定される。
+	 * 変更リスナーのリスト。基本的にJGridPaneのスクロールバーがリスナーとして設定される。
 	 */
 	transient private ArrayList<ChangeListener> changeListenerList;
 	/**
