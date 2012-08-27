@@ -16,6 +16,7 @@ import com.unyaunya.swing.JSpread;
  * @author wata
  *
  */
+@SuppressWarnings("serial")
 public class Layout extends BorderLayout {
 	JSpread spread = null;
 	JScrollBar horizontalBar = null;

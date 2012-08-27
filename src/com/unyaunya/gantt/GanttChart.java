@@ -6,10 +6,12 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import com.unyaunya.grid.Columns;
+import com.unyaunya.spread.SpreadSheetModel;
+import com.unyaunya.swing.JGridPane;
 import com.unyaunya.swing.JSpread;
-import com.unyaunya.swing.JSpreadPane;
 
-public class GanttChart extends JSpreadPane {
+public class GanttChart extends JGridPane {
 	/**
 	 * 
 	 */
@@ -20,9 +22,34 @@ public class GanttChart extends JSpreadPane {
 	
 	public GanttChart() {
 		super(new JSpread());
+		getSpread().setSpreadSheetModel(new GanttChartModel());
 		getSpread().getConfig().setRowInsertionSuppoorted(true);
+		init();
 	}
 
+	public JSpread getSpread() {
+		return (JSpread)getGrid();
+	}
+
+	private void init() {
+		SpreadSheetModel m = getSpread().getSpreadSheetModel();
+		Columns columns = getSpread().getColumns();
+		int row = 1;
+		m.setValueAt("ID", row, 1);
+		m.setValueAt("階層", row, 2);
+		m.setValueAt("タスク名", row, 3);
+		m.setValueAt("開始日", row, 4);
+		m.setValueAt("終了日", row, 5);
+		columns.setWidth(1, 32);
+		columns.setWidth(2, 32);
+		columns.setWidth(3, 160);
+		columns.setWidth(4, 64);
+		columns.setWidth(5, 64);
+	}
+
+	public GanttChartModel getGanttChartModel() {
+		return (GanttChartModel)getSpread().getSpreadSheetModel();
+	}
 	/**
 	 * 表示対象のドキュメントを取得する
 	 * @return
@@ -50,4 +77,25 @@ public class GanttChart extends JSpreadPane {
 			}
 		};
 	}
+
+	public Action getInsertRowAction() {
+		return new InsertTaskAction();
+	}
+
+	class InsertTaskAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public InsertTaskAction() {
+			super("タスク");
+		}
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			JSpread sp = getSpread();
+			int newRow = sp.insertRow();
+			sp.getSpreadSheetModel().setValueAt("新しいタスク", newRow, 1);
+		}
+	}
+
 }

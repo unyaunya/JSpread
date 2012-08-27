@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.unyaunya.spread;
+package com.unyaunya.grid;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import javax.swing.BoundedRangeModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 
 /**
  * ・縦または横方向のスクロール関連座標変換処理を行う。

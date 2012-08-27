@@ -7,10 +7,11 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
 /**
+ * TableModelをとって、スプレッドシート用の表頭、表側をつけたTableに変換するアダプタ
  * @author wata
  *
  */
-public class SpreadModel extends AbstractTableModel implements ITableModel {
+class SpreadModel extends AbstractTableModel implements ITableModel {
 	/**
 	 * 
 	 */
@@ -25,11 +26,16 @@ public class SpreadModel extends AbstractTableModel implements ITableModel {
 		if(newModel == null) {
 			newModel = new SpreadTableModel();
 		}
-		tableModel = new SpreadTableModel(newModel);
+		if(newModel instanceof SpreadTableModel) {
+			tableModel = (SpreadTableModel)newModel;
+		}
+		else {
+			tableModel = new SpreadTableModel(newModel);
+		}
 	}
 
-	public TableModel getTableModel() {
-		return this.tableModel;
+	public void copyValuesFrom(TableModel model) {
+		tableModel.copyValuesFrom(model);
 	}
 	
 	/* (non-Javadoc)
@@ -88,6 +94,12 @@ public class SpreadModel extends AbstractTableModel implements ITableModel {
 	@Override
 	public void removeColumn(int column) {
 		tableModel.removeColumn(column-1);
+		this.fireTableStructureChanged();
+	}
+
+	@Override
+	public void removeRow(int row) {
+		tableModel.removeRow(row-1);
 		this.fireTableStructureChanged();
 	}
 }

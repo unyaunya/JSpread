@@ -2,6 +2,9 @@ package com.unyaunya.spread;
 
 import java.util.ArrayList;
 
+import com.unyaunya.grid.CellRange;
+import com.unyaunya.grid.ICellRange;
+
 public class RangeDescriptor {
 	public static final int SINGLE_CELL = 0;
 	public static final int SINGLE_RANGE = 1;

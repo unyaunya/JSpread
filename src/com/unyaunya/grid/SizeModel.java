@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.unyaunya.spread;
+package com.unyaunya.grid;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

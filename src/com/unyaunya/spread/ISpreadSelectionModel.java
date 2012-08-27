@@ -1,11 +1,13 @@
 package com.unyaunya.spread;
 
+import com.unyaunya.grid.IGridSelectionModel;
+
 /**
  * SHIFTキーが押された状態のクリック、カーソル移動は、現在の選択範囲を変更する。
  * CTRLキーが押されていない場合は、選択範囲リストをクリアした上でに新たな範囲を追加する。
  * CTRLキーが押下されていなければ、選択範囲リストをクリアせず新たな範囲を追加する。
  */
-public interface ISpreadSelectionModel {
+public interface ISpreadSelectionModel extends IGridSelectionModel {
 	/**
 	 * 選択をリセットして、デフォルト状態に戻す。
 	 */
@@ -48,7 +50,6 @@ public interface ISpreadSelectionModel {
 	
 	
 	
-	public boolean isCellSelected(int row, int column);
 	public boolean isRowSelected(int row);
 	public boolean isColumnSelected(int column);
 	public int getRowOfLeadCell();

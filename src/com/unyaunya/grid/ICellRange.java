@@ -1,4 +1,4 @@
-package com.unyaunya.spread;
+package com.unyaunya.grid;
 
 public interface ICellRange {
 	public int getTop();

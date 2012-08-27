@@ -23,16 +23,16 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
+import com.unyaunya.spread.SpreadActionProvider;
 import com.unyaunya.spread.SpreadSheetModel;
+import com.unyaunya.swing.JGridPane;
 import com.unyaunya.swing.JSpread;
-import com.unyaunya.swing.JSpreadPane;
 import com.unyaunya.swing.application.AbstractFileMenuHandler;
 import com.unyaunya.swing.application.IFileMenuHandler;
 
 public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	private static Logger LOG = Logger.getLogger(AppWindow.class.getName());
 	private static final long serialVersionUID = 1L;
-	private CsvTable csvTable;
 
 	public AppWindow() {
 		super("Sample");
@@ -41,32 +41,34 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 
 	@Override
 	protected JMenuBar createMenuBar() {
+		SpreadActionProvider ap = new SpreadActionProvider(getSpread());
 		JMenuBar menuBar = super.createMenuBar();
 		JMenu menu;
 		//Edit menu
 		menu = createMenu("編集(E)", KeyEvent.VK_E);
-		menu.add(new JMenuItem(getSpreadPane().getDeleteAction()));
+		menu.add(new JMenuItem(ap.getDeleteAction()));
 		menuBar.add(menu);
 		//Insert menu
 		menu = createInsertMenu();
 		menuBar.add(menu);
 		//Format menu
 		menu = createMenu("書式(O)", KeyEvent.VK_O);
-		menu.add(new JMenuItem(getSpreadPane().getForegroundColorAction()));
-		menu.add(new JMenuItem(getSpreadPane().getBackgroundColorAction()));
-		menu.add(new JMenuItem(getSpreadPane().getCellCouplingAction()));
+		menu.add(new JMenuItem(ap.getForegroundColorAction()));
+		menu.add(new JMenuItem(ap.getBackgroundColorAction()));
+		menu.add(new JMenuItem(ap.getCellCouplingAction()));
 		menuBar.add(menu);
 		//Window menu
 		menu = createMenu("ウィンドウ(W)", KeyEvent.VK_W);
-		menu.add(new JMenuItem(getSpreadPane().getFreezePanesAction()));
+		menu.add(new JMenuItem(ap.getFreezePanesAction()));
 		menuBar.add(menu);
 		return menuBar;
 	}
 
 	private JMenu createInsertMenu() {
+		SpreadActionProvider ap = new SpreadActionProvider(getSpread());
 		JMenu menu = createMenu("挿入(I)", KeyEvent.VK_I);
-		menu.add(new JMenuItem(getSpreadPane().getInsertRowAction()));
-		menu.add(new JMenuItem(getSpreadPane().getInsertColumnAction()));
+		menu.add(new JMenuItem(ap.getInsertRowAction()));
+		menu.add(new JMenuItem(ap.getInsertColumnAction()));
 		return menu;
 	}
 
@@ -84,19 +86,18 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 
 	@Override
 	protected JComponent createMainComponent() {
-		csvTable = (CsvTable)getFileMenuHandler().createNewDocument();
 		JSpread	spread = new JSpread();
-		spread.setModel(csvTable);
+		spread.setSpreadSheetModel((SpreadSheetModel)getFileMenuHandler().createNewDocument());
 		spread.getConfig().setRowInsertionSuppoorted(true);
-		return new JSpreadPane(spread);
+		return new JGridPane(spread);
 	}
 
-	private JSpreadPane getSpreadPane() {
-		return (JSpreadPane)getMainComponent();
+	private JGridPane getGridPane() {
+		return (JGridPane)getMainComponent();
 	}
 	
 	private JSpread getSpread() {
-		return getSpreadPane().getSpread();
+		return (JSpread)getGridPane().getGrid();
 	}
 
 	//implementation of FileMenuHandler
@@ -115,7 +116,9 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 
 		@Override
 		public Object createNewDocument() {
-    	    return new CsvTable(createSampleData());
+			SpreadSheetModel tmp = new SpreadSheetModel();
+			tmp.setTableModel(new CsvTable(createSampleData()));
+    	    return tmp;
 		}
 
 		@Override
@@ -129,51 +132,13 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 
 		@Override
 		public void onFileOpen(JFileChooser fc){
-	    	if(ssdFilter.accept(fc.getSelectedFile())) {
-		    	try {
-			    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fc.getSelectedFile()));
-			    	SpreadSheetModel tmp = (SpreadSheetModel)ois.readObject();
-			    	ois.close();
-		    		getSpread().setSpreadSheetModel(tmp);
-		    		getSpreadPane().setSpread(getSpread());
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-	    	}
-	    	else if(csvFilter.accept(fc.getSelectedFile())) {
-		    	try {
-		    		CSVReader reader = new CSVReader(new FileReader(fc.getSelectedFile()));
-		    	    List<String[]> myEntries = reader.readAll();
-		    	    csvTable = new CsvTable(myEntries);
-		    		getSpread().setModel(csvTable);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-	    	}
-		}
-
-		public void onFileSave(JFileChooser fc){
-	    	if(ssdFilter.accept(fc.getSelectedFile())) {
-				try {
-			        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fc.getSelectedFile()));
-			    	oos.writeObject(getSpread().getSpreadSheetModel());
-			    	oos.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-	    	}
-	    	else if(csvFilter.accept(fc.getSelectedFile())) {
-		    	CSVWriter writer;
-				try {
-					writer = new CSVWriter(new FileWriter(fc.getSelectedFile()));
-			        writer.writeAll(csvTable.getData());
-			        writer.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-	    	}
+			super.onFileOpen(fc);
+			Object obj = getCurrentDocument();
+			if(obj == null) {
+				LOG.info("onFileOpen():doc is null");
+			}
+	    	SpreadSheetModel doc = (SpreadSheetModel)obj;
+    		getSpread().setSpreadSheetModel(doc);
 		}
 
 		/**
@@ -182,7 +147,29 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		 * @return
 		 */
 		protected Object openDocument(File file) {
-			//TODO
+	    	if(ssdFilter.accept(file)) {
+		    	try {
+			    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+			    	SpreadSheetModel tmp = (SpreadSheetModel)ois.readObject();
+			    	ois.close();
+			    	return tmp;
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+	    	}
+	    	else if(csvFilter.accept(file)) {
+		    	try {
+		    		CSVReader reader = new CSVReader(new FileReader(file));
+		    	    List<String[]> myEntries = reader.readAll();
+		    	    SpreadSheetModel tmp = new SpreadSheetModel();
+		    	    tmp.setTableModel(new CsvTable(myEntries));
+		    	    return tmp;
+		    	} catch (IOException e) {
+					e.printStackTrace();
+				}
+	    	}
 			return null;
 		}
 
@@ -192,8 +179,40 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		 * @return
 		 */
 		protected void saveDocument(Object document, File file) {
-			//TODO
+			SpreadSheetModel doc = (SpreadSheetModel)document;
+	    	if(ssdFilter.accept(file)) {
+				try {
+			        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+			    	oos.writeObject(doc);
+			    	oos.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+	    	}
+	    	else if(csvFilter.accept(file)) {
+		    	CSVWriter writer;
+				List<String[]> data = new ArrayList<String[]>();
+				for(int i = 1; i < doc.getRowCount(); i++) {
+					String[] row = new String[doc.getColumnCount()-1];
+					for(int j = 1; j < doc.getColumnCount(); j++) {
+						Object value = doc.getValueAt(i, j);
+						if(value != null) {
+							row[j-1] = value.toString();
+						}
+						else {
+							row[j-1] = null;
+						}
+					}
+					data.add(row);
+				}
+				try {
+					writer = new CSVWriter(new FileWriter(file));
+			        writer.writeAll(data);
+			        writer.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+	    	}
 		}
-
 	}
 }

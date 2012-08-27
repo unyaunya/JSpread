@@ -1,4 +1,4 @@
-package com.unyaunya.spread;
+package com.unyaunya.grid;
 
 import java.awt.Adjustable;
 import java.awt.Component;
@@ -16,6 +16,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
+
 
 /**
  * JSpreadのスクロール処理を処理するクラス
@@ -79,6 +80,22 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 		tableChanged(new TableModelEvent(tableModel));
 	}
 	
+	/**
+	 * テーブルの行数を取得する
+	 * @return
+	 */
+	public int getRowCount() {
+		return tableModel.getRowCount();
+	}
+	
+	/**
+	 * テーブルの列数を取得する
+	 * @return
+	 */
+	public int getColumnCount() {
+		return tableModel.getColumnCount();
+	}
+
 	@Override
 	public void tableChanged(TableModelEvent e) {
 		rowRangeModel.reset(tableModel.getRowCount());

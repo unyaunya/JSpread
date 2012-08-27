@@ -3,6 +3,10 @@ package com.unyaunya.spread;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import com.unyaunya.grid.CellPosition;
+import com.unyaunya.grid.CellRange;
+import com.unyaunya.grid.ICellRange;
+
 /**
  * セル結合に関するデータを格納するクラス
  * 

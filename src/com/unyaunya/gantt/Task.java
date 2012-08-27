@@ -11,6 +11,8 @@ import javax.xml.bind.annotation.XmlAttribute;
  *
  */
 public class Task {
+	public static Task NULL = new Task("", new Date(0), new Date(0));
+	
 	@XmlAttribute
 	protected Date startDate;
 	@XmlAttribute
@@ -34,10 +36,13 @@ public class Task {
 	 * デフォルトコンストラクタ
 	 */
 	public Task() {
-		startDate = new Date();
-		endDate = new Date();
-		name = "";
-		
+		this("", null, null);
+	}
+
+	public Task(String name, Date start, Date end) {
+		this.name = name;
+		setStartDate(start);
+		setEndDate(end);
 		//description = "";
 		//remark = "";
 	}
@@ -47,7 +52,12 @@ public class Task {
 	 * @param date
 	 */
 	public void setStartDate(Date date) {
-		this.startDate = new Date(date.getTime());
+		if(date == null) {
+			this.startDate = new Date();
+		}
+		else {
+			this.startDate = new Date(date.getTime());
+		}
 	}
 
 	/**
@@ -63,7 +73,12 @@ public class Task {
 	 * @param date
 	 */
 	public void setEndDate(Date date) {
-		this.endDate = new Date(date.getTime());
+		if(date == null) {
+			this.endDate = new Date(getStartDate().getTime());
+		}
+		else {
+			this.endDate = new Date(date.getTime());
+		}
 	}
 	
 	/**

@@ -17,8 +17,9 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 
-import com.unyaunya.spread.ISpreadCellEditor;
-import com.unyaunya.swing.JSpread;
+import com.unyaunya.grid.IGridCellRenderer;
+import com.unyaunya.spread.IGridCellEditor;
+import com.unyaunya.swing.JEditableGrid;
 
 class TextField extends JTextField {
 	private static final long serialVersionUID = 1L;
@@ -38,14 +39,15 @@ class TextField extends JTextField {
  * @author wata
  *
  */
+@SuppressWarnings("serial")
 public class DefaultCellEditor extends javax.swing.DefaultCellEditor  implements
-		ISpreadCellEditor {
+		IGridCellEditor {
 
 	//private final JSpread spread; 
 	/**
 	 * 
 	 */
-	public DefaultCellEditor(JSpread spread) {
+	public DefaultCellEditor(JEditableGrid spread) {
 		super(new TextField());
 		//this.spread = spread;
 		JComponent c = (JComponent)getComponent();
@@ -88,13 +90,13 @@ public class DefaultCellEditor extends javax.swing.DefaultCellEditor  implements
 	 * @see com.unyaunya.spread.ICellEditor#getCellEditorComponent(com.unyaunya.swing.JSpread, java.lang.Object, boolean, int, int)
 	 */
 	@Override
-	public Component getCellEditorComponent(JSpread spread, Object value,
+	public Component getCellEditorComponent(JEditableGrid spread, Object value,
 			boolean isSelected, int row, int column) {
 		//delegate.setValue(value);
 		delegate.setValue(null); //ï“èWäJénéûÇÕãÛîí
         if (editorComponent instanceof JCheckBox) {
-        	ISpreadCellRenderer renderer = spread.getCellRenderer(row, column);
-        	Component c = renderer.getSpreadCellRendererComponent(spread, value, isSelected, true, row, column);
+        	IGridCellRenderer renderer = spread.getCellRenderer(row, column);
+        	Component c = renderer.getGridCellRendererComponent(spread, value, isSelected, true, row, column);
         	if (c != null) {
         		editorComponent.setOpaque(true);
         		editorComponent.setBackground(c.getBackground());

@@ -9,6 +9,7 @@ import java.util.HashMap;
  * @author wata
  *
  */
+@SuppressWarnings("serial")
 public class CellFormatModel implements Serializable {
 	private HashMap<Integer, HashMap<Integer, CellFormat>> formatData;
 

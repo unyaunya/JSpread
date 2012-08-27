@@ -12,86 +12,64 @@ import javax.swing.KeyStroke;
 import javax.swing.plaf.ActionMapUIResource;
 import javax.swing.plaf.InputMapUIResource;
 
-import com.unyaunya.swing.JSpread;
+import com.unyaunya.swing.JGrid;
 
 public class Actions {
-	private JSpread spread;
+	private JGrid grid;
 	private ActionMap actionMap;
 	private InputMap inputMap;
 
-    public class LeftAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
+    @SuppressWarnings("serial")
+	public class LeftAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			spread.getHandler().left();
+			grid.getHandler().left();
 		}
     }
 	
-    public class RightAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
+    @SuppressWarnings("serial")
+	public class RightAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			spread.getHandler().right();
+			grid.getHandler().right();
 		}
     }
-    public class UpAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
+    @SuppressWarnings("serial")
+	public class UpAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			spread.getHandler().up();
+			grid.getHandler().up();
 		}
     }
-    public class DownAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
+    
+    @SuppressWarnings("serial")
+	public class DownAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			spread.getHandler().down();
+			grid.getHandler().down();
 		}
     }
-    public class PageUpAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
+    
+    @SuppressWarnings("serial")
+	public class PageUpAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			spread.getHandler().pageUp();
+			grid.getHandler().pageUp();
 		}
     }
-    public class PageDownAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
+    @SuppressWarnings("serial")
+	public class PageDownAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			spread.getHandler().pageDown();
+			grid.getHandler().pageDown();
 		}
     }
 
     //
     //
     //
-    public Actions(JSpread spread) {
-		this.spread = spread;
+    public Actions(JGrid spread) {
+		this.grid = spread;
 	}
 
     public ActionMap getActionMap() {

@@ -1,96 +1,52 @@
-/**
- * 
- */
-package com.unyaunya.swing;
+package com.unyaunya.spread;
 
-import java.awt.Adjustable;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JColorChooser;
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 
-import com.unyaunya.spread.Layout;
+import com.unyaunya.grid.IGridModel;
+import com.unyaunya.swing.JSpread;
 
-class MyMouseListener extends MouseAdapter {
-	JSpread spread;
-	
-	public MyMouseListener(JSpread spread) {
-		super();
+public class SpreadActionProvider {
+	private JSpread spread;
+
+	public SpreadActionProvider(JSpread spread) {
 		this.spread = spread;
 	}
 
-	/*
-	public void mouseClicked(MouseEvent e) {
-		Point pt = e.getPoint();
-		System.out.println(
-				"("+Integer.toString(spread.rowAtPoint(pt))+
-				","+Integer.toString(spread.columnAtPoint(pt))+
-				")");
-	}
-	*/
-}
-
-
-/**
- * @author wata
- *
- */
-public class JSpreadPane extends JPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	JSpread spread = null;
-	JScrollBar horizontalBar = new JScrollBar(Adjustable.HORIZONTAL);
-	JScrollBar verticalBar = new JScrollBar(Adjustable.VERTICAL);
-
-	public JSpreadPane() {
-		this(null);
-	}
-
-	/**
-	 * 
-	 */
-	public JSpreadPane(JSpread spread) {
-		super(new Layout());
-		init(spread);
-	}
-
-	private void init(JSpread spread) {
-		spread.addMouseListener(new MyMouseListener(spread));
-		this.add(spread, BorderLayout.CENTER);
-		this.add(this.horizontalBar, BorderLayout.SOUTH);
-		this.add(this.verticalBar, BorderLayout.EAST);
-		setSpread(spread);
-	}
-
-	/**
-	 * @param spread
-	 */
-	public void setSpread(JSpread spread) {
-		this.spread = spread;
-		spread.setScrollBar(this.horizontalBar, this.verticalBar);
-	}
-	
-	public JSpread getSpread() {
+	private JSpread getSpread() {
 		return spread;
 	}
-	JScrollBar getHorizontalBar() {
-		return horizontalBar;
-	}
-	JScrollBar getVerticalBar() {
-		return verticalBar;
-	}
-
+	
 	public Action getForegroundColorAction() {
 		return new ForegroundColorAction();
 	}
+
+	@SuppressWarnings("serial")
+	class ForegroundColorAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		public ForegroundColorAction() {
+			super("フォントの色");
+		}
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			IGridModel m = getSpread().getGridModel();
+			int row = getSpread().getSelectionModel().getRowOfLeadCell();
+			int col = getSpread().getSelectionModel().getColumnOfLeadCell();
+			Color currentColor = m.getBackgroundColor(row, col);
+			Color newColor = JColorChooser.showDialog(null, "フォントの色を選択", currentColor);
+			if(newColor != null) {
+				getSpread().setCellForeground(newColor);
+				getSpread().repaint();
+			}
+		}
+	}
+
 	public Action getBackgroundColorAction() {
 		return new BackgroundColorAction();
 	}
@@ -110,27 +66,6 @@ public class JSpreadPane extends JPanel {
 		return new InsertColumnAction();
 	}
 	
-	class ForegroundColorAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		public ForegroundColorAction() {
-			super("フォントの色");
-		}
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			int row = getSpread().getSelectionModel().getRowOfLeadCell();
-			int col = getSpread().getSelectionModel().getColumnOfLeadCell();
-			Color currentColor = getSpread().getCellBackground(row, col);
-			Color newColor = JColorChooser.showDialog(null, "フォントの色を選択", currentColor);
-			if(newColor != null) {
-		        getSpread().setCellForeground(newColor);
-		        getSpread().repaint();
-			}
-		}
-	}
-
 	class BackgroundColorAction extends AbstractAction {
 		/**
 		 * 
@@ -141,9 +76,10 @@ public class JSpreadPane extends JPanel {
 		}
 		@Override
 		public void actionPerformed(ActionEvent event) {
+			IGridModel m = getSpread().getGridModel();
 			int row = getSpread().getSelectionModel().getRowOfLeadCell();
 			int col = getSpread().getSelectionModel().getColumnOfLeadCell();
-			Color currentColor = getSpread().getCellBackground(row, col);
+			Color currentColor = m.getBackgroundColor(row, col);
 			Color newColor = JColorChooser.showDialog(null, "背景色を選択", currentColor);
 			if(newColor != null) {
 		        getSpread().setCellBackground(newColor);
@@ -202,18 +138,18 @@ public class JSpreadPane extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			if(spread.arePanesFreezed()) {
-				spread.unfreezePanes();
+			if(getSpread().arePanesFreezed()) {
+				getSpread().unfreezePanes();
 			}
 			else {
-				spread.freezePanes();
+				getSpread().freezePanes();
 			}
 			boolean flag = spread.arePanesFreezed();
 			firePropertyChange(Action.NAME, getActionName(!flag), getActionName(flag));
 		}
 
 		private String getActionName() {
-			return this.getActionName(spread.arePanesFreezed());
+			return this.getActionName(getSpread().arePanesFreezed());
 		}
 
 		private String getActionName(boolean arePanesFreezed) {

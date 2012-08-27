@@ -19,11 +19,12 @@ import javax.swing.JPanel;
  * @author wata
  * swingアプリケーションのメインウィンドウの基底クラス
  */
+@SuppressWarnings("serial")
 public abstract class AppFrame extends JFrame {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	@SuppressWarnings("unused")
 	private static Logger LOG = Logger.getLogger(AppFrame.class.getName());
 	
 	private boolean isInited = false; 

@@ -19,6 +19,10 @@ public abstract class AbstractFileMenuHandler implements IFileMenuHandler {
 	transient private Action openAction = null;
 	transient private Action saveAsAction = null;
 	transient private Action exitAction = null;
+
+	public AbstractFileMenuHandler() {
+		onFileNew();
+	}
 	
 	@Override
 	public File getCurrentFile() {

@@ -1,11 +1,8 @@
 package com.unyaunya.gantt.application;
 
 import java.awt.event.KeyEvent;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
@@ -14,10 +11,12 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.xml.bind.JAXBException;
 
 
 import com.unyaunya.gantt.GanttChart;
 import com.unyaunya.gantt.GanttDocument;
+import com.unyaunya.spread.SpreadActionProvider;
 import com.unyaunya.spread.SpreadSheetModel;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.application.AbstractFileMenuHandler;
@@ -34,8 +33,9 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	}
 
 	private JMenu createEditMenu() {
+		SpreadActionProvider ap = new SpreadActionProvider(getGanttChart().getSpread());
 		JMenu menu = createMenu("編集(E)", KeyEvent.VK_E);
-		menu.add(new JMenuItem(getGanttChart().getDeleteAction()));
+		menu.add(new JMenuItem(ap.getDeleteAction()));
 		menu.add(new JMenuItem(getGanttChart().getLevelUpAction()));
 		menu.add(new JMenuItem(getGanttChart().getLevelDownAction()));
 		return menu;
@@ -43,6 +43,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	
 	@Override
 	protected JMenuBar createMenuBar() {
+		SpreadActionProvider ap = new SpreadActionProvider(getGanttChart().getSpread());
 		JMenuBar menuBar = super.createMenuBar();
 		JMenu menu;
 		//Edit menu
@@ -52,21 +53,22 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		menuBar.add(menu);
 		//Format menu
 		menu = createMenu("書式(O)", KeyEvent.VK_O);
-		menu.add(new JMenuItem(getGanttChart().getForegroundColorAction()));
-		menu.add(new JMenuItem(getGanttChart().getBackgroundColorAction()));
-		menu.add(new JMenuItem(getGanttChart().getCellCouplingAction()));
+		menu.add(new JMenuItem(ap.getForegroundColorAction()));
+		menu.add(new JMenuItem(ap.getBackgroundColorAction()));
+		menu.add(new JMenuItem(ap.getCellCouplingAction()));
 		menuBar.add(menu);
 		//Window menu
 		menu = createMenu("ウィンドウ(W)", KeyEvent.VK_W);
-		menu.add(new JMenuItem(getGanttChart().getFreezePanesAction()));
+		menu.add(new JMenuItem(ap.getFreezePanesAction()));
 		menuBar.add(menu);
 		return menuBar;
 	}
 
 	private JMenu createInsertMenu() {
+		SpreadActionProvider ap = new SpreadActionProvider(getGanttChart().getSpread());
 		JMenu menu = createMenu("挿入(I)", KeyEvent.VK_I);
-		menu.add(new JMenuItem(getGanttChart().getInsertRowAction()));
-		menu.add(new JMenuItem(getGanttChart().getInsertColumnAction()));
+		menu.add(new JMenuItem(ap.getInsertRowAction()));
+		menu.add(new JMenuItem(ap.getInsertColumnAction()));
 		return menu;
 	}
 
@@ -113,33 +115,47 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		
 		@Override
 		public void onFileOpen(JFileChooser fc) {
-	    	if(!ssdFilter.accept(fc.getSelectedFile())) {
-	    		return;
-	    	}
-			try {
-		    	ObjectInputStream ois;
-				ois = new ObjectInputStream(new FileInputStream(fc.getSelectedFile()));
-		    	SpreadSheetModel tmp = (SpreadSheetModel)ois.readObject();
-		    	ois.close();
-	    		getSpread().setSpreadSheetModel(tmp);
-	    		getGanttChart().setSpread(getSpread());
-			} catch (ClassNotFoundException e) {
-				LOG.info(e.getMessage());
-			} catch (IOException e) {
-				LOG.info(e.getMessage());
+			super.onFileOpen(fc);
+			Object obj = getCurrentDocument();
+			if(obj == null) {
+				LOG.info("onFileOpen():doc is null");
+			}
+			else if(obj instanceof SpreadSheetModel) {
+		    	SpreadSheetModel doc = (SpreadSheetModel)obj;
+	    		getSpread().setSpreadSheetModel(doc);
 			}
 		}
 
-		public void onFileSaveAs(JFileChooser fc){
-	    	if(!ssdFilter.accept(fc.getSelectedFile())) {
+		@Override
+		protected Object openDocument(File file) {
+	    	if(!ssdFilter.accept(file)) {
+	    		return null;
+	    	}
+			try {
+				GanttDocument doc = (GanttDocument)JAXBUtil.read(GanttDocument.class, file);
+				getGanttChart().getGanttChartModel().readDocument(doc);
+	    		return doc;
+			} catch (IOException e) {
+				LOG.info(e.getMessage());
+			} catch (JAXBException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		return null;
+		}
+
+		@Override
+		protected void saveDocument(Object document, File file) {
+	    	if(!ssdFilter.accept(file)) {
 	    		return;
 	    	}
 			try {
-		        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fc.getSelectedFile()));
-		    	oos.writeObject(getSpread().getSpreadSheetModel());
-		    	oos.close();
+				JAXBUtil.save(document, file);
 			} catch (IOException e1) {
 				e1.printStackTrace();
+			} catch (JAXBException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}

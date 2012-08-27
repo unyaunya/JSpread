@@ -3,6 +3,7 @@ package com.unyaunya.spread;
 import java.awt.Color;
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class CellFormat implements Serializable, Cloneable {
 	private Color backgroundColor;
 	private Color foregroundColor;

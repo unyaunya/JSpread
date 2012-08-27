@@ -1,4 +1,4 @@
-package com.unyaunya.spread;
+package com.unyaunya.grid;
 
 import java.io.Serializable;
 
@@ -8,6 +8,7 @@ import java.io.Serializable;
  * row,col‚Ìƒƒ“ƒo‚ğ‚ÂB
  * 
  */
+@SuppressWarnings("serial")
 public class CellPosition implements Serializable {
 	private int row;    //s
 	private int column; //—ñ

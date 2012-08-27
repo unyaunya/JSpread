@@ -5,6 +5,16 @@ import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+/**
+ * スプレッドシート内のテーブルデータを取り扱うコンポーネント
+ * （とりあえず、DefaultTableModelをベースにしているが、
+ * 大容量データを取り扱う場合には、実装の変更が必要）
+ * 
+ * 列入替えの機能あり。
+ * 
+ * @author wata
+ *
+ */
 class SpreadTableModel extends DefaultTableModel implements ITableModel {
 	/**
 	 * 
@@ -16,12 +26,12 @@ class SpreadTableModel extends DefaultTableModel implements ITableModel {
 	* Creates an empty table with zero rows and zero columns.
 	*/
 	public SpreadTableModel() {
-		this(0,0);
+		this(256, 256);
 	}
 
 	public SpreadTableModel(int numRows, int numColumns) {
 		super(numRows, numColumns);
-		
+		_setColumnIndexesSize(numColumns);
 	}
 
 	public SpreadTableModel(TableModel model) {
@@ -41,16 +51,18 @@ class SpreadTableModel extends DefaultTableModel implements ITableModel {
 	}
 	*/
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setColumnCount(int columnCount) {
-		Vector newRow = new Vector();
+		Vector<Object> newRow = new Vector<Object>();
 		newRow.setSize(columnCount);
-		for (int i = 0; i < dataVector.size(); ++i) {
-			Vector currentRow = (Vector)dataVector.get(i);
+		for (int i = 0; i < getDataVector().size(); ++i) {
+			Vector<Object> vector = (Vector<Object>)getDataVector().get(i);
+			Vector<Object> currentRow = vector;
 			for (int j = 0; j < columnCount; ++j) {
 				newRow.set(j, _getValueFromRow(currentRow, j));
 			}
-			dataVector.set(i, newRow);
+			getDataVector().set(i, newRow);
 			newRow = currentRow;
 			newRow.setSize(columnCount);
 		}
@@ -59,13 +71,17 @@ class SpreadTableModel extends DefaultTableModel implements ITableModel {
 		if(columnIndexes == null) {
 			columnIndexes = new Vector<Integer>();
 		}
+		_setColumnIndexesSize(columnCount);
+		fireTableStructureChanged();
+	}
+
+	private void _setColumnIndexesSize(int columnCount) {
 		columnIndexes.setSize(columnCount);
 		for(int i = 0; i < columnCount; i++) {
 			columnIndexes.set(i, Integer.valueOf(i));
 		}
-		fireTableStructureChanged();
 	}
-
+	
 	public Vector<Integer> getColumnIndexes() {
 		return columnIndexes;
 	}
@@ -89,7 +105,7 @@ class SpreadTableModel extends DefaultTableModel implements ITableModel {
 	}
 
 	//@Override
-	public void insertColumn(int row, Vector columnData) {
+	public void insertColumn(int row, Vector<Object> columnData) {
 		insertColumn(row, columnData.toArray());
 	}
 
@@ -125,7 +141,7 @@ class SpreadTableModel extends DefaultTableModel implements ITableModel {
 		columnIndexes.remove(column);
 	}
 
-	private Object _getValueFromRow(Vector row, int column) {
+	private Object _getValueFromRow(Vector<Object> row, int column) {
 		int col = _columnIndex(column);
 		if(col < 0 || col >= row.size()) {
 			return null;
@@ -138,11 +154,7 @@ class SpreadTableModel extends DefaultTableModel implements ITableModel {
 			return column;
 		}
 		Integer n = columnIndexes.get(column);
-		if(n == null) {
-			return n.intValue();
-		}
-		else {
-			return n.intValue();
-		}
+		assert(n != null);
+		return n.intValue();
 	}
 }

@@ -2,6 +2,12 @@ package com.unyaunya.spread;
 
 import java.util.logging.Logger;
 
+import com.unyaunya.grid.CellPosition;
+import com.unyaunya.grid.CellRange;
+import com.unyaunya.grid.ICellRange;
+import com.unyaunya.grid.IGridModel;
+import com.unyaunya.swing.JGrid;
+
 /**
  * スプレッドシート用のセレクションを取扱うモデル
  * 
@@ -11,6 +17,9 @@ import java.util.logging.Logger;
 public class DefaultSelectionModel implements ISpreadSelectionModel {
     private static final Logger LOG = Logger.getLogger(DefaultSelectionModel.class.getName());
 	
+    private JGrid grid;
+    private IGridModel gridModel;
+    
     /**
      * 選択範囲全体を保持するリスト。複数のセル範囲を保持する。
      */
@@ -33,7 +42,9 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	/**
 	 * コンストラクタ
 	 */
-	public DefaultSelectionModel() {
+	public DefaultSelectionModel(JGrid grid) {
+		this.grid = grid;
+		this.gridModel = grid.getGridModel();
 		reset();
 	}
 
@@ -130,7 +141,7 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	*/
 	
 	@Override
-	public boolean isCellSelected(int rowIndex, int columnIndex) {
+	public boolean isSelected(int rowIndex, int columnIndex) {
 		return selectedRangeList.contains(rowIndex, columnIndex);
 	}
 
@@ -162,5 +173,38 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	@Override
 	public RangeDescriptor getRangeDescriptor() {
 		return this.selectedRangeList;
+	}
+
+	@Override
+	public boolean hasFocus(int row, int col) {
+		boolean rslt = false;
+		ICellRange range = gridModel.getCellRange(row, col);
+		if(range == null) {
+			rslt = this.isLeadCell(row, col);
+		}
+		else {
+			int rowLeadCell = this.getRowOfLeadCell();
+			int colLeadCell = this.getColumnOfLeadCell();
+			if(range.contains(rowLeadCell, colLeadCell)) {
+				rslt = true;
+			}
+		}
+		return rslt;
+	}
+
+	@Override
+	public int getFocusedColumn() {
+		return getColumnOfLeadCell();
+	}
+
+	@Override
+	public int getFocusedRow() {
+		return getRowOfLeadCell();
+	}
+
+	@Override
+	public void focus(int row, int column) {
+		setLeadCell(row, column);
+		grid.repaint();
 	}
 }

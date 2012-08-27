@@ -1,8 +1,10 @@
-package com.unyaunya.spread;
+package com.unyaunya.grid;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
+
+@SuppressWarnings("serial")
 public class CellRange implements ICellRange, Serializable {
 	private int top;
 	private int left;

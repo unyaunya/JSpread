@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 
+@SuppressWarnings("serial")
 public class CsvTable extends DefaultTableModel {
 	public CsvTable(List<String[]> data) {
 		setCsvData(data);

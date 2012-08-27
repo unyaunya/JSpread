@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.unyaunya.spread;
+package com.unyaunya.grid;
 
 import static org.junit.Assert.*;
 
@@ -12,6 +12,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.unyaunya.grid.ScrollModel;
 
 /**
  * @author wata

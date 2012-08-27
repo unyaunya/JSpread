@@ -1,12 +1,18 @@
 package com.unyaunya.spread;
 
+import java.awt.Color;
 import java.io.Serializable;
 
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-public class SpreadSheetModel implements TableModel, Serializable {
+import com.unyaunya.grid.CellRange;
+import com.unyaunya.grid.ICellRange;
+import com.unyaunya.grid.IGridModel;
+
+public class SpreadSheetModel implements IGridModel, Serializable {
 	/**
 	 * 
 	 */
@@ -17,11 +23,17 @@ public class SpreadSheetModel implements TableModel, Serializable {
 	private CellFormatModel cellFormatModel;
 	
 	public SpreadSheetModel() {
-		setTableModel(new SpreadModel());
+		_setTableModel(null);
 	}
 	
-	public void setTableModel(SpreadModel model) {
-		tableModel = model;
+	private void _setTableModel(TableModel model) {
+		tableModel = new SpreadModel(model);
+		this.cellSpanModel = new CellSpanModel();
+		this.cellFormatModel = new CellFormatModel();
+	}
+
+	public void setTableModel(TableModel model) {
+		tableModel.copyValuesFrom(model);
 		this.cellSpanModel = new CellSpanModel();
 		this.cellFormatModel = new CellFormatModel();
 	}
@@ -51,8 +63,7 @@ public class SpreadSheetModel implements TableModel, Serializable {
 	}
 
 	public void removeRow(int row) {
-		DefaultTableModel m = (DefaultTableModel)tableModel.getTableModel();
-		m.removeRow(row);
+		tableModel.removeRow(row);
 	}
 
 	/*
@@ -102,5 +113,59 @@ public class SpreadSheetModel implements TableModel, Serializable {
 	@Override
 	public void removeTableModelListener(TableModelListener l) {
 		tableModel.removeTableModelListener(l);
+	}
+
+	
+    /**
+     * セルのフォーマットを取得する。
+     * @param row
+     * @param column
+     * @return セルのフォーマット。設定されていない場合はnull
+     */
+    private CellFormat getCellFormat(int row, int column) {
+        return this.getCellFormatModel().get(row, column);
+    }
+
+
+	@Override
+	public Color getBackgroundColor(int row, int col) {
+		CellFormat format = this.getCellFormat(row,  col);
+		Color color = null; 
+		if(format != null) {
+			color = format.getBackgroundColor();
+		}
+		if(color == null) {
+    		color = Color.WHITE; 
+		}
+		return color;
+	}
+
+	@Override
+	public Border getBorder(int row, int col) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Color getForegroundColor(int row, int col) {
+		CellFormat format = this.getCellFormat(row,  col);
+		Color color = null; 
+		if(format != null) {
+			color = format.getForegroundColor();
+		}
+		if(color == null) {
+    		color = Color.BLACK; 
+		}
+		return color;
+	}
+	
+	@Override
+	public int getHorizontalAlignment(int row, int col) {
+    	if(row <= 0 || col <= 0) {
+    		return SwingConstants.CENTER;
+    	}
+    	else {
+    		return SwingConstants.LEFT;
+    	}
 	}
 }
