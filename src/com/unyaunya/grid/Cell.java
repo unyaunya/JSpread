@@ -6,50 +6,18 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
 public class Cell implements ICell {
-	private Object value;
 	private int row;
 	private int column;
-	private Color foregroundColor;
-	private Color backgroundColor;
-	private Border border;
-	private int horizontalAlignment;
+	private Object value;
 	
+	public Cell(int row, int column) {
+		this(row, column, null);
+	}
+
 	public Cell(int row, int column, Object value) {
-		this(row, column, value, Color.BLACK, Color.WHITE);
-	}
-
-	public Cell(int row, int column, Object value, Color foregroundColor, Color backgroundColor) {
-		this(row, column, value, foregroundColor, backgroundColor, null);
-	}
-
-	public Cell(int row, int column, Object value, Color foregroundColor, Color backgroundColor, Border border) {
 		this.row = row;
 		this.column = column;
 		this.value = value;
-		this.backgroundColor = backgroundColor;
-		this.foregroundColor = foregroundColor;
-		this.border = border;
-		horizontalAlignment = SwingConstants.LEFT;
-	}
-	
-	@Override
-	public Color getBackgroundColor() {
-		return backgroundColor;
-	}
-
-	@Override
-	public Border getBorder() {
-		return border;
-	}
-
-	@Override
-	public Color getForegroundColor() {
-		return foregroundColor;
-	}
-
-	@Override
-	public int getHorizontalAlignment() {
-		return horizontalAlignment;
 	}
 
 	@Override
@@ -76,7 +44,44 @@ public class Cell implements ICell {
 	}
 
 	@Override
-	public ICellRange getCellRange() {
+	public IRange getRange() {
 		return new CellRange(row, column);
+	}
+
+	@Override
+	public Color getBackgroundColor() {
+		return Color.WHITE;
+	}
+
+	@Override
+	public Color getForegroundColor() {
+		return Color.BLACK;
+	}
+
+	/**
+	 * ボーダーを取得する。
+	 * @return
+	 */
+	@Override
+	public Border getBorder() {
+		return null;
+	}
+
+	/**
+	 * 水平方向のアライメントを取得する。
+	 * @return
+	 */
+	@Override
+	public int getHorizontalAlignment() {
+		return SwingConstants.LEFT;
+	}
+
+	/**
+	 * 垂直方向のアライメントを取得する。
+	 * @return
+	 */
+	@Override
+	public int getVerticalAlignment() {
+		return SwingConstants.TOP;
 	}
 }

@@ -19,5 +19,4 @@ public class Rows extends RowOrColumn {
 	public int getCount() {
 		return scrollModel.getRowCount();
 	}
-
 }

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 
 @SuppressWarnings("serial")
-public class CellRange implements ICellRange, Serializable {
+public class CellRange implements IRange, Serializable {
 	private int top;
 	private int left;
 	private int bottom;
@@ -25,11 +25,11 @@ public class CellRange implements ICellRange, Serializable {
 		this(0, 0);
 	}
 
-	public CellRange(ICellRange src) {
+	public CellRange(IRange src) {
 		set(src);
 	}
 
-	public void set(ICellRange src) {
+	public void set(IRange src) {
 		if(src == null) {
 			this.top = -1;
 			this.left = -1;
@@ -188,11 +188,11 @@ public class CellRange implements ICellRange, Serializable {
 	 * ２つのRangeオブジェクトを結合した結果を返す。
 	 * 結合するRangeオブジェクトは、縦または横の範囲が同じで、隣接あるいは重なっていなければならない。
 	 */
-	public ICellRange merge(ICellRange r) {
+	public IRange merge(IRange r) {
 		return merge(this, r);
 	}
 
-	public static ICellRange merge(ICellRange r1, ICellRange r2) {
+	public static IRange merge(IRange r1, IRange r2) {
 		assert(r1 != null);
 		assert(r2 != null);
 		if(r1.getTop() == r2.getTop() && r1.getBottom() == r2.getBottom()) {
@@ -210,16 +210,16 @@ public class CellRange implements ICellRange, Serializable {
 		return null;
 	}
 
-	public static ArrayList<ICellRange> merge(ArrayList<ICellRange> rangeList, ICellRange r) {
+	public static ArrayList<IRange> merge(ArrayList<IRange> rangeList, IRange r) {
 		if(rangeList == null) {
-			rangeList = new ArrayList<ICellRange>();
+			rangeList = new ArrayList<IRange>();
 		}
 		if(r != null) {
 			if(rangeList.size() == 0) {
 				rangeList.add(r);
 			}
 			else {
-				ICellRange new_r = null;
+				IRange new_r = null;
 				int i;
 				for(i = 0; i < rangeList.size(); i++) {
 					new_r = merge(rangeList.get(i), r);
@@ -240,14 +240,14 @@ public class CellRange implements ICellRange, Serializable {
 	 * 指定したRangeオブジェクトの範囲を削除した結果（Rangeオブジェクトのリスト）を返す。
 	 * 削除される領域次第で、結合するRangeオブジェクトは、縦または横の範囲が同じで、隣接あるいは重なっていなければならない。
 	 */
-	public ArrayList<ICellRange> sub(ICellRange r) {
+	public ArrayList<IRange> sub(IRange r) {
 		return sub(this, r);
 	}
 	
-	public static ArrayList<ICellRange> sub(ICellRange r1, ICellRange r2) {
+	public static ArrayList<IRange> sub(IRange r1, IRange r2) {
 		assert(r1 != null);
 		assert(r2 != null);
-		ArrayList<ICellRange> rslt = new ArrayList<ICellRange>();
+		ArrayList<IRange> rslt = new ArrayList<IRange>();
 		if(!isOverlapped(r1.getTop(), r1.getBottom(), r2.getTop(), r2.getBottom())) {
 			rslt.add(r1);
 			return rslt;
@@ -287,9 +287,9 @@ public class CellRange implements ICellRange, Serializable {
 		return rslt;
 	}
 
-	public static ArrayList<ICellRange> sub(ArrayList<ICellRange> rangeList, ICellRange r) {
-		ArrayList<ICellRange> rslt = new ArrayList<ICellRange>();
-		ArrayList<ICellRange> newList;
+	public static ArrayList<IRange> sub(ArrayList<IRange> rangeList, IRange r) {
+		ArrayList<IRange> rslt = new ArrayList<IRange>();
+		ArrayList<IRange> newList;
 		int i;
 		for(i = 0; i < rangeList.size(); i++) {
 			newList = sub(rangeList.get(i), r);

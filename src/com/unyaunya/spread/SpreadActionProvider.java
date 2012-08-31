@@ -38,7 +38,7 @@ public class SpreadActionProvider {
 			IGridModel m = getSpread().getGridModel();
 			int row = getSpread().getSelectionModel().getRowOfLeadCell();
 			int col = getSpread().getSelectionModel().getColumnOfLeadCell();
-			Color currentColor = m.getCellAt(row, col).getBackgroundColor();
+			Color currentColor = m.getCellAt(row, col).getForegroundColor();
 			Color newColor = JColorChooser.showDialog(null, "フォントの色を選択", currentColor);
 			if(newColor != null) {
 				getSpread().setCellForeground(newColor);

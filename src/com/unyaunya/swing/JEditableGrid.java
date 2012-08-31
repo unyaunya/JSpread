@@ -12,7 +12,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.table.TableModel;
 
 import com.unyaunya.grid.CellPosition;
-import com.unyaunya.grid.ICellRange;
+import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.editor.DefaultCellEditor;
 import com.unyaunya.grid.editor.IGridCellEditor;
 
@@ -210,7 +210,7 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 	 * @return
 	 */
 	private CellPosition getEffectiveCell(int row, int col) {
-		ICellRange range = getCellRange(row, col);
+		IRange range = getCellRange(row, col);
 		if(range == null) {
 			return new CellPosition(row, col);
 		}

@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import com.unyaunya.grid.CellPosition;
 import com.unyaunya.grid.CellRange;
-import com.unyaunya.grid.ICellRange;
+import com.unyaunya.grid.IRange;
 
 /**
  * セル結合に関するデータを格納するクラス
@@ -18,20 +18,20 @@ public class CellSpanModel implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private HashMap<CellPosition, ICellRange> cellRangeModel;
+	private HashMap<CellPosition, IRange> cellRangeModel;
 
 	/**
 	 * コンストラクタ
 	 */
 	public CellSpanModel() {
-		 cellRangeModel = new HashMap<CellPosition, ICellRange>();
+		 cellRangeModel = new HashMap<CellPosition, IRange>();
 	}
 
 	/**
 	 * row,colで指定されたセルの結合範囲を取得する。
 	 * セル結合していない場合は、nullが返される。
 	 */
-    public ICellRange getCellRange(int row, int column) {
+    public IRange getCellRange(int row, int column) {
     	if(row <= 0 || column <= 0) {
     		return null;
     	}
@@ -41,7 +41,7 @@ public class CellSpanModel implements Serializable {
     }
 
 	public void coupleCells(CellRange range) {
-		ICellRange r = this.getCellRange(range.getTop(), range.getLeft());  
+		IRange r = this.getCellRange(range.getTop(), range.getLeft());  
 		if(r == null) {
 			_coupleCells(range);
 		}
@@ -50,7 +50,7 @@ public class CellSpanModel implements Serializable {
 		}
 	}
 
-	private void _coupleCells(ICellRange range) {
+	private void _coupleCells(IRange range) {
 		CellRange value = new CellRange(range);
 		for(int i = range.getTop(); i <= range.getBottom(); i++) {
 			for(int j = range.getLeft(); j <= range.getRight(); j++) {
@@ -59,7 +59,7 @@ public class CellSpanModel implements Serializable {
 		}
 	}
 
-	private void _decoupleCells(ICellRange range) {
+	private void _decoupleCells(IRange range) {
 		//CellRange value = new CellRange(range);
 		for(int i = range.getTop(); i <= range.getBottom(); i++) {
 			for(int j = range.getLeft(); j <= range.getRight(); j++) {

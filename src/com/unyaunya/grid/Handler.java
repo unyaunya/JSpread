@@ -246,7 +246,7 @@ public class Handler extends MouseInputAdapter implements KeyListener {
 		LOG.info("SHIFT="+isShiftDown()+",CTRL="+isControlDown());
 		int currentRow = grid.getGridSelectionModel().getFocusedRow();
 		int currentCol = grid.getGridSelectionModel().getFocusedColumn();
-		ICellRange range = grid.getCellRange(currentRow, currentCol);
+		IRange range = grid.getCellRange(currentRow, currentCol);
 		int row = currentRow+deltaRow;
 		int col = currentCol+deltaColumn;
 		if(range != null) {

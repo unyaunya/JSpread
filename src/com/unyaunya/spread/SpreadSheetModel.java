@@ -8,8 +8,8 @@ import javax.swing.table.TableModel;
 
 import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.ICell;
-import com.unyaunya.grid.ICellRange;
-import com.unyaunya.grid.format.CellFormat;
+import com.unyaunya.grid.IGridModel;
+import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.format.CellFormatModel;
 import com.unyaunya.grid.format.IFormattableGridModel;
 
@@ -43,11 +43,12 @@ public class SpreadSheetModel implements IFormattableGridModel, Serializable {
 		return cellSpanModel;
 	}
 
+	@Override
 	public CellFormatModel getCellFormatModel() {
 		return cellFormatModel;
 	}
 
-	public ICellRange getCellRange(int row, int column) {
+	public IRange getCellRange(int row, int column) {
    		return getCellSpanModel().getCellRange(row, column);
     }
     
@@ -116,16 +117,6 @@ public class SpreadSheetModel implements IFormattableGridModel, Serializable {
 		tableModel.removeTableModelListener(l);
 	}
 	
-    /**
-     * セルのフォーマットを取得する。
-     * @param row
-     * @param column
-     * @return セルのフォーマット。設定されていない場合はnull
-     */
-    CellFormat getCellFormat(int row, int column) {
-        return this.getCellFormatModel().get(row, column);
-    }
-
 	@Override
 	public void setBackgroundColor(Color color, int row, int col) {
 		// TODO Auto-generated method stub

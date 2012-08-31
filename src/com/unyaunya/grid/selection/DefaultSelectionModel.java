@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 import com.unyaunya.grid.CellPosition;
 import com.unyaunya.grid.CellRange;
-import com.unyaunya.grid.ICellRange;
+import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.IGridModel;
 import com.unyaunya.spread.ISpreadSelectionModel;
 import com.unyaunya.spread.RangeDescriptor;
@@ -180,7 +180,7 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	@Override
 	public boolean hasFocus(int row, int col) {
 		boolean rslt = false;
-		ICellRange range = gridModel.getCellAt(row, col).getCellRange();
+		IRange range = gridModel.getCellAt(row, col).getRange();
 		if(range == null) {
 			rslt = this.isLeadCell(row, col);
 		}

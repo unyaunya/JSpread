@@ -3,14 +3,14 @@ package com.unyaunya.spread;
 import java.util.ArrayList;
 
 import com.unyaunya.grid.CellRange;
-import com.unyaunya.grid.ICellRange;
+import com.unyaunya.grid.IRange;
 
 public class RangeDescriptor {
 	public static final int SINGLE_CELL = 0;
 	public static final int SINGLE_RANGE = 1;
 	public static final int MULTI_RANGE = 2;
 	
-	private ArrayList<ICellRange> selectedRangeList = new ArrayList<ICellRange>();
+	private ArrayList<IRange> selectedRangeList = new ArrayList<IRange>();
 
 	public RangeDescriptor() {
 	}
@@ -29,7 +29,7 @@ public class RangeDescriptor {
 		if(selectedRangeList.size() != 1) {
 			return false;
 		}
-		ICellRange r = selectedRangeList.get(0);
+		IRange r = selectedRangeList.get(0);
 		return (r.getTop() == r.getBottom() && r.getLeft() == r.getRight());
 	}
 
@@ -55,7 +55,7 @@ public class RangeDescriptor {
 
 	public boolean isRowSelected(int rowIndex) {
 		for(int i = 0; i < selectedRangeList.size(); i++) {
-			ICellRange r = selectedRangeList.get(i); 
+			IRange r = selectedRangeList.get(i); 
 			if(r.containsRow(rowIndex)) {
 				return true;
 			}
@@ -65,7 +65,7 @@ public class RangeDescriptor {
 	
 	public boolean isColumnSelected(int columnIndex) {
 		for(int i = 0; i < selectedRangeList.size(); i++) {
-			ICellRange r = selectedRangeList.get(i); 
+			IRange r = selectedRangeList.get(i); 
 			if(r.containsColumn(columnIndex)) {
 				return true;
 			}
@@ -73,15 +73,15 @@ public class RangeDescriptor {
 		return false;
 	}
 
-	public void add(ICellRange range) {
+	public void add(IRange range) {
 		selectedRangeList = CellRange.merge(getSelectedRangeList(), range);
 	}
 
-	public void sub(ICellRange range) {
+	public void sub(IRange range) {
 		selectedRangeList = CellRange.sub(getSelectedRangeList(), range);
 	}
 
-	public ArrayList<ICellRange> getSelectedRangeList() {
+	public ArrayList<IRange> getSelectedRangeList() {
 		return selectedRangeList;		
 	}
 

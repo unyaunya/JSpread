@@ -27,8 +27,8 @@ import javax.swing.event.ChangeListener;
  *
  */
 @SuppressWarnings("serial")
-class RangeModel implements BoundedRangeModel, Serializable {
-    private static final Logger LOG = Logger.getLogger(RangeModel.class.getName());
+class ScrollRangeModel implements BoundedRangeModel, Serializable {
+    private static final Logger LOG = Logger.getLogger(ScrollRangeModel.class.getName());
 	
 	/**
 	 * 各行の高さまたは各列の幅
@@ -64,7 +64,7 @@ class RangeModel implements BoundedRangeModel, Serializable {
 	/**
 	 * コンストラクタ
 	 */
-	RangeModel() {
+	ScrollRangeModel() {
 		setup();
 		this.sizeModel = new SizeModel();
 		setComponentSize(0);

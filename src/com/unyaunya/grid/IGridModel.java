@@ -2,6 +2,8 @@ package com.unyaunya.grid;
 
 import javax.swing.table.TableModel;
 
+import com.unyaunya.grid.format.CellFormatModel;
+
 public interface IGridModel extends TableModel {
 	//書式はＩＣｅｌｌインタフェースにまとめる。
 	/**
@@ -25,4 +27,6 @@ public interface IGridModel extends TableModel {
 	 * }
 	 */
 	public void setValueAt(Object value, int row, int col);
+
+	public CellFormatModel getCellFormatModel();
 }

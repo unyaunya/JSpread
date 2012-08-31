@@ -11,14 +11,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.unyaunya.grid.RangeModel;
+import com.unyaunya.grid.ScrollRangeModel;
 
 /**
  * @author wata
  *
  */
-public class RangeModelTest {
-	RangeModel rangeModel;
+public class ScrollRangeModelTest {
+	ScrollRangeModel rangeModel;
 
 	/**
 	 * @throws java.lang.Exception
@@ -39,7 +39,7 @@ public class RangeModelTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		rangeModel = new RangeModel();
+		rangeModel = new ScrollRangeModel();
 		rangeModel.reset(10, 10);
 	}
 
@@ -63,7 +63,7 @@ public class RangeModelTest {
 
 	@Test
 	public void testSetComponentSize() {
-		rangeModel = new RangeModel();
+		rangeModel = new ScrollRangeModel();
 		rangeModel.reset(201, 16);
 		rangeModel.setComponentSize(524);
 		assertEquals(524, rangeModel.getComponentSize());
@@ -147,7 +147,7 @@ public class RangeModelTest {
 
 	@Test
 	public void testGetIndexFromDeviceCoord() {
-		rangeModel = new RangeModel();
+		rangeModel = new ScrollRangeModel();
 		rangeModel.reset(201, 16);
 		rangeModel.setComponentSize(524);
 		assertEquals(0, rangeModel.getIndexFromDeviceCoord(0));
@@ -158,7 +158,7 @@ public class RangeModelTest {
 
 	@Test
 	public void testTranslate() {
-		rangeModel = new RangeModel();
+		rangeModel = new ScrollRangeModel();
 		rangeModel.reset(201, 16);
 		rangeModel.setComponentSize(524);
 		assertEquals(0, rangeModel.componentCoord2logicalCoord(0));

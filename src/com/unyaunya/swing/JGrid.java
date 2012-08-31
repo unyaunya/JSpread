@@ -11,6 +11,7 @@ import javax.swing.JScrollBar;
 import javax.swing.SwingConstants;
 import javax.swing.UIDefaults;
 import javax.swing.border.Border;
+import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -22,18 +23,20 @@ import com.unyaunya.grid.Columns;
 import com.unyaunya.grid.DefaultCellRenderer;
 import com.unyaunya.grid.Handler;
 import com.unyaunya.grid.ICell;
-import com.unyaunya.grid.ICellRange;
+import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.IGridCellRenderer;
 import com.unyaunya.grid.IGridModel;
 import com.unyaunya.grid.Rows;
 import com.unyaunya.grid.ScrollModel;
-import com.unyaunya.grid.format.SpreadBorder;
+import com.unyaunya.grid.format.CellFormatModel;
+import com.unyaunya.grid.format.GridBorder;
 import com.unyaunya.grid.selection.IGridSelectionModel;
 import com.unyaunya.grid.selection.SingleCellSelectionModel;
 import com.unyaunya.swing.plaf.GridUI;
 
 class GridModelAdapter implements IGridModel {
 	TableModel tableModel;
+	CellFormatModel formatModel = new CellFormatModel();
 
 	GridModelAdapter(TableModel tableModel) {
 		this.tableModel = tableModel;
@@ -92,13 +95,17 @@ class GridModelAdapter implements IGridModel {
 	public ICell getCellAt(int row, int col) {
 		return new Cell(row, col, getValueAt(row, col));
 	}
+
+	@Override
+	public CellFormatModel getCellFormatModel() {
+		return formatModel;
+	}
 }
 
 @SuppressWarnings("serial")
-public class JGrid extends JComponent {
+public class JGrid extends JComponent implements TableModelListener {
     @SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(JGrid.class.getName());
-
 	public static final Color DEFAULT_HEADER_BACKGROUND_COLOR = new Color(0xf0,0xf0,0xf0);
 	public static final Color DEFAULT_SELECTION_BACKGROUND_COLOR = new Color(0xe0,0xe0,0xff);
 	public static final Color DEFAULT_FOREGROUND_COLOR = new Color(0x00,0x00,0x00);
@@ -246,7 +253,7 @@ public class JGrid extends JComponent {
 		return rows;
 	}
 
-	public ICellRange getCellRange(int row, int column) {
+	public IRange getCellRange(int row, int column) {
    		return null;
     }
 
@@ -255,7 +262,7 @@ public class JGrid extends JComponent {
 	}
 
 	public Rectangle getCellRect(int rowIndex, int colIndex) {
-		ICellRange r = getCellRange(rowIndex, colIndex);
+		IRange r = getCellRange(rowIndex, colIndex);
 		if(r == null) {
 			return getGridRect(rowIndex, colIndex);
 		}
@@ -427,11 +434,11 @@ public class JGrid extends JComponent {
 	 * methods related to UI appearance
 	 */
 	public Border getFocusBorder() {
-    	return SpreadBorder.DEFAULT_FOCUS_BORDER;
+    	return GridBorder.DEFAULT_FOCUS_BORDER;
     }
 
     public Border getNoFocusBorder() {
-    	return SpreadBorder.defaultBorder;
+    	return GridBorder.defaultBorder;
     }
 
     public Border getCellBorder(boolean hasFocus, int row, int column) {
@@ -498,5 +505,10 @@ public class JGrid extends JComponent {
 			handler = new Handler(this);
 		}
 		return handler;
+	}
+
+	@Override
+	public void tableChanged(TableModelEvent e) {
+		repaint();
 	}
 }

@@ -10,8 +10,9 @@ import java.util.logging.Logger;
 import javax.swing.table.TableModel;
 
 import com.unyaunya.grid.CellRange;
-import com.unyaunya.grid.ICellRange;
-import com.unyaunya.grid.format.CellFormat;
+import com.unyaunya.grid.IRange;
+import com.unyaunya.grid.format.CellFormatModel;
+import com.unyaunya.grid.format.RangedColor;
 import com.unyaunya.grid.selection.DefaultSelectionModel;
 import com.unyaunya.spread.Config;
 import com.unyaunya.spread.ISpreadSelectionModel;
@@ -140,6 +141,7 @@ public class JSpread extends JEditableGrid  {
 	public void removeRow(int row) {
 		removeRow(row, true);
 	}
+
 	public void removeRow(int row, boolean paint) {
 		if(!getConfig().isRowInsertionSuppoorted()) {
 			throw new UnsupportedOperationException();
@@ -170,13 +172,6 @@ public class JSpread extends JEditableGrid  {
      * @param column
      * @return セルのフォーマット。設定されていない場合はnull
      */
-    public CellFormat getCellFormat(int row, int column) {
-        return this.getSpreadSheetModel().getCellFormatModel().get(row, column);
-    }
-
-    public void setCellFormat(int row, int column, CellFormat value) {
-        this.getSpreadSheetModel().getCellFormatModel().add(row, column, value);
-    }
 
     /**
      * 
@@ -184,14 +179,10 @@ public class JSpread extends JEditableGrid  {
      */
     public void setCellBackground(Color newColor) {
     	ISpreadSelectionModel sm = getSelectionModel(); 
-		ArrayList<ICellRange> al = sm.getRangeDescriptor().getSelectedRangeList();
+		ArrayList<IRange> al = sm.getRangeDescriptor().getSelectedRangeList();
 		for(int i = 0; i < al.size(); i++) {
-			ICellRange r = al.get(i);
-			for(int row = r.getTop(); row <= r.getBottom(); row++) {
-				for(int col = r.getLeft(); col <= r.getRight(); col++) {
-			        setCellBackground(row, col, newColor);
-				}
-			}
+			IRange r = al.get(i);
+			setCellBackground(newColor, r);
 		}
     }
 
@@ -201,36 +192,32 @@ public class JSpread extends JEditableGrid  {
      */
     public void setCellForeground(Color newColor) {
     	ISpreadSelectionModel sm = getSelectionModel(); 
-		ArrayList<ICellRange> al = sm.getRangeDescriptor().getSelectedRangeList();
+		ArrayList<IRange> al = sm.getRangeDescriptor().getSelectedRangeList();
 		for(int i = 0; i < al.size(); i++) {
-			ICellRange r = al.get(i);
-			for(int row = r.getTop(); row <= r.getBottom(); row++) {
-				for(int col = r.getLeft(); col <= r.getRight(); col++) {
-			        setCellForeground(row, col, newColor);
-				}
-			}
+			IRange r = al.get(i);
+			setCellForeground(newColor, r);
 		}
     }
     
+    public void setCellForeground(Color  color, IRange range) {
+    	CellFormatModel m = getSpreadSheetModel().getCellFormatModel();
+    	m.addForegroundColor(new RangedColor(color, range));
+    }
+    
     public void setCellForeground(int row, int column, Color color) {
-		CellFormat format = this.getCellFormat(row,  column);
-		if(format == null) {
-			format = new CellFormat();
-		}
-		format.setForegroundColor(color);
-        this.setCellFormat(row, column, format);
+    	setCellForeground(color, new CellRange(row, column));
     }
 
     public void setCellBackground(int row, int column, Color color) {
-		CellFormat format = this.getCellFormat(row,  column);
-		if(format == null) {
-			format = new CellFormat();
-		}
-		format.setBackgroundColor(color);
-        this.setCellFormat(row, column, format);
+    	setCellBackground(color, new CellRange(row, column));
     }
 
-    public ICellRange getCellRange(int row, int column) {
+    public void setCellBackground(Color  color, IRange range) {
+    	CellFormatModel m = getSpreadSheetModel().getCellFormatModel();
+    	m.addBackgroundColor(new RangedColor(color, range));
+    }
+
+    public IRange getCellRange(int row, int column) {
    		return getSpreadSheetModel().getCellRange(row, column);
     }
 }

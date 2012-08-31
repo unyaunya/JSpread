@@ -1,6 +1,5 @@
 package com.unyaunya.grid;
 
-import java.awt.Adjustable;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -30,8 +29,8 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private RangeModel colRangeModel;
-	private RangeModel rowRangeModel;
+	private ScrollRangeModel colRangeModel;
+	private ScrollRangeModel rowRangeModel;
 	private TableModel tableModel;
 	private JComponent component;
 
@@ -41,8 +40,8 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	}
 
 	private ScrollModel(int defaultRowHeight, int defaultColumnWidth) {
-		this.rowRangeModel = new RangeModel();
-		this.colRangeModel = new RangeModel();
+		this.rowRangeModel = new ScrollRangeModel();
+		this.colRangeModel = new ScrollRangeModel();
 		this.setDefaultRowHeight(defaultRowHeight);
 		this.setDefaultColumnWidth(defaultColumnWidth);
 	}
@@ -110,20 +109,6 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	public void setScrollBar(JScrollBar horizontalBar, JScrollBar verticalBar) {
 		horizontalBar.setModel(colRangeModel);
 		verticalBar.setModel(rowRangeModel);
-	}
-	
-	/**
-	 * @return the rangeModel
-	 */
-	public RangeModel getRangeModel(int direction) {
-		switch(direction) {
-		case Adjustable.HORIZONTAL:
-			return colRangeModel;
-		case Adjustable.VERTICAL:
-			return rowRangeModel;
-		default:
-			throw new RuntimeException("illegal direction value.");
-		}
 	}
 
 	public Rectangle getGridRect(int rowIndex, int colIndex) {

@@ -16,7 +16,7 @@ import javax.swing.plaf.ComponentUI;
 
 import com.unyaunya.grid.Actions;
 import com.unyaunya.grid.CellRange;
-import com.unyaunya.grid.ICellRange;
+import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.IGridCellRenderer;
 import com.unyaunya.grid.ScrollModel;
 import com.unyaunya.swing.JGrid;
@@ -182,7 +182,7 @@ public class GridUI extends ComponentUI {
     		map[row-rMin][col-cMin] = true;
     	}
     	
-    	void mark(ICellRange range) {
+    	void mark(IRange range) {
     		for(int rr = range.getTop()-rMin; rr < range.getBottom()-rMin; rr++) {
     			for(int cc = range.getLeft()-cMin; cc < range.getRight()-cMin; cc++) {
     				if(rr >= 0 && rr < rowSpan && cc >= 0 && cc < colSpan) {
@@ -210,7 +210,7 @@ public class GridUI extends ComponentUI {
     				if(isMarked(row, col)) {
     					return;
     				}
-    				ICellRange range = paintCell(g, row, col);
+    				IRange range = paintCell(g, row, col);
     				mark(range);
     			}
     		}
@@ -227,8 +227,8 @@ public class GridUI extends ComponentUI {
 	 * @param col
 	 * @return •`‰æ‚µ‚½ƒZƒ‹”ÍˆÍ
 	 */
-	protected ICellRange paintCell(Graphics g, int row, int col) {
-		ICellRange range = grid.getCellRange(row, col);
+	protected IRange paintCell(Graphics g, int row, int col) {
+		IRange range = grid.getCellRange(row, col);
 		if(range == null) {
 			range = new CellRange(row, col);
 		}

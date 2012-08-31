@@ -1,10 +1,11 @@
 package com.unyaunya.grid;
 
-public interface ICellRange {
+public interface IRange {
 	public int getTop();
 	public int getLeft();
 	public int getBottom();
 	public int getRight();
+	
 	/**
 	 * ・当該セル範囲が、位置(0,0)を含んでいれば、containsは常にtrueを返す。
 	 *　・当該セル範囲が、位置(rowIndex,0)を含んでいれば、contains(rowIndex, any)は常にtrueを返す。

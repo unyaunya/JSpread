@@ -137,7 +137,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 			if(obj == null) {
 				LOG.info("onFileOpen():doc is null");
 			}
-	    	SpreadSheetModel doc = (SpreadSheetModel)obj;
+			SpreadSheetModel doc = (SpreadSheetModel)obj;
     		getSpread().setSpreadSheetModel(doc);
 		}
 
