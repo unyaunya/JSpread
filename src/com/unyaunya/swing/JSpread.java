@@ -14,6 +14,7 @@ import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.format.CellFormatModel;
 import com.unyaunya.grid.format.RangedColor;
 import com.unyaunya.grid.selection.DefaultSelectionModel;
+import com.unyaunya.grid.selection.IGridSelectionModel;
 import com.unyaunya.spread.Config;
 import com.unyaunya.spread.ISpreadSelectionModel;
 import com.unyaunya.spread.RangeDescriptor;
@@ -48,10 +49,20 @@ public class JSpread extends JEditableGrid  {
 	public JSpread(Config config) {
 		super(new SpreadSheetModel());
 		this.config = config;
-		this.setGridSelectionModel(new DefaultSelectionModel(this));
 		setUI(new GridUI());
 	}
 
+	/**
+	 * セレクションモデルを作成する。
+	 * セレクションモデルの機能拡張を行う場合、派生クラスでこのメソッドをオーバライドし、
+	 * セレクションモデルの派生クラスのインスタンスを返すようにする。
+	 * 
+	 * @return
+	 */
+	protected IGridSelectionModel createSelectionModel() {
+		return new DefaultSelectionModel(this);
+	}
+	
 	public Config getConfig() {
 		return config;
 	}
@@ -98,7 +109,7 @@ public class JSpread extends JEditableGrid  {
 	 * 選択されている行の上に、新たな行を挿入する。
 	 */
 	public int insertRow() {
-		int newRow = getSelectionModel().getRowOfLeadCell()-1;
+		int newRow = getGridSelectionModel().getFocusedRow()-1;
 		insertRow(newRow, true);
 		return newRow;
 	}
@@ -136,7 +147,7 @@ public class JSpread extends JEditableGrid  {
 	}
 
 	public void removeRow() {
-		removeRow(getSelectionModel().getRowOfLeadCell()-1, true);
+		removeRow(getGridSelectionModel().getFocusedRow()-1, true);
 	}
 	public void removeRow(int row) {
 		removeRow(row, true);
@@ -172,6 +183,9 @@ public class JSpread extends JEditableGrid  {
      * @param column
      * @return セルのフォーマット。設定されていない場合はnull
      */
+    public IRange getCellRange(int row, int column) {
+   		return getSpreadSheetModel().getCellRange(row, column);
+    }
 
     /**
      * 
@@ -204,20 +218,8 @@ public class JSpread extends JEditableGrid  {
     	m.addForegroundColor(new RangedColor(color, range));
     }
     
-    public void setCellForeground(int row, int column, Color color) {
-    	setCellForeground(color, new CellRange(row, column));
-    }
-
-    public void setCellBackground(int row, int column, Color color) {
-    	setCellBackground(color, new CellRange(row, column));
-    }
-
     public void setCellBackground(Color  color, IRange range) {
     	CellFormatModel m = getSpreadSheetModel().getCellFormatModel();
     	m.addBackgroundColor(new RangedColor(color, range));
-    }
-
-    public IRange getCellRange(int row, int column) {
-   		return getSpreadSheetModel().getCellRange(row, column);
     }
 }

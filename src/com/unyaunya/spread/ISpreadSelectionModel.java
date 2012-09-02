@@ -30,7 +30,7 @@ public interface ISpreadSelectionModel extends IGridSelectionModel {
 	/**
 	 * 指定したセルをリードセルにする。テールセルは移動しない。
 	 */
-	public void setLeadCell(int row, int column);
+	//public void setLeadCell(int row, int column);
 
 	/**
 	 * 全セルを選択する。

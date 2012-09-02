@@ -8,6 +8,7 @@ import javax.swing.Action;
 import javax.swing.JColorChooser;
 
 import com.unyaunya.grid.IGridModel;
+import com.unyaunya.swing.JGrid;
 import com.unyaunya.swing.JSpread;
 
 public class SpreadActionProvider {
@@ -21,6 +22,10 @@ public class SpreadActionProvider {
 		return spread;
 	}
 	
+	private JGrid getGrid() {
+		return spread;
+	}
+
 	public Action getForegroundColorAction() {
 		return new ForegroundColorAction();
 	}
@@ -36,13 +41,13 @@ public class SpreadActionProvider {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			IGridModel m = getSpread().getGridModel();
-			int row = getSpread().getSelectionModel().getRowOfLeadCell();
-			int col = getSpread().getSelectionModel().getColumnOfLeadCell();
+			int row = getGrid().getGridSelectionModel().getFocusedRow();
+			int col = getGrid().getGridSelectionModel().getFocusedColumn();
 			Color currentColor = m.getCellAt(row, col).getForegroundColor();
 			Color newColor = JColorChooser.showDialog(null, "フォントの色を選択", currentColor);
 			if(newColor != null) {
 				getSpread().setCellForeground(newColor);
-				getSpread().repaint();
+				getGrid().repaint();
 			}
 		}
 	}
@@ -76,14 +81,14 @@ public class SpreadActionProvider {
 		}
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			IGridModel m = getSpread().getGridModel();
-			int row = getSpread().getSelectionModel().getRowOfLeadCell();
-			int col = getSpread().getSelectionModel().getColumnOfLeadCell();
+			IGridModel m = getGrid().getGridModel();
+			int row = getGrid().getGridSelectionModel().getFocusedRow();
+			int col = getGrid().getGridSelectionModel().getFocusedColumn();
 			Color currentColor = m.getCellAt(row, col).getBackgroundColor();
 			Color newColor = JColorChooser.showDialog(null, "背景色を選択", currentColor);
 			if(newColor != null) {
 		        getSpread().setCellBackground(newColor);
-		        getSpread().repaint();
+		        getGrid().repaint();
 			}
 		}
 	}
@@ -138,18 +143,18 @@ public class SpreadActionProvider {
 
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			if(getSpread().arePanesFreezed()) {
-				getSpread().unfreezePanes();
+			if(getGrid().arePanesFreezed()) {
+				getGrid().unfreezePanes();
 			}
 			else {
-				getSpread().freezePanes();
+				getGrid().freezePanes();
 			}
 			boolean flag = spread.arePanesFreezed();
 			firePropertyChange(Action.NAME, getActionName(!flag), getActionName(flag));
 		}
 
 		private String getActionName() {
-			return this.getActionName(getSpread().arePanesFreezed());
+			return this.getActionName(getGrid().arePanesFreezed());
 		}
 
 		private String getActionName(boolean arePanesFreezed) {
@@ -189,5 +194,4 @@ public class SpreadActionProvider {
 			getSpread().insertColumn();
 		}
 	}
-
 }

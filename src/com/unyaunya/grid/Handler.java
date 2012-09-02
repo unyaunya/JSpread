@@ -171,7 +171,7 @@ public class Handler extends MouseInputAdapter implements KeyListener {
 			Point pt = e.getPoint();
 			int row = grid.rowAtPoint(pt);
 			int col = grid.columnAtPoint(pt);
-			grid._select(row, col, e.isShiftDown(), e.isControlDown());
+			grid.onMousePressed(row, col, e.isShiftDown(), e.isControlDown());
 		}
 	}
 

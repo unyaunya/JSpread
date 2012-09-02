@@ -70,7 +70,7 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	/**
 	 * 指定したセルをリードセルにする。テールセルは移動しない。
 	 */
-	public void setLeadCell(int row, int column) {
+	private void setLeadCell(int row, int column) {
 		LOG.info("setLeadCell("+row+","+column+")");
 		leadCell.set(row, column);
 		currentRange.set(leadCell, tailCell);

@@ -6,6 +6,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="opencsv-2.3.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/Java/jdk1.7.0_05/db/lib/derby.jar"/>
+	<classpathentry kind="lib" path="derby.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

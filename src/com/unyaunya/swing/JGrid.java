@@ -18,7 +18,6 @@ import javax.swing.table.TableModel;
 
 import com.unyaunya.grid.Actions;
 import com.unyaunya.grid.Cell;
-import com.unyaunya.grid.CellPosition;
 import com.unyaunya.grid.Columns;
 import com.unyaunya.grid.DefaultCellRenderer;
 import com.unyaunya.grid.Handler;
@@ -102,6 +101,15 @@ class GridModelAdapter implements IGridModel {
 	}
 }
 
+/**
+ * JGridは、各機能を担当する複数のサブ・コンポーネントから構成される(ようにしたい)。
+ * Xxxxサブ・コンポーネントを作成するメソッドは、createXxxxメソッドという名称にしている。
+ * サブ・コンポーネントの機能を拡張する場合は、JGridのサブクラスで、createXxxxメソッドが
+ * サブ・コンポーネントの派生クラスのインスタンスを返すようにする。
+ * 
+ * @author wata
+ *
+ */
 @SuppressWarnings("serial")
 public class JGrid extends JComponent implements TableModelListener {
     @SuppressWarnings("unused")
@@ -182,7 +190,7 @@ public class JGrid extends JComponent implements TableModelListener {
 	public JGrid(TableModel model) {
 		setUI(new GridUI());
 		this.setFocusable(true);
-		this.scrollModel = new ScrollModel(this);
+		this.scrollModel = createScrollModel();
 		this.columns = new Columns(getScrollModel());
 		this.rows = new Rows(getScrollModel());
         this.actions = new Actions(this);
@@ -194,8 +202,9 @@ public class JGrid extends JComponent implements TableModelListener {
 			model = new DefaultTableModel();
 		}
 		setTableModel(model);
-		setGridSelectionModel(new SingleCellSelectionModel(this));
-    	/*
+		setGridSelectionModel(createSelectionModel());
+
+		/*
         setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
                 JComponent.getManagingFocusForwardTraversalKeys());
         setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,
@@ -206,6 +215,28 @@ public class JGrid extends JComponent implements TableModelListener {
 		this.addKeyListener(getHandler());
 	}
 
+	/**
+	 * スクロールモデルを作成する。
+	 * スクロールモデルの機能拡張を行う場合、派生クラスでこのメソッドをオーバライドし、
+	 * スクロールモデルの派生クラスのインスタンスを返すようにする。
+	 * @return
+	 */
+	protected ScrollModel createScrollModel() {
+		return new ScrollModel(this);
+	}
+
+	/**
+	 * セレクションモデルを作成する。
+	 * セレクションモデルの機能拡張を行う場合、派生クラスでこのメソッドをオーバライドし、
+	 * セレクションモデルの派生クラスのインスタンスを返すようにする。
+	 * 
+	 * @return
+	 */
+	protected IGridSelectionModel createSelectionModel() {
+		return new SingleCellSelectionModel(this);
+	}
+
+	
 	public Actions getActions() {
     	return this.actions;
     }
@@ -221,7 +252,7 @@ public class JGrid extends JComponent implements TableModelListener {
 		this.repaint(this.getBounds());
 	}
 
-	public void setGridSelectionModel(IGridSelectionModel selectionModel) {
+	private void setGridSelectionModel(IGridSelectionModel selectionModel) {
 		assert(selectionModel != null);
 		this.selectionModel = selectionModel;
 		if(isVisible()) {
@@ -254,7 +285,7 @@ public class JGrid extends JComponent implements TableModelListener {
 	}
 
 	public IRange getCellRange(int row, int column) {
-   		return null;
+   		return getGridModel().getCellAt(row, column).getRange();
     }
 
 	public Rectangle getGridRect(int rowIndex, int colIndex) {
@@ -322,51 +353,10 @@ public class JGrid extends JComponent implements TableModelListener {
 		Component c = renderer.getGridCellRendererComponent(this, cell.getValue(), isSelected, hasFocus, row, col);
 		return c;
 	}
-	
-	/**
-	 *
-	 * 
-
-	abstract public Component prepareRenderer(IGridCellRenderer renderer, int row, int col) {
-		SpreadSheetModel m = getSpreadSheetModel();
-		Object s = m.getValueAt(row, col);
-		boolean hasFocus = this.hasFocus(row, col);
-		boolean isSelected = false;
-		if(!hasFocus) {
-			if(row == 0 && col == 0) {
-				isSelected = this.getSelectionModel().isCellSelected(row, col);
-			}
-			else if(row == 0) {
-				isSelected = this.getSelectionModel().isColumnSelected(col);
-			}
-			else if(col == 0) {
-				isSelected = this.getSelectionModel().isRowSelected(row);
-			}
-			else {
-				isSelected = this.getSelectionModel().isCellSelected(row, col);
-			}
-		}
-		Border border = getCellBorder(hasFocus, row, col);
-		renderer.setBorder(border);
-		renderer.setForeground(this.getCellForeground(row, col));
-		renderer.setBackground(this.getCellBackground(isSelected, hasFocus, row, col));
-		renderer.setHorizontalAlignment(this.getHorizontalAlignment(row, col));
-		Component c = renderer.getGridCellRendererComponent(this, s, isSelected, hasFocus, row, col);
-		return c;
-	}
-	*/
 
 	/*
 	 * methods delegating to ScrollModel
 	 */
-	public CellPosition getCellPositionAtPoint(Point pt) {
-		return new CellPosition(getScrollModel().rowAtPoint(pt), getScrollModel().columnAtPoint(pt));
-	}
-
-	public CellPosition getGridPositionAtPoint(Point pt) {
-		return new CellPosition(getScrollModel().rowAtPoint(pt), getScrollModel().columnAtPoint(pt));
-	}
-
 	public int rowAtPoint(Point pt) {
 		return getScrollModel().rowAtPoint(pt);
 	}
@@ -450,7 +440,11 @@ public class JGrid extends JComponent implements TableModelListener {
 		}
     }
 
-	public void _select(int newRowIndex, int newColumnIndex, boolean shft,
+	public void onMousePressed(int row, int column, boolean shft, boolean ctrl) {
+		_select(row, column, shft, ctrl);
+	}
+				
+    private void _select(int newRowIndex, int newColumnIndex, boolean shft,
 			boolean ctrl) {
 		if(shft) {
 			getGridSelectionModel().focus(newRowIndex, newColumnIndex);
