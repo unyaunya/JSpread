@@ -12,8 +12,20 @@ import java.util.logging.Logger;
 
 import javax.swing.event.MouseInputAdapter;
 
+import com.unyaunya.grid.selection.IGridSelectionModel;
 import com.unyaunya.swing.JGrid;
 
+/**
+ * 
+ * キーボード、マウス入力ハンドラ
+ * 
+ * ・コントロールキー、シフトキーの押下状態を保持する。
+ * ・マウスによる、列幅、行高さのリサイズを制御する。
+ * 　（マウスカーソルの形状制御も行う。）
+ * 
+ * @author wata
+ *
+ */
 public class Handler extends MouseInputAdapter implements KeyListener {
     private static final Logger LOG = Logger.getLogger(Handler.class.getName());
 
@@ -31,6 +43,14 @@ public class Handler extends MouseInputAdapter implements KeyListener {
 
 	public Handler(JGrid grid) {
 		this.grid = grid;
+	}
+
+	/**
+	 * セレクションモデルを取得する。
+	 * @return
+	 */
+	private IGridSelectionModel getSelectionModel() {
+		return grid.getGridSelectionModel();
 	}
 	
 	private Cursor createCursor(String name, Point hotSpot) {
@@ -171,7 +191,7 @@ public class Handler extends MouseInputAdapter implements KeyListener {
 			Point pt = e.getPoint();
 			int row = grid.rowAtPoint(pt);
 			int col = grid.columnAtPoint(pt);
-			grid.onMousePressed(row, col, e.isShiftDown(), e.isControlDown());
+			getSelectionModel().onMousePressed(row, col, e.isShiftDown(), e.isControlDown());
 		}
 	}
 
@@ -271,7 +291,7 @@ public class Handler extends MouseInputAdapter implements KeyListener {
 				}
 			}
 		}
-		grid.select(row, col, isShiftDown(), isControlDown());
+		grid.getGridSelectionModel().focus(row, col, isShiftDown(), isControlDown());
 	}
 
 	@Override

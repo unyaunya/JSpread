@@ -235,7 +235,6 @@ public class JGrid extends JComponent implements TableModelListener {
 	protected IGridSelectionModel createSelectionModel() {
 		return new SingleCellSelectionModel(this);
 	}
-
 	
 	public Actions getActions() {
     	return this.actions;
@@ -439,55 +438,6 @@ public class JGrid extends JComponent implements TableModelListener {
 			return this.getNoFocusBorder();
 		}
     }
-
-	public void onMousePressed(int row, int column, boolean shft, boolean ctrl) {
-		_select(row, column, shft, ctrl);
-	}
-				
-    private void _select(int newRowIndex, int newColumnIndex, boolean shft,
-			boolean ctrl) {
-		if(shft) {
-			getGridSelectionModel().focus(newRowIndex, newColumnIndex);
-		}
-		else {
-			getGridSelectionModel().select(newRowIndex, newColumnIndex, !ctrl);
-			repaint();
-		}
-	}
-
-	public void select(int rowIndex, int columnIndex, boolean shft, boolean ctrl) {
-		int orig_row = getGridSelectionModel().getFocusedRow();
-		int orig_col = getGridSelectionModel().getFocusedColumn();
-		int newRowIndex = _rowIndex(rowIndex);
-		int newColumnIndex = _columnIndex(columnIndex);
-		if(orig_row != newRowIndex || orig_col != newColumnIndex) {
-			stopEditing();
-			scrollToVisible(newRowIndex, newColumnIndex);
-			//getSpread().repaintCell(orig_row, orig_col);
-			//getSpread().repaintCell(this.rowIndex, this.columnIndex);
-		}
-		_select(newRowIndex, newColumnIndex, shft, ctrl);
-	}
-
-	private int _rowIndex(int rowIndex) {
-		if(rowIndex < 1) {
-			rowIndex = 1;
-		}
-		if(getRows().getCount() <= rowIndex) {
-			rowIndex = getRows().getCount() - 1; 
-		}
-		return rowIndex;
-	}
-
-	private int _columnIndex(int columnIndex) {
-		if(columnIndex < 1) {
-			columnIndex = 1;
-		}
-		if(getColumns().getCount() <= columnIndex) {
-			columnIndex = getColumns().getCount() - 1; 
-		}
-		return columnIndex;
-	}
 
 	public void stopEditing() {}
 

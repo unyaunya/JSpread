@@ -16,8 +16,6 @@ import com.unyaunya.grid.format.RangedColor;
 import com.unyaunya.grid.selection.DefaultSelectionModel;
 import com.unyaunya.grid.selection.IGridSelectionModel;
 import com.unyaunya.spread.Config;
-import com.unyaunya.spread.ISpreadSelectionModel;
-import com.unyaunya.spread.RangeDescriptor;
 import com.unyaunya.spread.SpreadSheetModel;
 import com.unyaunya.swing.plaf.GridUI;
 
@@ -91,14 +89,10 @@ public class JSpread extends JEditableGrid  {
 	}
 
 	public void setSpreadSheetModel(SpreadSheetModel model) {
-		this.getSelectionModel().reset();
+		this.getGridSelectionModel().reset();
 		setTableModel(model);
 		//getScrollModel().setTableModel(this.getSpreadSheetModel());
 		//this.repaint(this.getBounds());
-	}
-
-	public ISpreadSelectionModel getSelectionModel() {
-		return (ISpreadSelectionModel)getGridSelectionModel();
 	}
 
 	//
@@ -129,7 +123,7 @@ public class JSpread extends JEditableGrid  {
 	}
 
 	public void insertColumn() {
-		insertColumn(getSelectionModel().getColumnOfLeadCell()-1, true);
+		insertColumn(getGridSelectionModel().getFocusedColumn()-1, true);
 	}
 
 	public void insertColumn(int row) {
@@ -163,18 +157,18 @@ public class JSpread extends JEditableGrid  {
 		}
 	}
 	
-	public void coupleCells(RangeDescriptor desc) {
-		if(desc.isMultiRange()) {
+	public void coupleCells(ArrayList<IRange> rangeList) {
+		if(rangeList.size() > 1) {
 			return;
 		}
-		CellRange range = new CellRange((CellRange)desc.getSelectedRangeList().get(0));
+		CellRange range = new CellRange(rangeList.get(0));
 		getSpreadSheetModel().coupleCells(range);
 		repaint();
 		LOG.info(range.toString());
 	}
 	
 	public void coupleCells() {
-		coupleCells(this.getSelectionModel().getRangeDescriptor());
+		coupleCells(this.getGridSelectionModel().getSelectedRangeList());
 	}
 
     /**
@@ -192,8 +186,8 @@ public class JSpread extends JEditableGrid  {
      * @param color
      */
     public void setCellBackground(Color newColor) {
-    	ISpreadSelectionModel sm = getSelectionModel(); 
-		ArrayList<IRange> al = sm.getRangeDescriptor().getSelectedRangeList();
+    	IGridSelectionModel sm = getGridSelectionModel(); 
+		ArrayList<IRange> al = sm.getSelectedRangeList();
 		for(int i = 0; i < al.size(); i++) {
 			IRange r = al.get(i);
 			setCellBackground(newColor, r);
@@ -205,8 +199,8 @@ public class JSpread extends JEditableGrid  {
      * @param color
      */
     public void setCellForeground(Color newColor) {
-    	ISpreadSelectionModel sm = getSelectionModel(); 
-		ArrayList<IRange> al = sm.getRangeDescriptor().getSelectedRangeList();
+    	IGridSelectionModel sm = getGridSelectionModel(); 
+		ArrayList<IRange> al = sm.getSelectedRangeList();
 		for(int i = 0; i < al.size(); i++) {
 			IRange r = al.get(i);
 			setCellForeground(newColor, r);

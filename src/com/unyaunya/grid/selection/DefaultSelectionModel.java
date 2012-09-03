@@ -1,60 +1,72 @@
 package com.unyaunya.grid.selection;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import com.unyaunya.grid.CellPosition;
 import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.IGridModel;
-import com.unyaunya.spread.ISpreadSelectionModel;
-import com.unyaunya.spread.RangeDescriptor;
 import com.unyaunya.swing.JGrid;
 
 /**
  * スプレッドシート用のセレクションを取扱うモデル
+ *
+ * SHIFTキーが押された状態のクリック、カーソル移動は、現在の選択範囲を変更する。
+ * CTRLキーが押されていない場合は、選択範囲リストをクリアした上でに新たな範囲を追加する。
+ * CTRLキーが押下されていなければ、選択範囲リストをクリアせず新たな範囲を追加する。
  * 
  * @author wata
  *
  */
-public class DefaultSelectionModel implements ISpreadSelectionModel {
+public class DefaultSelectionModel extends AbstractSelectionModel {
     private static final Logger LOG = Logger.getLogger(DefaultSelectionModel.class.getName());
 	
-    private JGrid grid;
     private IGridModel gridModel;
     
     /**
      * 選択範囲全体を保持するリスト。複数のセル範囲を保持する。
      */
-    private RangeDescriptor selectedRangeList = new RangeDescriptor();
+    private RangeDescriptor selectedRangeList;
+ 
     /**
      * マウス、キーボードにより、直接操作されるセル範囲。
      * セル範囲の限界は、常にleadCellとanchorCellを含むように設定される。
      */
-	private CellRange currentRange = new CellRange();
+	private CellRange currentRange;
+
 	/**
 	 * currentRangeの角であり、anchorCellの対角となるセル位置。
 	 * 入力コンポーネントが配置されるセル位置でもある。 
 	 */
-	private CellPosition leadCell = new CellPosition();
+	private CellPosition leadCell;
+
 	/**
 	 * currentRangeの角であり、leadCellの対角となるセル位置
 	 */
-	private CellPosition tailCell = new CellPosition();
+	private CellPosition tailCell;
 	
 	/**
 	 * コンストラクタ
 	 */
 	public DefaultSelectionModel(JGrid grid) {
-		this.grid = grid;
-		this.gridModel = grid.getGridModel();
-		reset();
+		super(grid);
+		this.gridModel = getGrid().getGridModel();
 	}
 
 	/**
 	 * 選択をリセットして、デフォルト状態に戻す。
 	 */
 	public void reset() {
-		selectedRangeList.clear();
+	    if(selectedRangeList == null) {
+	    	selectedRangeList = new RangeDescriptor();
+	    	currentRange = new CellRange();
+	    	leadCell = new CellPosition();
+	    	tailCell = new CellPosition();
+	    }
+	    else {
+			selectedRangeList.clear();
+	    }
 		selectedRangeList.getSelectedRangeList().add(currentRange);
 		select(1,1,true);
 	}
@@ -62,7 +74,7 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	/**
 	 * 指定したセルをテールセルにする。リードセルは移動しない。
 	 */
-	public void setTailCell(int row, int column) {
+	private void setTailCell(int row, int column) {
 		tailCell.set(row, column);
 		currentRange.set(leadCell, tailCell);
 	}
@@ -109,39 +121,6 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 		setTailCell(row, column);
 	}
 
-	/**
-	 * 全セルを選択する。
-	 */
-	@Override
-	public void selectAll() {
-		reset();
-		setTailCell(Integer.MAX_VALUE, Integer.MAX_VALUE);
-	}
-	
-	/**
-	 * 指定した行全体を選択する。
-	 */
-	/*
-	@Override
-	public void selectRow(int row, boolean clear) {
-		addNewRange(clear);
-		setLeadCell(row, 1);
-		setTailCell(row, Integer.MAX_VALUE);
-	}
-	*/
-
-	/**
-	 * 指定した列全体を選択する。
-	 */
-	/*
-	@Override
-	public void selectColumn(int column, boolean clear) {
-		addNewRange(clear);
-		setLeadCell(1, column);
-		setTailCell(Integer.MAX_VALUE, column);
-	}
-	*/
-	
 	@Override
 	public boolean isSelected(int rowIndex, int columnIndex) {
 		return selectedRangeList.contains(rowIndex, columnIndex);
@@ -157,22 +136,18 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 		return selectedRangeList.isColumnSelected(columnIndex);
 	}
 
-	@Override
-	public boolean isLeadCell(int rowIndex, int columnIndex) {
-		return (rowIndex == getRowOfLeadCell() && columnIndex == getColumnOfLeadCell());
+	private boolean isLeadCell(int rowIndex, int columnIndex) {
+		return (rowIndex == getFocusedRow() && columnIndex == getFocusedColumn());
 	}
 
-	@Override
-	public int getRowOfLeadCell() {
+	private int getRowOfLeadCell() {
 		return Math.max(1, leadCell.getRow());
 	}
 
-	@Override
-	public int getColumnOfLeadCell() {
+	private int getColumnOfLeadCell() {
 		return Math.max(1, leadCell.getColumn());
 	}
 
-	@Override
 	public RangeDescriptor getRangeDescriptor() {
 		return this.selectedRangeList;
 	}
@@ -185,8 +160,8 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 			rslt = this.isLeadCell(row, col);
 		}
 		else {
-			int rowLeadCell = this.getRowOfLeadCell();
-			int colLeadCell = this.getColumnOfLeadCell();
+			int rowLeadCell = this.getFocusedRow();
+			int colLeadCell = this.getFocusedColumn();
 			if(range.contains(rowLeadCell, colLeadCell)) {
 				rslt = true;
 			}
@@ -207,6 +182,11 @@ public class DefaultSelectionModel implements ISpreadSelectionModel {
 	@Override
 	public void focus(int row, int column) {
 		setLeadCell(row, column);
-		grid.repaint();
+		repaint();
+	}
+
+	@Override
+	public ArrayList<IRange> getSelectedRangeList() {
+		return getRangeDescriptor().getSelectedRangeList();
 	}
 }
