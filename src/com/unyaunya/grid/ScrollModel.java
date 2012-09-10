@@ -18,7 +18,7 @@ import javax.swing.table.TableModel;
 
 
 /**
- * JSpreadのスクロール処理を処理するクラス
+ * JGridのスクロール処理を処理するクラス
  * 行方向/列方向それぞれに、内部的にRangeModelを保持している。
  * 
  * @author wata
@@ -34,14 +34,14 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	private TableModel tableModel;
 	private JComponent component;
 
-	public ScrollModel(JComponent c) {
-		this(23, 60);
+	public ScrollModel(JComponent c, int columnHeaderheight, int rowHeaderWidth) {
+		this(columnHeaderheight, rowHeaderWidth, 23, 60);
 		setComponent(c);
 	}
 
-	private ScrollModel(int defaultRowHeight, int defaultColumnWidth) {
-		this.rowRangeModel = new ScrollRangeModel();
-		this.colRangeModel = new ScrollRangeModel();
+	private ScrollModel(int columnHeaderheight, int rowHeaderWidth, int defaultRowHeight, int defaultColumnWidth) {
+		this.rowRangeModel = new ScrollRangeModel(columnHeaderheight);
+		this.colRangeModel = new ScrollRangeModel(rowHeaderWidth);
 		this.setDefaultRowHeight(defaultRowHeight);
 		this.setDefaultColumnWidth(defaultColumnWidth);
 	}
@@ -159,11 +159,11 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	}
 	
 	public int rowAtPoint(Point pt) {
-		return rowRangeModel.getIndexFromDeviceCoord(pt.y);
+		return rowRangeModel.getIndexFromCC(pt.y);
 	}
 	
 	public int columnAtPoint(Point pt) {
-		return colRangeModel.getIndexFromDeviceCoord(pt.x);
+		return colRangeModel.getIndexFromCC(pt.x);
 	}
 
 	public int getFixedRowNum() {

@@ -23,8 +23,8 @@ public class JAXBUtil {
 	 * @throws JAXBException
 	 * @throws FileNotFoundException
 	 */
+	@SuppressWarnings("unchecked")
 	public static void save(Object obj, File file) throws JAXBException, FileNotFoundException {
-		@SuppressWarnings("rawtypes")
 		Class klass = obj.getClass();
 		JAXBContext jc = JAXBContext.newInstance(klass);
 		OutputStream os = new FileOutputStream(file);
@@ -40,7 +40,8 @@ public class JAXBUtil {
 	 * @throws JAXBException
 	 * @throws IOException
 	 */
-	public static Object read(@SuppressWarnings("rawtypes") Class klass, File file) throws JAXBException, IOException {
+	@SuppressWarnings("unchecked")
+	public static Object read(Class klass, File file) throws JAXBException, IOException {
 		InputStream xmlInputStream = new FileInputStream(file);  
 		JAXBContext jc = JAXBContext.newInstance(klass);  
 		Unmarshaller u = jc.createUnmarshaller();  

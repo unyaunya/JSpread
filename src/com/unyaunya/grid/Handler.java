@@ -4,8 +4,6 @@ import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.logging.Logger;
@@ -26,7 +24,7 @@ import com.unyaunya.swing.JGrid;
  * @author wata
  *
  */
-public class Handler extends MouseInputAdapter implements KeyListener {
+public class Handler extends MouseInputAdapter {
     private static final Logger LOG = Logger.getLogger(Handler.class.getName());
 
 	static final int RESIZE_ZONE_WIDTH = 3;
@@ -36,8 +34,6 @@ public class Handler extends MouseInputAdapter implements KeyListener {
 	private Cursor ROW_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
 	private Cursor currentCursor = null;
 	private int resizeBorderIndex = 0;
-	private boolean shiftDown;
-	private boolean controlDown;
 	
 	private JGrid grid;
 
@@ -59,22 +55,6 @@ public class Handler extends MouseInputAdapter implements KeyListener {
 		Image img = kit.createImage(url); 
 		Cursor cursor = kit.createCustomCursor(img, hotSpot, name);
 		return cursor;
-	}
-	
-	private boolean isShiftDown() {
-		return shiftDown;
-	}
-
-	private void setShiftDown(boolean value) {
-		shiftDown = value;
-	}
-
-	private boolean isControlDown() {
-		return controlDown;
-	}
-
-	private void setControlDown(boolean value) {
-		controlDown = value;
 	}
 	
 	private int getNearbyResizeColumnBorderIndex(Point pt, int row, int col) {
@@ -258,88 +238,7 @@ public class Handler extends MouseInputAdapter implements KeyListener {
 				//if(row != 0 && col != 0) {
 				//}
 			}
-			grid.getGridSelectionModel().focus(row, col);
+			grid.getGridSelectionModel().onMouseDragged(row, col, e.isShiftDown(), e.isControlDown());
 		}
-	}
-
-	private void move(int deltaRow, int deltaColumn) {
-		LOG.info("SHIFT="+isShiftDown()+",CTRL="+isControlDown());
-		int currentRow = grid.getGridSelectionModel().getFocusedRow();
-		int currentCol = grid.getGridSelectionModel().getFocusedColumn();
-		IRange range = grid.getCellRange(currentRow, currentCol);
-		int row = currentRow+deltaRow;
-		int col = currentCol+deltaColumn;
-		if(range != null) {
-			if(deltaRow > 0) {
-				if(row <= range.getBottom()) {
-					row = range.getBottom() + 1;
-				}
-			}
-			else if(deltaRow < 0) {
-				if(row >= range.getTop()) {
-					row = range.getTop() - 1;
-				}
-			}
-			if(deltaColumn > 0) {
-				if(col <= range.getRight()) {
-					col = range.getRight() + 1;
-				}
-			}
-			else if(deltaColumn < 0) {
-				if(col >= range.getLeft()) {
-					col = range.getLeft() - 1;
-				}
-			}
-		}
-		grid.getGridSelectionModel().focus(row, col, isShiftDown(), isControlDown());
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
-			setShiftDown(true);
-		}
-		if(e.getKeyCode() == KeyEvent.VK_CONTROL) {
-			setControlDown(true);
-		}
-	}
-	
-	@Override
-	public void keyReleased(KeyEvent e) {
-		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
-			setShiftDown(false);
-		}
-		if(e.getKeyCode() == KeyEvent.VK_CONTROL) {
-			setControlDown(false);
-		}
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-	}
-
-	public void left() {
-		move(0, -1);
-	}
-	public void right() {
-		move(0, +1);
-	}
-	public void up() {
-		move(-1, 0);
-	}
-	public void down() {
-		move(+1, 0);
-	}
-	public void pageLeft() {
-		move(0, - grid.getScrollModel().getColumnExtent());
-	}
-	public void pageRight() {
-		move(0, + grid.getScrollModel().getColumnExtent());
-	}
-	public void pageUp() {
-		move(- grid.getScrollModel().getRowExtent(), 0);
-	}
-	public void pageDown() {
-		move(+ grid.getScrollModel().getRowExtent(), 0);
 	}
 }

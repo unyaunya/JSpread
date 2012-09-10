@@ -20,48 +20,49 @@ public class Actions {
 	private InputMap inputMap;
 
     @SuppressWarnings("serial")
-	public class LeftAction extends AbstractAction {
+	class LeftAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			grid.getHandler().left();
+			grid.getGridSelectionModel().onKeyLeft();
 		}
     }
 	
     @SuppressWarnings("serial")
-	public class RightAction extends AbstractAction {
+	class RightAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			grid.getHandler().right();
+			grid.getGridSelectionModel().onKeyRight();
 		}
     }
     @SuppressWarnings("serial")
-	public class UpAction extends AbstractAction {
+	class UpAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			grid.getHandler().up();
-		}
-    }
-    
-    @SuppressWarnings("serial")
-	public class DownAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			grid.getHandler().down();
+			grid.getGridSelectionModel().onKeyUp();
 		}
     }
     
     @SuppressWarnings("serial")
-	public class PageUpAction extends AbstractAction {
+	class DownAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			grid.getHandler().pageUp();
+			grid.getGridSelectionModel().onKeyDown();
 		}
     }
+    
     @SuppressWarnings("serial")
-	public class PageDownAction extends AbstractAction {
+	class PageUpAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			grid.getHandler().pageDown();
+			grid.getGridSelectionModel().onKeyPageUp();
+		}
+    }
+    
+    @SuppressWarnings("serial")
+	class PageDownAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			grid.getGridSelectionModel().onKeyPageDown();
 		}
     }
 
@@ -90,7 +91,7 @@ public class Actions {
     }
 
     
-    public ActionMap createActionMap() {
+    private ActionMap createActionMap() {
     	ActionMap map = new ActionMapUIResource();
     	addAction(map, new LeftAction());
     	addAction(map, new RightAction());
@@ -105,7 +106,7 @@ public class Actions {
         map.put(action.getClass(), action);
     }
 
-    public InputMap createInputMap() {
+    private InputMap createInputMap() {
     	InputMap map = new InputMapUIResource();
     	addAction(map, KeyEvent.VK_LEFT, LeftAction.class);
     	addAction(map, KeyEvent.VK_RIGHT, RightAction.class);

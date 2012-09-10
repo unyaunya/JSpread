@@ -1,11 +1,8 @@
-package com.unyaunya.spread;
+package com.unyaunya.grid;
 
 import java.io.Serializable;
 import java.util.HashMap;
 
-import com.unyaunya.grid.CellPosition;
-import com.unyaunya.grid.CellRange;
-import com.unyaunya.grid.IRange;
 
 /**
  * セル結合に関するデータを格納するクラス
@@ -32,7 +29,7 @@ public class CellSpanModel implements Serializable {
 	 * セル結合していない場合は、nullが返される。
 	 */
     public IRange getCellRange(int row, int column) {
-    	if(row <= 0 || column <= 0) {
+    	if(row < 0 || column < 0) {
     		return null;
     	}
     	else {

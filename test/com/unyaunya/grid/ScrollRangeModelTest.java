@@ -39,7 +39,7 @@ public class ScrollRangeModelTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		rangeModel = new ScrollRangeModel();
+		rangeModel = new ScrollRangeModel(0);
 		rangeModel.reset(10, 10);
 	}
 
@@ -63,7 +63,7 @@ public class ScrollRangeModelTest {
 
 	@Test
 	public void testSetComponentSize() {
-		rangeModel = new ScrollRangeModel();
+		rangeModel = new ScrollRangeModel(0);
 		rangeModel.reset(201, 16);
 		rangeModel.setComponentSize(524);
 		assertEquals(524, rangeModel.getComponentSize());
@@ -147,26 +147,26 @@ public class ScrollRangeModelTest {
 
 	@Test
 	public void testGetIndexFromDeviceCoord() {
-		rangeModel = new ScrollRangeModel();
+		rangeModel = new ScrollRangeModel(0);
 		rangeModel.reset(201, 16);
 		rangeModel.setComponentSize(524);
-		assertEquals(0, rangeModel.getIndexFromDeviceCoord(0));
-		assertEquals(0, rangeModel.getIndexFromDeviceCoord(15));
-		assertEquals(1, rangeModel.getIndexFromDeviceCoord(16));
-		assertEquals(32, rangeModel.getIndexFromDeviceCoord(523));
+		assertEquals(0, rangeModel.getIndexFromCC(0));
+		assertEquals(0, rangeModel.getIndexFromCC(15));
+		assertEquals(1, rangeModel.getIndexFromCC(16));
+		assertEquals(32, rangeModel.getIndexFromCC(523));
 	}
 
 	@Test
 	public void testTranslate() {
-		rangeModel = new ScrollRangeModel();
+		rangeModel = new ScrollRangeModel(0);
 		rangeModel.reset(201, 16);
 		rangeModel.setComponentSize(524);
-		assertEquals(0, rangeModel.componentCoord2logicalCoord(0));
-		assertEquals(15, rangeModel.componentCoord2logicalCoord(15));
-		assertEquals(16, rangeModel.componentCoord2logicalCoord(16));
-		assertEquals(31, rangeModel.componentCoord2logicalCoord(31));
-		assertEquals(32, rangeModel.componentCoord2logicalCoord(32));
-		assertEquals(523, rangeModel.componentCoord2logicalCoord(523));
+		assertEquals(0, rangeModel.cc2lc(0));
+		assertEquals(15, rangeModel.cc2lc(15));
+		assertEquals(16, rangeModel.cc2lc(16));
+		assertEquals(31, rangeModel.cc2lc(31));
+		assertEquals(32, rangeModel.cc2lc(32));
+		assertEquals(523, rangeModel.cc2lc(523));
 	}
 
 	@Test

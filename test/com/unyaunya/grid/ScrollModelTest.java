@@ -41,7 +41,7 @@ public class ScrollModelTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		scrollModel = new ScrollModel(new JPanel());
+		scrollModel = new ScrollModel(new JPanel(), 0, 0);
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class ScrollModelTest {
 
 	@Test
 	public void testScrollModel() {
-		scrollModel = new ScrollModel(new JPanel());
+		scrollModel = new ScrollModel(new JPanel(), 0, 0);
 		assertEquals(23, scrollModel.getDefaultRowHeight());
 		assertEquals(60, scrollModel.getDefaultColumnWidth());
 		assertEquals(1, scrollModel.getFixedRowNum());

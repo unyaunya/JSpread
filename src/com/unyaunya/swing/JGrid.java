@@ -16,8 +16,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import com.unyaunya.grid.AbstractGridModel;
 import com.unyaunya.grid.Actions;
-import com.unyaunya.grid.Cell;
 import com.unyaunya.grid.Columns;
 import com.unyaunya.grid.DefaultCellRenderer;
 import com.unyaunya.grid.Handler;
@@ -27,79 +27,10 @@ import com.unyaunya.grid.IGridCellRenderer;
 import com.unyaunya.grid.IGridModel;
 import com.unyaunya.grid.Rows;
 import com.unyaunya.grid.ScrollModel;
-import com.unyaunya.grid.format.CellFormatModel;
 import com.unyaunya.grid.format.GridBorder;
 import com.unyaunya.grid.selection.IGridSelectionModel;
 import com.unyaunya.grid.selection.SingleCellSelectionModel;
 import com.unyaunya.swing.plaf.GridUI;
-
-class GridModelAdapter implements IGridModel {
-	TableModel tableModel;
-	CellFormatModel formatModel = new CellFormatModel();
-
-	GridModelAdapter(TableModel tableModel) {
-		this.tableModel = tableModel;
-	}
-	
-	public int getHorizontalAlignment(int row, int col) {
-		return SwingConstants.LEFT;
-	}
-
-	@Override
-	public void addTableModelListener(TableModelListener l) {
-		tableModel.addTableModelListener(l);
-	}
-
-	@Override
-	public Class<?> getColumnClass(int columnIndex) {
-		return tableModel.getColumnClass(columnIndex);
-	}
-
-	@Override
-	public int getColumnCount() {
-		return tableModel.getColumnCount();
-	}
-
-	@Override
-	public String getColumnName(int columnIndex) {
-		return tableModel.getColumnName(columnIndex);
-	}
-
-	@Override
-	public int getRowCount() {
-		return tableModel.getRowCount();
-	}
-
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
-		return tableModel.getValueAt(rowIndex, columnIndex);
-	}
-
-	@Override
-	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return tableModel.isCellEditable(rowIndex, columnIndex);
-	}
-
-	@Override
-	public void removeTableModelListener(TableModelListener l) {
-		tableModel.removeTableModelListener(l);
-	}
-	
-	@Override
-	public void setValueAt(Object value, int rowIndex, int columnIndex) {
-		tableModel.setValueAt(value, rowIndex, columnIndex);
-	}
-
-	@Override
-	public ICell getCellAt(int row, int col) {
-		return new Cell(row, col, getValueAt(row, col));
-	}
-
-	@Override
-	public CellFormatModel getCellFormatModel() {
-		return formatModel;
-	}
-}
 
 /**
  * JGridは、各機能を担当する複数のサブ・コンポーネントから構成される(ようにしたい)。
@@ -114,7 +45,7 @@ class GridModelAdapter implements IGridModel {
 public class JGrid extends JComponent implements TableModelListener {
     @SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(JGrid.class.getName());
-	public static final Color DEFAULT_HEADER_BACKGROUND_COLOR = new Color(0xf0,0xf0,0xf0);
+	public static final Color DEFAULT_HEADER_BACKGROUND_COLOR = new Color(0xF0,0xD0,0xD0);
 	public static final Color DEFAULT_SELECTION_BACKGROUND_COLOR = new Color(0xe0,0xe0,0xff);
 	public static final Color DEFAULT_FOREGROUND_COLOR = new Color(0x00,0x00,0x00);
  
@@ -212,7 +143,6 @@ public class JGrid extends JComponent implements TableModelListener {
 		*/
 		this.addMouseListener(getHandler());
 		this.addMouseMotionListener(getHandler());
-		this.addKeyListener(getHandler());
 	}
 
 	/**
@@ -222,7 +152,7 @@ public class JGrid extends JComponent implements TableModelListener {
 	 * @return
 	 */
 	protected ScrollModel createScrollModel() {
-		return new ScrollModel(this);
+		return new ScrollModel(this, getColumnHeaderHeight(), getRowHeaderWidth());
 	}
 
 	/**
@@ -245,7 +175,7 @@ public class JGrid extends JComponent implements TableModelListener {
 			gridModel = (IGridModel)model;
 		}
 		else {
-			gridModel = new GridModelAdapter(model);
+			gridModel = new AbstractGridModel(model);
 		}
 		getScrollModel().setTableModel(gridModel);
 		this.repaint(this.getBounds());
@@ -254,6 +184,7 @@ public class JGrid extends JComponent implements TableModelListener {
 	private void setGridSelectionModel(IGridSelectionModel selectionModel) {
 		assert(selectionModel != null);
 		this.selectionModel = selectionModel;
+		this.addKeyListener(getGridSelectionModel());
 		if(isVisible()) {
 			repaint();
 		}
@@ -321,35 +252,51 @@ public class JGrid extends JComponent implements TableModelListener {
 		return defaultCellRenderer;
     }
 
-	/*
-	 * methods implementing to paint
-	 */
-
 	public Component prepareRenderer(IGridCellRenderer renderer, int row, int col) {
 		IGridModel m = getGridModel();
-		ICell cell = m.getCellAt(row, col);
-		boolean hasFocus = getGridSelectionModel().hasFocus(row, col);
+		Object value = null;
+		boolean hasFocus = false;
 		boolean isSelected = false;
-		if(!hasFocus) {
-			if(row == 0 && col == 0) {
-				isSelected = this.getGridSelectionModel().isSelected(row, col);
-			}
-			else if(row == 0) {
-				isSelected = this.getGridSelectionModel().isColumnSelected(col);
-			}
-			else if(col == 0) {
-				isSelected = this.getGridSelectionModel().isRowSelected(row);
-			}
-			else {
-				isSelected = this.getGridSelectionModel().isSelected(row, col);
-			}
+		Border border = GridBorder.DEFAULT;
+		Color foregroundColor = Color.BLACK;
+		Color backgroundColor = DEFAULT_HEADER_BACKGROUND_COLOR;
+;
+		int horizontalAlignment = SwingConstants.CENTER;
+		int verticalAlignment = SwingConstants.CENTER;
+		
+		if(row < 0 && col < 0) {
+			isSelected = this.getGridSelectionModel().isSelected(row, col);
 		}
-		Border border = getCellBorder(hasFocus, row, col);
+		else if(row < 0) {
+			isSelected = this.getGridSelectionModel().isColumnSelected(col);
+			value = m.getColumnName(col);
+		}
+		else if(col < 0) {
+			isSelected = this.getGridSelectionModel().isRowSelected(row);
+			value = m.getRowName(row);
+		}
+		else {
+			ICell cell = m.getCellAt(row, col);
+			hasFocus = getGridSelectionModel().hasFocus(row, col);
+			isSelected = this.getGridSelectionModel().isSelected(row, col);
+			if(hasFocus) {
+		    	border = GridBorder.DEFAULT_FOCUS_BORDER;
+			}
+			backgroundColor = cell.getBackgroundColor();
+			foregroundColor = cell.getForegroundColor();
+			horizontalAlignment = cell.getHorizontalAlignment();
+			verticalAlignment = cell.getVerticalAlignment();
+			value = cell.getValue();
+		}
+		if(isSelected) {
+			backgroundColor = this.getSelectionBackground();
+		}
 		renderer.setBorder(border);
-		renderer.setForeground(cell.getForegroundColor());
-		renderer.setBackground(this.getCellBackground(isSelected, hasFocus, row, col));
-		renderer.setHorizontalAlignment(cell.getHorizontalAlignment());
-		Component c = renderer.getGridCellRendererComponent(this, cell.getValue(), isSelected, hasFocus, row, col);
+		renderer.setForeground(foregroundColor);
+		renderer.setBackground(backgroundColor);
+		renderer.setHorizontalAlignment(horizontalAlignment);
+		renderer.setVerticalAlignment(verticalAlignment);
+		Component c = renderer.getGridCellRendererComponent(this, value, isSelected, hasFocus, row, col);
 		return c;
 	}
 
@@ -405,40 +352,26 @@ public class JGrid extends JComponent implements TableModelListener {
 		repaint();
 	}
 
-	protected Color getCellBackground(boolean isSelected, boolean hasFocus, int row, int column) {
-		if(isSelected) {
-			return this.getSelectionBackground();
-		}
-		else {
-	    	if(row <= 0 || column <= 0) {
-	    		return DEFAULT_HEADER_BACKGROUND_COLOR;
-	    	}
-	    	else {
-	    		return this.getGridModel().getCellAt(row, column).getBackgroundColor();
-	    	}
-		}
-    }
-
 	/*
 	 * methods related to UI appearance
 	 */
-	public Border getFocusBorder() {
-    	return GridBorder.DEFAULT_FOCUS_BORDER;
-    }
 
-    public Border getNoFocusBorder() {
-    	return GridBorder.defaultBorder;
-    }
-
-    public Border getCellBorder(boolean hasFocus, int row, int column) {
-		if(hasFocus) {
-			return this.getFocusBorder();
-		}
-		else {
-			return this.getNoFocusBorder();
-		}
-    }
-
+	/**
+	 * 行ヘッダの幅を取得する。
+	 * 
+	 */
+	public int getRowHeaderWidth() {
+		return 80;
+	}
+	
+	/**
+	 * 列ヘッダの幅を取得する。
+	 * 
+	 */
+	public int getColumnHeaderHeight() {
+		return 40;
+	}
+	
 	public void stopEditing() {}
 
 	/*

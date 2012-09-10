@@ -5,9 +5,45 @@ import java.awt.Color;
 import javax.swing.border.Border;
 
 public interface ICell extends IRangeable {
+	/**
+	 * 行番号を取得する
+	 * @return
+	 */
 	public int getRow();
+
+	/**
+	 * 行番号を設定する
+	 * @param row
+	 */
+	public void setRow(int row);
+
+	/**
+	 * 列番号を取得する
+	 * @return
+	 */
 	public int getColumn();
+	
+	/**
+	 * 列番号を設定する
+	 * @param column
+	 */
+	public void setColumn(int column);
+
+	/**
+	 * セルの値を取得する
+	 * @return
+	 */
 	public Object getValue();
+
+	/**
+	 * セルの値を設定する
+	 */
+	public void setValue(Object value);
+
+	/**
+	 * セルの値を文字列として取得する
+	 * @return
+	 */
 	public String getText();
 
 	/**

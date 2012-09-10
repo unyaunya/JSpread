@@ -20,8 +20,6 @@ class SpreadModel extends AbstractTableModel implements ITableModel {
 	/**
 	 * 
 	 */
-	public SpreadModel() {}
-
 	public SpreadModel(TableModel newModel) {
 		if(newModel == null) {
 			newModel = new SpreadTableModel();
@@ -43,7 +41,7 @@ class SpreadModel extends AbstractTableModel implements ITableModel {
 	 */
 	@Override
 	public int getColumnCount() {
-		return tableModel.getColumnCount()+1;
+		return tableModel.getColumnCount();
 	}
 
 	/* (non-Javadoc)
@@ -51,7 +49,7 @@ class SpreadModel extends AbstractTableModel implements ITableModel {
 	 */
 	@Override
 	public int getRowCount() {
-		return tableModel.getRowCount()+1;
+		return tableModel.getRowCount();
 	}
 
 	/* (non-Javadoc)
@@ -59,24 +57,12 @@ class SpreadModel extends AbstractTableModel implements ITableModel {
 	 */
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		if(rowIndex == 0) {
-			if(columnIndex == 0) {
-				return "";
-			}
-			return Integer.valueOf(columnIndex);
-		}
-		if(columnIndex == 0) {
-			return Integer.valueOf(rowIndex);
-		}
-		return tableModel.getValueAt(rowIndex-1, columnIndex-1);
+		return tableModel.getValueAt(rowIndex, columnIndex);
 	}
 
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-		if(rowIndex == 0 || columnIndex == 0) {
-			return;
-		}
-		tableModel.setValueAt(aValue, rowIndex-1, columnIndex-1);
+		tableModel.setValueAt(aValue, rowIndex, columnIndex);
 	}
 
 	@Override
@@ -93,13 +79,13 @@ class SpreadModel extends AbstractTableModel implements ITableModel {
 
 	@Override
 	public void removeColumn(int column) {
-		tableModel.removeColumn(column-1);
+		tableModel.removeColumn(column);
 		this.fireTableStructureChanged();
 	}
 
 	@Override
 	public void removeRow(int row) {
-		tableModel.removeRow(row-1);
+		tableModel.removeRow(row);
 		this.fireTableStructureChanged();
 	}
 }

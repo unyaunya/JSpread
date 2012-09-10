@@ -79,10 +79,10 @@ public class GridUI extends ComponentUI {
 
 		LOG.info("row="+sm.getRowCount());
 		LOG.info("col="+sm.getColumnCount());
-		if (sm.getRowCount() <= 0 || sm.getColumnCount() <= 0) {
+		/*if (sm.getRowCount() <= 0 || sm.getColumnCount() <= 0) {
 			LOG.info("行数または列数が0のため、描画をスキップした");
 			return;
-		}
+		}*/
 		Rectangle clip = g.getClipBounds();
 		Rectangle bounds = gs.getBounds();
 		bounds.x = bounds.y = 0;
@@ -149,6 +149,7 @@ public class GridUI extends ComponentUI {
 			int cMax = sm.columnAtPoint(lowerRight);
 			rMax = Math.min(rMax, sm.getRowCount()-1);
 			cMax = Math.min(cMax, sm.getColumnCount()-1);
+			LOG.info("(rMin,rMax,cMin,cMax)=(" + rMin + "," + rMax + "," + cMin + "," + cMax + ")");
 			QuadrantPainter qp = new QuadrantPainter(rMin, rMax, cMin, cMax);
 			qp.paintCells(sm, g);
 	    }
@@ -228,15 +229,15 @@ public class GridUI extends ComponentUI {
 	 * @return 描画したセル範囲
 	 */
 	protected IRange paintCell(Graphics g, int row, int col) {
-		IRange range = grid.getCellRange(row, col);
-		if(range == null) {
-			range = new CellRange(row, col);
-		}
-		Rectangle cellRect = grid.getCellRect(range.getTop(), range.getLeft());
+		Rectangle cellRect = grid.getCellRect(row, col);
 		if(cellRect != null) {
 			IGridCellRenderer tcr = grid.getCellRenderer(row,col);
 			Component c = grid.prepareRenderer(tcr, row, col);
 			rendererPane.paintComponent(g, c, grid, cellRect);
+		}
+		IRange range = grid.getCellRange(row, col);
+		if(range == null) {
+			range = new CellRange(row, col);
 		}
 		return range;
 	}

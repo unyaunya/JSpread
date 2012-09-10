@@ -51,10 +51,10 @@ public class CellRange implements IRange, Serializable {
 
 	public void set(int top, int left, int bottom, int right) {
 		if(top < 0) {
-			throw new IllegalArgumentException();
+			//throw new IllegalArgumentException();
 		}
 		if(left < 0) {
-			throw new IllegalArgumentException();
+			//throw new IllegalArgumentException();
 		}
 		if(top < bottom) {
 			this.top = top;

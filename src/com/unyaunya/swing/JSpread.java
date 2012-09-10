@@ -89,7 +89,7 @@ public class JSpread extends JEditableGrid  {
 	}
 
 	public void setSpreadSheetModel(SpreadSheetModel model) {
-		this.getGridSelectionModel().reset();
+		this.getGridSelectionModel().clear();
 		setTableModel(model);
 		//getScrollModel().setTableModel(this.getSpreadSheetModel());
 		//this.repaint(this.getBounds());

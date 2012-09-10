@@ -25,11 +25,6 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
     private IGridModel gridModel;
     
     /**
-     * 選択範囲全体を保持するリスト。複数のセル範囲を保持する。
-     */
-    private RangeDescriptor selectedRangeList;
- 
-    /**
      * マウス、キーボードにより、直接操作されるセル範囲。
      * セル範囲の限界は、常にleadCellとanchorCellを含むように設定される。
      */
@@ -39,7 +34,7 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	 * currentRangeの角であり、anchorCellの対角となるセル位置。
 	 * 入力コンポーネントが配置されるセル位置でもある。 
 	 */
-	private CellPosition leadCell;
+	private CellPosition focusCell;
 
 	/**
 	 * currentRangeの角であり、leadCellの対角となるセル位置
@@ -52,23 +47,23 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	public DefaultSelectionModel(JGrid grid) {
 		super(grid);
 		this.gridModel = getGrid().getGridModel();
+		this.currentRange = new CellRange();
+		this.focusCell = new CellPosition();
+		this.tailCell = new CellPosition();
+		//
+		getSelectedRangeList().add(currentRange);
+		focus(0, 0);
+		setTailCell(0, 0);
 	}
 
 	/**
 	 * 選択をリセットして、デフォルト状態に戻す。
 	 */
-	public void reset() {
-	    if(selectedRangeList == null) {
-	    	selectedRangeList = new RangeDescriptor();
-	    	currentRange = new CellRange();
-	    	leadCell = new CellPosition();
-	    	tailCell = new CellPosition();
-	    }
-	    else {
-			selectedRangeList.clear();
-	    }
-		selectedRangeList.getSelectedRangeList().add(currentRange);
-		select(1,1,true);
+	@Override
+	public void clear(){
+		getSelectedRangeList().clear();
+		currentRange = new CellRange(0, 0);
+		getSelectedRangeList().add(currentRange);
 	}
 
 	/**
@@ -76,64 +71,43 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	 */
 	private void setTailCell(int row, int column) {
 		tailCell.set(row, column);
-		currentRange.set(leadCell, tailCell);
+		currentRange.set(focusCell, tailCell);
 	}
 
 	/**
-	 * 指定したセルをリードセルにする。テールセルは移動しない。
-	 */
-	private void setLeadCell(int row, int column) {
-		LOG.info("setLeadCell("+row+","+column+")");
-		leadCell.set(row, column);
-		currentRange.set(leadCell, tailCell);
-	}
-
-	private void addNewRange(boolean clear) {
-		if(clear) {
-			selectedRangeList.clear();
-		}
-		currentRange = new CellRange();
-		selectedRangeList.getSelectedRangeList().add(currentRange);
-	}
-
-	/**
-	 * 指定したセルを選択する。(リードセル、テールセルは同じセルを指す。)
-	 * (SHIFTキーを押さずにクリック、カーソル移動した時の動作)
+	 * フォーカスセルが移動した場合の処理を行う。
 	 * 
-	 * clearフラグがtrueならば、同時にその他の選択をクリアする。
-	 * (CTRLキーを押してクリックした時の動作)
+	 * ・SHIFTキーが押下されている場合、何もしない。
+	 * 		Tailセルがそのままで、フォーカスセル（＝Leadセル）の位置が変更になるので、
+	 * 		選択範囲が変化する。
+	 * ・SHIFTキーが押下されていない場合、
+	 * 		(1)CTRLキーが押下されていれば、カレント以外の選択範囲リストをクリアする。、
+	 * 		(2)Tailセルを、フォーカスセルの位置に移動する。
 	 */
-	public void select(int row, int column, boolean clear) {
-		LOG.info("select("+row+","+column+","+clear+")");
-		addNewRange(clear);
-		if(row == 0 && column == 0) {
-			//selectAll();
-		}
-		else if(row == 0) {
-			
-		}
-		else if(column == 0) {
-			
+	public void onFocusMoved(int row, int column) {
+		boolean shft = isShiftDown();
+		boolean ctrl = isControlDown();
+		ArrayList<IRange> rangeList = getSelectedRangeList();
+
+		if(ctrl) {
+			//CTRL=ON:選択リストはクリアしない。
+			currentRange = new CellRange();
+			rangeList.add(currentRange);
+			currentRange.set(focusCell, tailCell);
 		}
 		else {
+			//CTRL=OFF:選択リストはクリアする。
+			rangeList.clear();
+			rangeList.add(currentRange);
 		}
-		setLeadCell(row, column);
-		setTailCell(row, column);
-	}
 
-	@Override
-	public boolean isSelected(int rowIndex, int columnIndex) {
-		return selectedRangeList.contains(rowIndex, columnIndex);
-	}
-
-	@Override
-	public boolean isRowSelected(int rowIndex) {
-		return selectedRangeList.isRowSelected(rowIndex);
-	}
-
-	@Override
-	public boolean isColumnSelected(int columnIndex) {
-		return selectedRangeList.isColumnSelected(columnIndex);
+		if(shft) {
+			//SHIFT=ON:	カレント範囲をフォーカスセルのみに限定しない。
+		}
+		else {
+			//SHIFT=OFF:カレント範囲をフォーカスセルのみに限定する。
+			setTailCell(row, column);
+		}
 	}
 
 	private boolean isLeadCell(int rowIndex, int columnIndex) {
@@ -141,15 +115,11 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	}
 
 	private int getRowOfLeadCell() {
-		return Math.max(1, leadCell.getRow());
+		return Math.max(1, focusCell.getRow());
 	}
 
 	private int getColumnOfLeadCell() {
-		return Math.max(1, leadCell.getColumn());
-	}
-
-	public RangeDescriptor getRangeDescriptor() {
-		return this.selectedRangeList;
+		return Math.max(1, focusCell.getColumn());
 	}
 
 	@Override
@@ -180,13 +150,9 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	}
 
 	@Override
-	public void focus(int row, int column) {
-		setLeadCell(row, column);
-		repaint();
-	}
-
-	@Override
-	public ArrayList<IRange> getSelectedRangeList() {
-		return getRangeDescriptor().getSelectedRangeList();
+	protected void focus(int row, int column) {
+		LOG.info("focus("+row+","+column+")");
+		focusCell.set(row, column);
+		currentRange.set(focusCell, tailCell);
 	}
 }

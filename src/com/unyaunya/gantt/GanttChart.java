@@ -7,6 +7,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import com.unyaunya.grid.Columns;
+import com.unyaunya.grid.ICell;
 import com.unyaunya.spread.SpreadSheetModel;
 import com.unyaunya.swing.JGridPane;
 import com.unyaunya.swing.JSpread;
@@ -35,8 +36,10 @@ public class GanttChart extends JGridPane {
 		SpreadSheetModel m = getSpread().getSpreadSheetModel();
 		Columns columns = getSpread().getColumns();
 		int row = 1;
-		m.setValueAt("ID", row, 1);
-		m.setValueAt("äKëw", row, 2);
+		ICell cell = m.getCellAt(1,1);
+		cell.setValue("ID");
+		cell.setColumn(2);
+		cell.setValue("äKëw");
 		m.setValueAt("É^ÉXÉNñº", row, 3);
 		m.setValueAt("äJénì˙", row, 4);
 		m.setValueAt("èIóπì˙", row, 5);

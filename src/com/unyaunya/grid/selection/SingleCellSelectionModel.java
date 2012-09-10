@@ -1,8 +1,5 @@
 package com.unyaunya.grid.selection;
 
-import java.util.ArrayList;
-
-import com.unyaunya.grid.IRange;
 import com.unyaunya.swing.JGrid;
 
 /**
@@ -11,8 +8,8 @@ import com.unyaunya.swing.JGrid;
  *
  */
 public class SingleCellSelectionModel extends AbstractSelectionModel {
-	private int selectedRow = -1;
-	private int selectedColumn = -1;
+	private int focusedRow = -1;
+	private int focusedColumn = -1;
 	
 	public SingleCellSelectionModel(JGrid grid) {
 		super(grid);
@@ -22,9 +19,9 @@ public class SingleCellSelectionModel extends AbstractSelectionModel {
 	 * 選択をリセットして、デフォルト状態に戻す。
 	 */
 	@Override
-	public void reset() {
-		selectedRow = -1;
-		selectedColumn = -1;
+	public void clear() {
+		focusedRow = -1;
+		focusedColumn = -1;
 	}
 
 	@Override
@@ -39,38 +36,27 @@ public class SingleCellSelectionModel extends AbstractSelectionModel {
 
 	@Override
 	public boolean isColumnSelected(int column) {
-		return (selectedColumn == column);
+		return (focusedColumn == column);
 	}
 
 	@Override
 	public boolean isRowSelected(int row) {
-		return (selectedRow == row);
+		return (focusedRow == row);
 	}
 
 	@Override
 	public int getFocusedColumn() {
-		return selectedColumn;
+		return focusedColumn;
 	}
 
 	@Override
 	public int getFocusedRow() {
-		return selectedRow;
+		return focusedRow;
 	}
 
 	@Override
-	public void focus(int row, int column) {
-		selectedRow = row;
-		selectedColumn = column;
-		repaint();
-	}
-
-	@Override
-	public void select(int row, int column, boolean clear) {
-		focus(row, column);
-	}
-
-	@Override
-	public ArrayList<IRange> getSelectedRangeList() {
-		return new ArrayList<IRange>();		
+	protected void focus(int row, int column) {
+		focusedRow = row;
+		focusedColumn = column;
 	}
 }

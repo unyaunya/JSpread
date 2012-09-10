@@ -1,6 +1,7 @@
 package com.unyaunya.swing;
 
 import java.awt.Component;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.EventObject;
 import java.util.logging.Logger;
@@ -159,8 +160,13 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 		if(isProcessingKeyboardEvent) {
 			return false;
 		}
-		if (!retValue && condition == WHEN_ANCESTOR_OF_FOCUSED_COMPONENT &&
-				isFocusOwner()) {
+		if (retValue) {
+			return true;
+		}
+		if (condition != WHEN_ANCESTOR_OF_FOCUSED_COMPONENT || !isFocusOwner()) {
+			return false;
+		}
+		{
 			Component editorComponent = getEditorComponent();
 			if(editorComponent == null) {
 				// Only attempt to install the editor on a KEY_PRESSED,
@@ -188,7 +194,7 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 					return false;
 				}
 			}
-			if (editorComponent instanceof JComponent) {
+			if ((editorComponent instanceof JComponent) && ((e.getModifiers() & InputEvent.ALT_MASK) != 0)) {
 				//retValue = ((JComponent)editorComponent).processKeyBinding(ks, e, WHEN_FOCUSED, pressed);
 				KeyEvent ke = new KeyEvent(editorComponent, e.getID(), e.getWhen(), e.getModifiers(), e.getKeyCode(), e.getKeyChar(), e.getKeyLocation());
 				isProcessingKeyboardEvent = true;
@@ -200,7 +206,7 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 				//}
 			}
 		}
-		return retValue;
+		return false;
 	}
 
 	/**

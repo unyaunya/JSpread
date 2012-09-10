@@ -2,22 +2,19 @@ package com.unyaunya.grid;
 
 import java.awt.Color;
 
-import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-public class Cell implements ICell {
-	private int row;
-	private int column;
-	private Object value;
-	
-	public Cell(int row, int column) {
-		this(row, column, null);
+@SuppressWarnings("serial")
+public class Cell extends CellPosition implements ICell {
+	private IGridModel model;
+
+	public Cell(IGridModel model, int row, int column) {
+		super(row, column);
+		this.model = model;
 	}
 
-	public Cell(int row, int column, Object value) {
-		this.row = row;
-		this.column = column;
-		this.value = value;
+	protected IGridModel getModel() {
+		return model;
 	}
 
 	@Override
@@ -30,32 +27,30 @@ public class Cell implements ICell {
 
 	@Override
 	public Object getValue() {
-		return value;
+		return getModel().getValueAt(getRow(), getColumn());
 	}
 
+	/**
+	 * ÉZÉãÇÃílÇê›íËÇ∑ÇÈ
+	 */
 	@Override
-	public int getColumn() {
-		return column;
-	}
-
-	@Override
-	public int getRow() {
-		return row;
+	public void setValue(Object value) {
+		getModel().setValueAt(value, getRow(), getColumn());
 	}
 
 	@Override
 	public IRange getRange() {
-		return new CellRange(row, column);
+   		return getModel().getCellSpanModel().getCellRange(getRow(), getColumn());
 	}
 
 	@Override
 	public Color getBackgroundColor() {
-		return Color.WHITE;
+		return getModel().getCellFormatModel().getBackgroundColor(getRow(), getColumn());
 	}
 
 	@Override
 	public Color getForegroundColor() {
-		return Color.BLACK;
+		return getModel().getCellFormatModel().getForegroundColor(getRow(), getColumn());
 	}
 
 	/**
@@ -64,7 +59,7 @@ public class Cell implements ICell {
 	 */
 	@Override
 	public Border getBorder() {
-		return null;
+		return getModel().getCellFormatModel().getBorder(getRow(), getColumn());
 	}
 
 	/**
@@ -73,7 +68,7 @@ public class Cell implements ICell {
 	 */
 	@Override
 	public int getHorizontalAlignment() {
-		return SwingConstants.LEFT;
+		return getModel().getCellFormatModel().getHorizontalAlignment(getRow(), getColumn());
 	}
 
 	/**
@@ -82,6 +77,6 @@ public class Cell implements ICell {
 	 */
 	@Override
 	public int getVerticalAlignment() {
-		return SwingConstants.TOP;
+		return getModel().getCellFormatModel().getVerticalAlignment(getRow(), getColumn());
 	}
 }
