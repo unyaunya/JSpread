@@ -2,11 +2,13 @@ package com.unyaunya.gantt;
 
 import java.util.List;
 
-import com.unyaunya.spread.SpreadSheetModel;
+import com.unyaunya.grid.GridModel;
+import com.unyaunya.grid.table.GridTableModel;
 
-@SuppressWarnings("serial")
-public class GanttChartModel extends SpreadSheetModel {
-	public GanttChartModel() {}
+public class GanttChartModel extends GridModel {
+	public GanttChartModel() {
+		super(new GridTableModel());
+	}
 
 	public GanttChartModel readDocument(GanttDocument doc) { 
 		//SpreadSheetModel.clear()‚ðŽÀ‘•‚·‚×‚«

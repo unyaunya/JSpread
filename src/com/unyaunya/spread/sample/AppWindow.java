@@ -23,8 +23,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-import com.unyaunya.spread.SpreadActionProvider;
-import com.unyaunya.spread.SpreadSheetModel;
+import com.unyaunya.grid.GridModel;
+import com.unyaunya.grid.IGridModel;
+import com.unyaunya.grid.action.SpreadActionProvider;
+import com.unyaunya.grid.table.GridTableModel;
 import com.unyaunya.swing.JGridPane;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.application.AbstractFileMenuHandler;
@@ -87,7 +89,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	@Override
 	protected JComponent createMainComponent() {
 		JSpread	spread = new JSpread();
-		spread.setSpreadSheetModel((SpreadSheetModel)getFileMenuHandler().createNewDocument());
+		spread.setGridModel((IGridModel)getFileMenuHandler().createNewDocument());
 		spread.getConfig().setRowInsertionSuppoorted(true);
 		return new JGridPane(spread);
 	}
@@ -116,7 +118,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 
 		@Override
 		public Object createNewDocument() {
-			SpreadSheetModel tmp = new SpreadSheetModel();
+			GridModel tmp = new GridModel(new GridTableModel());
 			tmp.setTableModel(new CsvTable(createSampleData()));
     	    return tmp;
 		}
@@ -137,8 +139,8 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 			if(obj == null) {
 				LOG.info("onFileOpen():doc is null");
 			}
-			SpreadSheetModel doc = (SpreadSheetModel)obj;
-    		getSpread().setSpreadSheetModel(doc);
+			IGridModel doc = (IGridModel)obj;
+    		getSpread().setGridModel(doc);
 		}
 
 		/**
@@ -150,7 +152,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	    	if(ssdFilter.accept(file)) {
 		    	try {
 			    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-			    	SpreadSheetModel tmp = (SpreadSheetModel)ois.readObject();
+			    	IGridModel tmp = (IGridModel)ois.readObject();
 			    	ois.close();
 			    	return tmp;
 				} catch (IOException e) {
@@ -163,8 +165,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		    	try {
 		    		CSVReader reader = new CSVReader(new FileReader(file));
 		    	    List<String[]> myEntries = reader.readAll();
-		    	    SpreadSheetModel tmp = new SpreadSheetModel();
-		    	    tmp.setTableModel(new CsvTable(myEntries));
+		    	    GridModel tmp = new GridModel(new CsvTable(myEntries));
 		    	    return tmp;
 		    	} catch (IOException e) {
 					e.printStackTrace();
@@ -179,7 +180,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		 * @return
 		 */
 		protected void saveDocument(Object document, File file) {
-			SpreadSheetModel doc = (SpreadSheetModel)document;
+			GridModel doc = (GridModel)document;
 	    	if(ssdFilter.accept(file)) {
 				try {
 			        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));

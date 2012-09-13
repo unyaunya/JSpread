@@ -1,24 +1,26 @@
 package com.unyaunya.grid;
 
-import javax.swing.event.TableModelListener;
+import java.util.logging.Logger;
+
 import javax.swing.table.TableModel;
 
 import com.unyaunya.grid.format.CellFormatModel;
+import com.unyaunya.grid.table.IEditableTableModel;
 import com.unyaunya.grid.CellSpanModel;
-import com.unyaunya.spread.ITableModel;
 
-public class AbstractGridModel implements IGridModel {
+public class GridModel implements IGridModel {
+	private static final Logger LOG = Logger.getLogger(GridModel.class.getName());
+	
 	private TableModel tableModel;
 	private CellFormatModel cellFormatModel;
 	private CellSpanModel cellSpanModel = new CellSpanModel();
 
-	public AbstractGridModel(TableModel tableModel) {
-		this.tableModel = tableModel;
-		this.cellSpanModel = new CellSpanModel();
-		this.cellFormatModel = new CellFormatModel();
+	public GridModel(TableModel tableModel) {
+		setTableModel(tableModel);
 	}
 
 	public void setTableModel(TableModel model) {
+		this.tableModel = model;
 		this.cellFormatModel = new CellFormatModel();
 		this.cellSpanModel = new CellSpanModel();
 	}
@@ -27,8 +29,8 @@ public class AbstractGridModel implements IGridModel {
 		return tableModel;
 	}
 
-	protected ITableModel getITableModel() {
-		return (tableModel instanceof ITableModel) ? (ITableModel)tableModel : null;
+	protected IEditableTableModel getITableModel() {
+		return (tableModel instanceof IEditableTableModel) ? (IEditableTableModel)tableModel : null;
 	}
 	
 	@Override
@@ -64,17 +66,13 @@ public class AbstractGridModel implements IGridModel {
 	 * implementation of TableModel interface
 	 */
 
-	@Override
-	public void addTableModelListener(TableModelListener l) {
-		tableModel.addTableModelListener(l);
-	}
 
-	@Override
+	//@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		return tableModel.getColumnClass(columnIndex);
 	}
 
-	@Override
+	//@Override
 	public int getColumnCount() {
 		return tableModel.getColumnCount();
 	}
@@ -93,7 +91,7 @@ public class AbstractGridModel implements IGridModel {
 		return name; 
 	}
 
-	@Override
+	//@Override
 	public int getRowCount() {
 		return tableModel.getRowCount();
 	}
@@ -103,21 +101,15 @@ public class AbstractGridModel implements IGridModel {
 		return tableModel.getValueAt(rowIndex, columnIndex);
 	}
 
-	@Override
+	//@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		return tableModel.isCellEditable(rowIndex, columnIndex);
 	}
 
 	@Override
-	public void removeTableModelListener(TableModelListener l) {
-		tableModel.removeTableModelListener(l);
-	}
-	
-	@Override
 	public void setValueAt(Object value, int rowIndex, int columnIndex) {
 		tableModel.setValueAt(value, rowIndex, columnIndex);
 	}
-
 
 	/*
 	 * セルスパンﾓﾃﾞﾙ関連
@@ -133,9 +125,26 @@ public class AbstractGridModel implements IGridModel {
 	/*
 	 * 
 	 */
-	public void insertRow(int row, Object[] rowData) {
-		ITableModel m = getITableModel();
+	protected void copyValuesFrom(TableModel model) {
+		IEditableTableModel m = getITableModel();
 		if(m == null) {
+			return;
+		}
+		int rowCount = model.getRowCount();
+		int colCount = model.getColumnCount();
+		m.setRowCount(rowCount);
+		m.setColumnCount(colCount);
+		for(int row = 0; row < rowCount; row++) {
+			for(int col = 0; col < colCount; col++) {
+				m.setValueAt(model.getValueAt(row, col), row, col);
+			}
+		}
+	}
+	
+	public void insertRow(int row, Object[] rowData) {
+		IEditableTableModel m = getITableModel();
+		if(m == null) {
+			LOG.info("can't execute insertRow().");
 			return;
 		}
 		m.insertRow(row, rowData);
@@ -144,8 +153,23 @@ public class AbstractGridModel implements IGridModel {
 
 	@Override
 	public void insertRow(int row) {
-		// TODO Auto-generated method stub
-		
+		IEditableTableModel m = getITableModel();
+		if(m != null) {
+			m.insertRow(row, (Object[])null);
+		}
 	}
 
+	public void insertColumn(int column) {
+		IEditableTableModel m = getITableModel();
+		if(m != null) {
+			m.insertColumn(column, (Object[])null);
+		}
+	}
+
+	public void removeRow(int row) {
+		IEditableTableModel m = getITableModel();
+		if(m != null) {
+			m.removeRow(row);
+		}
+	}
 }

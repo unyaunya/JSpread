@@ -4,14 +4,40 @@ import javax.swing.table.TableModel;
 
 import com.unyaunya.grid.format.CellFormatModel;
 
-public interface IGridModel extends TableModel {
-	public Range getRange(int top, int left, int bottom, int right);
+/**
+ * グリッドモデルは、次の３つのサブ・モデルを管理する。
+ * ・TableModel
+ * ・CellFormatModel
+ * ・CellSpanModel
+ * 
+ * @author wata
+ *
+ */
+public interface IGridModel {
+	//
+	//サブ・モデル
+	//
+	public CellFormatModel getCellFormatModel();
+	public CellSpanModel getCellSpanModel();
+	public TableModel getTableModel();
 
-	//書式はＩＣｅｌｌインタフェースにまとめる。
+	//
+	//グリッドの一部を取得し、操作するインタフェースを取得する
+	//
+
 	/**
 	 * セルを取得する。
 	 */
 	public ICell getCellAt(int row, int col);
+
+	//
+	//TableModel等にアクセスするショートカット
+	//
+	
+	/**
+	 * セル範囲を取得する
+	 */
+	public Range getRange(int top, int left, int bottom, int right);
 
 	/**
 	 * セルの値を取得する。
@@ -42,10 +68,13 @@ public interface IGridModel extends TableModel {
 	 * @param row
 	 * @return
 	 */
+	//@Override
 	public String getColumnName(int column);
 	
-	public CellFormatModel getCellFormatModel();
-	public CellSpanModel getCellSpanModel();
-
+	//
+	//行・列の操作
+	//
 	public void insertRow(int row);
+	public void insertColumn(int column);
+	public void removeRow(int row);
 }

@@ -115,11 +115,11 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	}
 
 	private int getRowOfLeadCell() {
-		return Math.max(1, focusCell.getRow());
+		return Math.max(0, focusCell.getRow());
 	}
 
 	private int getColumnOfLeadCell() {
-		return Math.max(1, focusCell.getColumn());
+		return Math.max(0, focusCell.getColumn());
 	}
 
 	@Override

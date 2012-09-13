@@ -1,4 +1,4 @@
-package com.unyaunya.spread;
+package com.unyaunya.grid.action;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -13,9 +13,11 @@ import com.unyaunya.swing.JSpread;
 
 public class SpreadActionProvider {
 	private JSpread spread;
+	private JGrid grid;
 
 	public SpreadActionProvider(JSpread spread) {
 		this.spread = spread;
+		this.grid = spread;
 	}
 
 	private JSpread getSpread() {
@@ -23,7 +25,7 @@ public class SpreadActionProvider {
 	}
 	
 	private JGrid getGrid() {
-		return spread;
+		return grid;
 	}
 
 	public Action getForegroundColorAction() {

@@ -33,7 +33,7 @@ public class Handler extends MouseInputAdapter {
 	private Cursor COLUMN_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
 	private Cursor ROW_RESIZE_CURSOR = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
 	private Cursor currentCursor = null;
-	private int resizeBorderIndex = 0;
+	private int resizeBorderIndex = -1;
 	
 	private JGrid grid;
 
@@ -57,40 +57,43 @@ public class Handler extends MouseInputAdapter {
 		return cursor;
 	}
 	
+	/**
+	 * マウスカーソル付近のリサイズ境界位置を取得する。
+	 */
 	private int getNearbyResizeColumnBorderIndex(Point pt, int row, int col) {
-		if(row != 0) {
-			return 0;
+		if(row != -1) {
+			return -1;
 		}
-		if(col == 0) {
-			return 0;
+		if(col == -1) {
+			return -1;
 		}
 		int left = grid.getScrollModel().getColumnPosition(col);
-		if((col != 1) && ((pt.x - left) < RESIZE_ZONE_WIDTH)) {
+		if((col != 0) && ((pt.x - left) < RESIZE_ZONE_WIDTH)) {
 			return col;
 		}
 		int right = grid.getScrollModel().getColumnPosition(col+1);
 		if((right - pt.x) < RESIZE_ZONE_WIDTH) {
 			return col + 1;
 		}
-		return 0;
+		return -1;
 	}
 
 	private int getNearbyResizeRowBorderIndex(Point pt, int row, int col) {
-		if(col != 0) {
-			return 0;
+		if(col != -1) {
+			return -1;
 		}
-		if(row == 0) {
-			return 0;
+		if(row == -1) {
+			return -1;
 		}
 		int top = grid.getScrollModel().getRowPosition(row);
-		if((row != 1) && ((pt.y - top) < RESIZE_ZONE_WIDTH)) {
+		if((row != 0) && ((pt.y - top) < RESIZE_ZONE_WIDTH)) {
 			return row;
 		}
 		int bottom = grid.getScrollModel().getRowPosition(row+1);
 		if((bottom - pt.y) < RESIZE_ZONE_WIDTH) {
 			return row+1;
 		}
-		return 0;
+		return -1;
 	}
 
 	/*
@@ -106,42 +109,49 @@ public class Handler extends MouseInputAdapter {
 		return null;
 	}
 	*/
-	
+
+	/**
+	 * 行・列ヘッダのボーダ付近であれば、リサイズカーソルをセットする。
+	 * それ以外に行・列ヘッダ内であれば、行・列選択カーソルをセットする。
+	 */
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		Point pt = e.getPoint();
 		int row = grid.rowAtPoint(pt);
 		int col = grid.columnAtPoint(pt);
 		Cursor nextCursor = null;
-		resizeBorderIndex = 0;
+		resizeBorderIndex = -1;
+
+		//マウスカーソル付近のリサイズ境界位置を取得する。
 		int colIndex = getNearbyResizeColumnBorderIndex(pt, row, col);
 		int rowIndex = getNearbyResizeRowBorderIndex(pt, row, col);
-		if(colIndex != 0) {
+		
+		//マウスカーソルが、列方向のリサイズ境界付近にある場合
+		if(colIndex != -1) {
 			nextCursor = COLUMN_RESIZE_CURSOR;
 			resizeBorderIndex = colIndex;
 		}
-		else if(rowIndex != 0) {
+		//マウスカーソルが、行方向のリサイズ境界付近にある場合
+		else if(rowIndex != -1) {
 			nextCursor = ROW_RESIZE_CURSOR;
 			resizeBorderIndex = rowIndex;
 		}
-		else if(row == 0 && col == 0) {
+		//マウスカーソルが、ヘッダ部左上角にある場合
+		else if(row == -1 && col == -1) {
 			nextCursor = null;
 		}
-		else if(row == 0) {
+		//マウスカーソルが、列ヘッダにある場合
+		else if(row == -1) {
 			nextCursor = COLUMN_SELECT_CURSOR;
 		}
-		else if(col == 0) {
+		//マウスカーソルが、行ヘッダにある場合
+		else if(col == -1) {
 			nextCursor = ROW_SELECT_CURSOR;
 		}
 
+		//カーソルをセットする
 		if(currentCursor != nextCursor) {
-			if(nextCursor != null) {
-				grid.setCursor(nextCursor);
-			}
-			else {
-				grid.setCursor(null);
-				//LOG.info("("+row+","+col+")");
-			}
+			grid.setCursor(nextCursor);
 			currentCursor = nextCursor;
 		}
 	}

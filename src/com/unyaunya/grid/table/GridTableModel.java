@@ -1,9 +1,10 @@
-package com.unyaunya.spread;
+package com.unyaunya.grid.table;
 
 import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+
 
 /**
  * スプレッドシート内のテーブルデータを取り扱うコンポーネント
@@ -15,26 +16,26 @@ import javax.swing.table.TableModel;
  * @author wata
  *
  */
-class SpreadTableModel extends DefaultTableModel implements ITableModel {
+@SuppressWarnings("serial")
+public class GridTableModel extends DefaultTableModel implements IEditableTableModel {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
 	private Vector<Integer> columnIndexes = new Vector<Integer>();
 
 	/**
 	* Creates an empty table with zero rows and zero columns.
 	*/
-	public SpreadTableModel() {
+	public GridTableModel() {
 		this(256, 256);
 	}
 
-	public SpreadTableModel(int numRows, int numColumns) {
+	public GridTableModel(int numRows, int numColumns) {
 		super(numRows, numColumns);
 		_setColumnIndexesSize(numColumns);
 	}
 
-	public SpreadTableModel(TableModel model) {
+	public GridTableModel(TableModel model) {
 		super();
 		copyValuesFrom(model);
 	}

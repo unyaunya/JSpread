@@ -10,25 +10,24 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.table.TableModel;
 
 import com.unyaunya.grid.CellPosition;
+import com.unyaunya.grid.IGridModel;
 import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.editor.DefaultCellEditor;
+import com.unyaunya.grid.editor.EditorHandler;
 import com.unyaunya.grid.editor.IGridCellEditor;
 
 @SuppressWarnings("serial")
 public class JEditableGrid extends JGrid implements CellEditorListener {
     private static final Logger LOG = Logger.getLogger(JEditableGrid.class.getName());
 
-	protected IGridCellEditor defaultCellEditor;
-	protected IGridCellEditor cellEditor = null;
-	protected Component editorComponent;
-	protected int editingColumn;
-	protected int editingRow;
-	protected boolean isProcessingKeyboardEvent;
+	private IGridCellEditor defaultCellEditor;
+	private IGridCellEditor cellEditor = null;
+	private boolean isProcessingKeyboardEvent;
+	private EditorHandler editorHandler = new EditorHandler();
 
-	public JEditableGrid(TableModel model) {
+	public JEditableGrid(IGridModel model) {
 		super(model);
     	this.defaultCellEditor = new DefaultCellEditor(this);
 	}
@@ -57,23 +56,6 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 		return defaultCellEditor;
 	}
 
-	protected Component getEditorComponent() {
-		return editorComponent;
-	}
-
-	public int getEditingRow() {
-		return editingRow;
-	}
-	public int getEditingColumn() {
-		return editingColumn;
-	}
-	private void setEditingRow(int row) {
-		editingRow = row;
-	}
-	private void setEditingColumn(int column) {
-		editingColumn = column;
-	}
-	
 	public boolean editCellAt(int row, int column) {
 		return editCellAt(row, column, null);
 	}
@@ -83,15 +65,15 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 			return false;
 		}
 		IGridCellEditor editor = getCellEditor(row, column);
-		editorComponent = prepareEditor(editor, row, column);
-		editorComponent.setBounds(this.getCellRect(row, column));
-		add(editorComponent);
-		editorComponent.validate();
+		editorHandler.setEditorComponent(prepareEditor(editor, row, column));
+		editorHandler.getEditorComponent().setBounds(this.getCellRect(row, column));
+		add(editorHandler.getEditorComponent());
+		editorHandler.getEditorComponent().validate();
 		
 		setCellEditor(editor);
 		editor.addCellEditorListener(this);
-		setEditingRow(row);
-		setEditingColumn(column);
+		editorHandler.setEditingRow(row);
+		editorHandler.setEditingColumn(column);
 		LOG.info("editCellAt("+row+","+column+")");
 		return true;
 	}
@@ -111,7 +93,7 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 		IGridCellEditor editor = getCellEditor();
 		if (editor != null) {
 			Object value = editor.getCellEditorValue();
-			getGridModel().setValueAt(value, editingRow, editingColumn);
+			getGridModel().setValueAt(value, editorHandler.getEditingRow(), editorHandler.getEditingColumn());
 			removeEditor();
 			LOG.info("editingStopped(" + value +  ")");
 		}
@@ -139,13 +121,13 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 		if(editor != null) {
 			editor.removeCellEditorListener(this);
 		}
-		if (editorComponent != null) {
-			remove(editorComponent);
+		if (editorHandler.getEditorComponent() != null) {
+			remove(editorHandler.getEditorComponent());
 			//Rectangle cellRect = getCellRect(editingRow, editingColumn, false);
 			setCellEditor(null);
-			setEditingColumn(-1);
-			setEditingRow(-1);
-			editorComponent = null;
+			editorHandler.setEditingColumn(-1);
+			editorHandler.setEditingRow(-1);
+			editorHandler.setEditorComponent(null);
 			//repaint(cellRect);
 			repaint();
 		}
@@ -167,7 +149,7 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 			return false;
 		}
 		{
-			Component editorComponent = getEditorComponent();
+			Component editorComponent = editorHandler.getEditorComponent();
 			if(editorComponent == null) {
 				// Only attempt to install the editor on a KEY_PRESSED,
 				if (e == null || e.getID() != KeyEvent.KEY_PRESSED) {
@@ -189,7 +171,7 @@ public class JEditableGrid extends JGrid implements CellEditorListener {
 				if (!editCellAt(cell.getRow(), cell.getColumn())) {
 					return false;
 				}
-				editorComponent = getEditorComponent();
+				editorComponent = editorHandler.getEditorComponent();
 				if (editorComponent == null) {
 					return false;
 				}

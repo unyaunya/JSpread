@@ -8,7 +8,7 @@ import javax.swing.Action;
 
 import com.unyaunya.grid.Columns;
 import com.unyaunya.grid.ICell;
-import com.unyaunya.spread.SpreadSheetModel;
+import com.unyaunya.grid.IGridModel;
 import com.unyaunya.swing.JGridPane;
 import com.unyaunya.swing.JSpread;
 
@@ -23,7 +23,7 @@ public class GanttChart extends JGridPane {
 	
 	public GanttChart() {
 		super(new JSpread());
-		getSpread().setSpreadSheetModel(new GanttChartModel());
+		getSpread().setGridModel(new GanttChartModel());
 		getSpread().getConfig().setRowInsertionSuppoorted(true);
 		init();
 	}
@@ -33,7 +33,7 @@ public class GanttChart extends JGridPane {
 	}
 
 	private void init() {
-		SpreadSheetModel m = getSpread().getSpreadSheetModel();
+		IGridModel m = getSpread().getGridModel();
 		Columns columns = getSpread().getColumns();
 		int row = 1;
 		ICell cell = m.getCellAt(1,1);
@@ -51,7 +51,7 @@ public class GanttChart extends JGridPane {
 	}
 
 	public GanttChartModel getGanttChartModel() {
-		return (GanttChartModel)getSpread().getSpreadSheetModel();
+		return (GanttChartModel)getSpread().getGridModel();
 	}
 	/**
 	 * 表示対象のドキュメントを取得する
@@ -97,8 +97,7 @@ public class GanttChart extends JGridPane {
 		public void actionPerformed(ActionEvent event) {
 			JSpread sp = getSpread();
 			int newRow = sp.insertRow();
-			sp.getSpreadSheetModel().setValueAt("新しいタスク", newRow, 1);
+			sp.getGridModel().setValueAt("新しいタスク", newRow, 1);
 		}
 	}
-
 }

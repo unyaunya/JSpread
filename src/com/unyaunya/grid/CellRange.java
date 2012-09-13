@@ -130,13 +130,13 @@ public class CellRange implements IRange, Serializable {
 	 */
 	@Override
 	public boolean contains(int rowIndex, int columnIndex) {
-		if(_contains(0,0)) {
+		if(_contains(-1,-1)) {
 			return true;
 		}
-		if(_contains(rowIndex, 0)) {
+		if(_contains(rowIndex, -1)) {
 			return true;
 		}
-		if(_contains(0,columnIndex)) {
+		if(_contains(-1,columnIndex)) {
 			return true;
 		}
 		return _contains(rowIndex, columnIndex);
@@ -148,14 +148,14 @@ public class CellRange implements IRange, Serializable {
 
 
 	public boolean containsRow(int rowIndex) {
-		if(getTop() == 0) {
+		if(getTop() == -1) {
 			return true;
 		}
 		return (getTop() <= rowIndex && rowIndex <= getBottom());
 	}
 	
 	public boolean containsColumn(int columnIndex) {
-		if(getLeft() == 0) {
+		if(getLeft() == -1) {
 			return true;
 		}
 		return (getLeft() <= columnIndex && columnIndex <= getRight());

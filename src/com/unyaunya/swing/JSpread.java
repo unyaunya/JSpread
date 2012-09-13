@@ -7,17 +7,15 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import javax.swing.table.TableModel;
-
+import com.unyaunya.grid.GridModel;
 import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.IRange;
+import com.unyaunya.grid.config.Config;
 import com.unyaunya.grid.format.CellFormatModel;
 import com.unyaunya.grid.format.RangedColor;
 import com.unyaunya.grid.selection.DefaultSelectionModel;
 import com.unyaunya.grid.selection.IGridSelectionModel;
-import com.unyaunya.spread.Config;
-import com.unyaunya.spread.SpreadSheetModel;
-import com.unyaunya.swing.plaf.GridUI;
+import com.unyaunya.grid.table.GridTableModel;
 
 /**
  * @author wata
@@ -30,11 +28,6 @@ public class JSpread extends JEditableGrid  {
 	private Config config;
 
 	/**
-	 * ヘッダ領域の高さ
-	 */
-	private int headerHeight = 16;
-	
-	/**
 	 * constructor
 	 */
 	public JSpread() {
@@ -45,9 +38,8 @@ public class JSpread extends JEditableGrid  {
 	 * constructor
 	 */
 	public JSpread(Config config) {
-		super(new SpreadSheetModel());
+		super(new GridModel(new GridTableModel()));
 		this.config = config;
-		setUI(new GridUI());
 	}
 
 	/**
@@ -63,36 +55,6 @@ public class JSpread extends JEditableGrid  {
 	
 	public Config getConfig() {
 		return config;
-	}
-
-	/**
-	 * ヘッダ領域の高さを取得する
-	 */
-	public int getHeaderHeight() {
-		return headerHeight;
-	}
-	
-    //
-    //
-    //
-	public SpreadSheetModel getSpreadSheetModel() {
-		return (SpreadSheetModel)getGridModel();
-	}
-
-	public void setTableModel(TableModel model) {
-		if(model instanceof SpreadSheetModel) {
-			super.setTableModel((SpreadSheetModel)model);
-		}
-		else {
-			throw new RuntimeException("model must be an instance of SpreadSheetModel");
-		}
-	}
-
-	public void setSpreadSheetModel(SpreadSheetModel model) {
-		this.getGridSelectionModel().clear();
-		setTableModel(model);
-		//getScrollModel().setTableModel(this.getSpreadSheetModel());
-		//this.repaint(this.getBounds());
 	}
 
 	//
@@ -116,7 +78,7 @@ public class JSpread extends JEditableGrid  {
 		if(!getConfig().isRowInsertionSuppoorted()) {
 			throw new UnsupportedOperationException();
 		}
-		getSpreadSheetModel().insertRow(row);
+		getGridModel().insertRow(row);
 		if(paint) {
 			repaint();
 		}
@@ -134,7 +96,7 @@ public class JSpread extends JEditableGrid  {
 		if(!getConfig().isRowInsertionSuppoorted()) {
 			throw new UnsupportedOperationException();
 		}
-		getSpreadSheetModel().insertColumn(col);
+		getGridModel().insertColumn(col);
 		if(paint) {
 			repaint();
 		}
@@ -151,7 +113,7 @@ public class JSpread extends JEditableGrid  {
 		if(!getConfig().isRowInsertionSuppoorted()) {
 			throw new UnsupportedOperationException();
 		}
-		getSpreadSheetModel().removeRow(row);
+		getGridModel().removeRow(row);
 		if(paint) {
 			repaint();
 		}
@@ -162,7 +124,7 @@ public class JSpread extends JEditableGrid  {
 			return;
 		}
 		CellRange range = new CellRange(rangeList.get(0));
-		getSpreadSheetModel().coupleCells(range);
+		getGridModel().getCellSpanModel().coupleCells(range);
 		repaint();
 		LOG.info(range.toString());
 	}
@@ -170,16 +132,6 @@ public class JSpread extends JEditableGrid  {
 	public void coupleCells() {
 		coupleCells(this.getGridSelectionModel().getSelectedRangeList());
 	}
-
-    /**
-     * セルのフォーマットを取得する。
-     * @param row
-     * @param column
-     * @return セルのフォーマット。設定されていない場合はnull
-     */
-    public IRange getCellRange(int row, int column) {
-   		return getSpreadSheetModel().getCellRange(row, column);
-    }
 
     /**
      * 
@@ -208,12 +160,12 @@ public class JSpread extends JEditableGrid  {
     }
     
     public void setCellForeground(Color  color, IRange range) {
-    	CellFormatModel m = getSpreadSheetModel().getCellFormatModel();
+    	CellFormatModel m = getGridModel().getCellFormatModel();
     	m.addForegroundColor(new RangedColor(color, range));
     }
     
     public void setCellBackground(Color  color, IRange range) {
-    	CellFormatModel m = getSpreadSheetModel().getCellFormatModel();
+    	CellFormatModel m = getGridModel().getCellFormatModel();
     	m.addBackgroundColor(new RangedColor(color, range));
     }
 }

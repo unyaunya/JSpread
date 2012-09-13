@@ -208,7 +208,7 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	}
 
 	public boolean arePanesFreezed() {
-		return (this.getFixedRowNum()!=1 || this.getFixedColumnNum()!=1);
+		return (this.getFixedRowNum()!=0 || this.getFixedColumnNum()!=0);
 	}
 
 	public void freezePanes(int rowIndex, int columnIndex) {

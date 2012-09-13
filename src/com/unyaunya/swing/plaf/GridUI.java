@@ -14,11 +14,11 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.ComponentUI;
 
-import com.unyaunya.grid.Actions;
 import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.IGridCellRenderer;
 import com.unyaunya.grid.ScrollModel;
+import com.unyaunya.grid.action.Actions;
 import com.unyaunya.swing.JGrid;
 
 public class GridUI extends ComponentUI {

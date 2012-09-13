@@ -16,8 +16,8 @@ import javax.xml.bind.JAXBException;
 
 import com.unyaunya.gantt.GanttChart;
 import com.unyaunya.gantt.GanttDocument;
-import com.unyaunya.spread.SpreadActionProvider;
-import com.unyaunya.spread.SpreadSheetModel;
+import com.unyaunya.grid.IGridModel;
+import com.unyaunya.grid.action.SpreadActionProvider;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.application.AbstractFileMenuHandler;
 import com.unyaunya.swing.application.IFileMenuHandler;
@@ -120,9 +120,9 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 			if(obj == null) {
 				LOG.info("onFileOpen():doc is null");
 			}
-			else if(obj instanceof SpreadSheetModel) {
-				SpreadSheetModel doc = (SpreadSheetModel)obj;
-	    		getSpread().setSpreadSheetModel(doc);
+			else if(obj instanceof IGridModel) {
+				IGridModel doc = (IGridModel)obj;
+	    		getSpread().setGridModel(doc);
 			}
 		}
 

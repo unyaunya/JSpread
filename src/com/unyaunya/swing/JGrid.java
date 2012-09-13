@@ -13,11 +13,7 @@ import javax.swing.UIDefaults;
 import javax.swing.border.Border;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
-import com.unyaunya.grid.AbstractGridModel;
-import com.unyaunya.grid.Actions;
 import com.unyaunya.grid.Columns;
 import com.unyaunya.grid.DefaultCellRenderer;
 import com.unyaunya.grid.Handler;
@@ -27,9 +23,11 @@ import com.unyaunya.grid.IGridCellRenderer;
 import com.unyaunya.grid.IGridModel;
 import com.unyaunya.grid.Rows;
 import com.unyaunya.grid.ScrollModel;
+import com.unyaunya.grid.action.Actions;
 import com.unyaunya.grid.format.GridBorder;
 import com.unyaunya.grid.selection.IGridSelectionModel;
 import com.unyaunya.grid.selection.SingleCellSelectionModel;
+import com.unyaunya.grid.table.IEditableTableModel;
 import com.unyaunya.swing.plaf.GridUI;
 
 /**
@@ -118,7 +116,7 @@ public class JGrid extends JComponent implements TableModelListener {
 		this(null);
 	}
 
-	public JGrid(TableModel model) {
+	public JGrid(IGridModel model) {
 		setUI(new GridUI());
 		this.setFocusable(true);
 		this.scrollModel = createScrollModel();
@@ -128,11 +126,8 @@ public class JGrid extends JComponent implements TableModelListener {
 		init(model);
 	}
 
-	private void init(TableModel model) {
-		if(model == null) {
-			model = new DefaultTableModel();
-		}
-		setTableModel(model);
+	private void init(IGridModel model) {
+		setGridModel(model);
 		setGridSelectionModel(createSelectionModel());
 
 		/*
@@ -170,17 +165,19 @@ public class JGrid extends JComponent implements TableModelListener {
     	return this.actions;
     }
 	
-	public void setTableModel(TableModel model) {
-		if(model instanceof IGridModel) {
-			gridModel = (IGridModel)model;
+	public void setGridModel(IGridModel model) {
+		gridModel = model;
+		getScrollModel().setTableModel(gridModel.getTableModel());
+		if(getGridSelectionModel() != null) {
+			getGridSelectionModel().clear();
 		}
-		else {
-			gridModel = new AbstractGridModel(model);
-		}
-		getScrollModel().setTableModel(gridModel);
 		this.repaint(this.getBounds());
 	}
 
+	public boolean isEditable() {
+		return (getGridModel() instanceof IEditableTableModel);
+	}
+	
 	private void setGridSelectionModel(IGridSelectionModel selectionModel) {
 		assert(selectionModel != null);
 		this.selectionModel = selectionModel;
