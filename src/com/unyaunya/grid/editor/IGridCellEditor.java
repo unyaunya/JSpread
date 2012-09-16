@@ -7,7 +7,7 @@ import java.awt.Component;
 
 import javax.swing.CellEditor;
 
-import com.unyaunya.swing.JEditableGrid;
+import com.unyaunya.swing.JGrid;
 
 
 /**
@@ -15,7 +15,7 @@ import com.unyaunya.swing.JEditableGrid;
  *
  */
 public interface IGridCellEditor extends CellEditor {
-	public Component getCellEditorComponent(JEditableGrid spread,
+	public Component getCellEditorComponent(JGrid spread,
             Object value,
             boolean isSelected,
             int row,

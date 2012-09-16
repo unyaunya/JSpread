@@ -18,7 +18,7 @@ import javax.swing.KeyStroke;
 
 
 import com.unyaunya.grid.IGridCellRenderer;
-import com.unyaunya.swing.JEditableGrid;
+import com.unyaunya.swing.JGrid;
 
 class TextField extends JTextField {
 	private static final long serialVersionUID = 1L;
@@ -39,14 +39,14 @@ class TextField extends JTextField {
  *
  */
 @SuppressWarnings("serial")
-public class DefaultCellEditor extends javax.swing.DefaultCellEditor  implements
+public class DefaultCellEditor extends javax.swing.DefaultCellEditor implements
 		IGridCellEditor {
 
 	//private final JSpread spread; 
 	/**
 	 * 
 	 */
-	public DefaultCellEditor(JEditableGrid spread) {
+	public DefaultCellEditor(JGrid spread) {
 		super(new TextField());
 		//this.spread = spread;
 		JComponent c = (JComponent)getComponent();
@@ -89,7 +89,7 @@ public class DefaultCellEditor extends javax.swing.DefaultCellEditor  implements
 	 * @see com.unyaunya.spread.ICellEditor#getCellEditorComponent(com.unyaunya.swing.JSpread, java.lang.Object, boolean, int, int)
 	 */
 	@Override
-	public Component getCellEditorComponent(JEditableGrid spread, Object value,
+	public Component getCellEditorComponent(JGrid spread, Object value,
 			boolean isSelected, int row, int column) {
 		//delegate.setValue(value);
 		delegate.setValue(null); //ï“èWäJénéûÇÕãÛîí

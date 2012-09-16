@@ -169,7 +169,7 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 		int newRowIndex = _rowIndex(row);
 		int newColumnIndex = _columnIndex(col);
 		if(currentRow != newRowIndex || currentCol != newColumnIndex) {
-			getGrid().stopEditing();
+			getGrid().getEditorHandler().stopEditing();
 			getGrid().scrollToVisible(newRowIndex, newColumnIndex);
 		}
 

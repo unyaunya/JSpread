@@ -4,10 +4,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
 import javax.swing.JScrollBar;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.UIDefaults;
 import javax.swing.border.Border;
@@ -24,10 +26,10 @@ import com.unyaunya.grid.IGridModel;
 import com.unyaunya.grid.Rows;
 import com.unyaunya.grid.ScrollModel;
 import com.unyaunya.grid.action.Actions;
+import com.unyaunya.grid.editor.EditorHandler;
 import com.unyaunya.grid.format.GridBorder;
 import com.unyaunya.grid.selection.IGridSelectionModel;
 import com.unyaunya.grid.selection.SingleCellSelectionModel;
-import com.unyaunya.grid.table.IEditableTableModel;
 import com.unyaunya.swing.plaf.GridUI;
 
 /**
@@ -41,7 +43,6 @@ import com.unyaunya.swing.plaf.GridUI;
  */
 @SuppressWarnings("serial")
 public class JGrid extends JComponent implements TableModelListener {
-    @SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(JGrid.class.getName());
 	public static final Color DEFAULT_HEADER_BACKGROUND_COLOR = new Color(0xF0,0xD0,0xD0);
 	public static final Color DEFAULT_SELECTION_BACKGROUND_COLOR = new Color(0xe0,0xe0,0xff);
@@ -51,6 +52,7 @@ public class JGrid extends JComponent implements TableModelListener {
 	protected Color selectionForeground = DEFAULT_FOREGROUND_COLOR;
 
 	protected static IGridCellRenderer defaultCellRenderer = new DefaultCellRenderer();
+	protected EditorHandler editorHandler;
 	
 	private IGridModel gridModel;
 	private IGridSelectionModel selectionModel;
@@ -123,6 +125,7 @@ public class JGrid extends JComponent implements TableModelListener {
 		this.columns = new Columns(getScrollModel());
 		this.rows = new Rows(getScrollModel());
         this.actions = new Actions(this);
+    	this.editorHandler = new EditorHandler(this);
 		init(model);
 	}
 
@@ -138,6 +141,10 @@ public class JGrid extends JComponent implements TableModelListener {
 		*/
 		this.addMouseListener(getHandler());
 		this.addMouseMotionListener(getHandler());
+	}
+
+	public EditorHandler getEditorHandler() {
+		return editorHandler;
 	}
 
 	/**
@@ -174,10 +181,6 @@ public class JGrid extends JComponent implements TableModelListener {
 		this.repaint(this.getBounds());
 	}
 
-	public boolean isEditable() {
-		return (getGridModel() instanceof IEditableTableModel);
-	}
-	
 	private void setGridSelectionModel(IGridSelectionModel selectionModel) {
 		assert(selectionModel != null);
 		this.selectionModel = selectionModel;
@@ -237,9 +240,7 @@ public class JGrid extends JComponent implements TableModelListener {
 			cellRect.width = scrollModel.getColumnPosition(right+1) - cellRect.x;
 			return cellRect;
 		}
-		else {
-			return null;
-		}
+		return null;
 	}
 
 	/*
@@ -369,8 +370,6 @@ public class JGrid extends JComponent implements TableModelListener {
 		return 40;
 	}
 	
-	public void stopEditing() {}
-
 	/*
 	 * 
 	 */
@@ -384,5 +383,23 @@ public class JGrid extends JComponent implements TableModelListener {
 	@Override
 	public void tableChanged(TableModelEvent e) {
 		repaint();
+	}
+
+	@Override
+	protected boolean processKeyBinding(KeyStroke ks,
+            KeyEvent e,
+            int condition,
+            boolean pressed){
+		boolean retValue = super.processKeyBinding(ks, e, condition, pressed);
+		if(retValue) {
+			LOG.info("siper.processKeyBinding()=true");
+			return true;
+		}
+		return editorHandler.onProcessKeyBinding(
+				retValue,
+				ks,
+	            e,
+	            condition,
+	            pressed);
 	}
 }

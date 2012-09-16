@@ -1,4 +1,4 @@
-package com.unyaunya.spread.sample;
+package com.unyaunya.grid.sample;
 
 public class Main {
 	/**

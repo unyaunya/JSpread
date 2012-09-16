@@ -22,7 +22,7 @@ import com.unyaunya.grid.table.GridTableModel;
  *
  */
 @SuppressWarnings("serial")
-public class JSpread extends JEditableGrid  {
+public class JSpread extends JGrid  {
     private static final Logger LOG = Logger.getLogger(JSpread.class.getName());
     
 	private Config config;
