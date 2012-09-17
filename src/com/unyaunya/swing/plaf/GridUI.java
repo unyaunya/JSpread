@@ -37,17 +37,20 @@ public class GridUI extends ComponentUI {
     }
 
     //  Installation
+    @Override
     public void installUI(JComponent c) {
     	grid = (JGrid)c;
         rendererPane = new CellRendererPane();
         grid.add(rendererPane);
         actions = grid.getActions();
+        assert(actions != null);
         //installDefaults();
         //installDefaults2();
         //installListeners();
         installKeyboardActions();
     }
 
+    @Override
     public void uninstallUI(JComponent c) {
     	grid.remove(rendererPane);
         rendererPane = null;
@@ -208,11 +211,10 @@ public class GridUI extends ComponentUI {
     		}
     		for(int row = rMin; row <= rMax; row++) {
     			for(int col = cMin; col <= cMax; col++) {
-    				if(isMarked(row, col)) {
-    					return;
+    				if(!isMarked(row, col)) {
+        				IRange range = paintCell(g, row, col);
+        				mark(range);
     				}
-    				IRange range = paintCell(g, row, col);
-    				mark(range);
     			}
     		}
     	}
@@ -257,7 +259,7 @@ public class GridUI extends ComponentUI {
     }
 
     /**
-     * Register all keyboard actions on the JSpread.
+     * Register all keyboard actions on the JGrid.
      */
     protected void installKeyboardActions() {
     	InputMap keyMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);

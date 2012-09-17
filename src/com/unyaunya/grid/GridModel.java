@@ -6,7 +6,6 @@ import javax.swing.table.TableModel;
 
 import com.unyaunya.grid.format.CellFormatModel;
 import com.unyaunya.grid.table.IEditableTableModel;
-import com.unyaunya.grid.CellSpanModel;
 
 public class GridModel implements IGridModel {
 	private static final Logger LOG = Logger.getLogger(GridModel.class.getName());

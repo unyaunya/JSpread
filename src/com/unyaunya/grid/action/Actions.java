@@ -2,6 +2,7 @@ package com.unyaunya.grid.action;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -15,6 +16,8 @@ import javax.swing.plaf.InputMapUIResource;
 import com.unyaunya.swing.JGrid;
 
 public class Actions {
+	private static final Logger LOG = Logger.getLogger(Actions.class.getName());
+	
 	private JGrid grid;
 	private ActionMap actionMap;
 	private InputMap inputMap;
@@ -31,6 +34,7 @@ public class Actions {
 	class RightAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			LOG.info("RightAction");
 			grid.getGridSelectionModel().onKeyRight();
 		}
     }

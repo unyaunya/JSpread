@@ -4,17 +4,19 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 
+
+
 /**
  * セル結合に関するデータを格納するクラス
  * 
  * @author wata
  *
  */
+@SuppressWarnings("serial")
 public class CellSpanModel implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
 	private HashMap<CellPosition, IRange> cellRangeModel;
 
 	/**

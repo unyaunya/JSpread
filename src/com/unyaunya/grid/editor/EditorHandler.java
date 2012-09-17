@@ -113,6 +113,7 @@ public class EditorHandler implements CellEditorListener  {
 		if (row < 0 || row >= grid.getRows().getCount() || column < 0 || column >= grid.getColumns().getCount()) {
 			return false;
 		}
+		//T.B.D: セルが結合されている場合、riw,columnから、結合範囲の左上隅のセルを取得して描画する必要がある。
 		IGridCellEditor editor = getCellEditor(row, column);
 		setEditorComponent(prepareEditor(editor, row, column));
 		getEditorComponent().setBounds(grid.getCellRect(row, column));
@@ -207,7 +208,9 @@ public class EditorHandler implements CellEditorListener  {
 				//retValue = ((JComponent)editorComponent).processKeyBinding(ks, e, WHEN_FOCUSED, pressed);
 				KeyEvent ke = new KeyEvent(editorComponent, e.getID(), e.getWhen(), e.getModifiers(), e.getKeyCode(), e.getKeyChar(), e.getKeyLocation());
 				isProcessingKeyboardEvent = true;
+				LOG.info("editorComponent.dispatchEvent(ke):start");
 				editorComponent.dispatchEvent(ke);
+				LOG.info("editorComponent.dispatchEvent(ke):end");
 				isProcessingKeyboardEvent = false;
 				retValue = true;
 				//if (getSurrendersFocusOnKeystroke()) {

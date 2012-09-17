@@ -119,13 +119,13 @@ public class JGrid extends JComponent implements TableModelListener {
 	}
 
 	public JGrid(IGridModel model) {
-		setUI(new GridUI());
 		this.setFocusable(true);
 		this.scrollModel = createScrollModel();
 		this.columns = new Columns(getScrollModel());
 		this.rows = new Rows(getScrollModel());
         this.actions = new Actions(this);
     	this.editorHandler = new EditorHandler(this);
+		setUI(new GridUI());
 		init(model);
 	}
 
@@ -359,7 +359,7 @@ public class JGrid extends JComponent implements TableModelListener {
 	 * 
 	 */
 	public int getRowHeaderWidth() {
-		return 80;
+		return 40;
 	}
 	
 	/**
@@ -367,7 +367,7 @@ public class JGrid extends JComponent implements TableModelListener {
 	 * 
 	 */
 	public int getColumnHeaderHeight() {
-		return 40;
+		return 23;
 	}
 	
 	/*
@@ -390,16 +390,42 @@ public class JGrid extends JComponent implements TableModelListener {
             KeyEvent e,
             int condition,
             boolean pressed){
+		LOG.info("super.processKeyBinding():start");
+		LOG.info(ks.toString());
+		LOG.info(e.toString());
+		LOG.info("condition:WHEN_FOCUSED=0, WHEN_ANCESTOR_OF_FOCUSED_COMPONENT=1, WHEN_IN_FOCUSED_WINDOW=2");
+		LOG.info("condition="+condition+", pressed="+pressed);
 		boolean retValue = super.processKeyBinding(ks, e, condition, pressed);
+		/*
+		{
+		    retValue = false;
+			InputMap map = this.getInputMap(condition);
+			LOG.info(map==null ? "map=null" : map.toString());
+			ActionMap am = getActionMap();
+			LOG.info(am==null ? "am=null" : am.toString());
+		    if(map != null && am != null && isEnabled()) {
+		    	Object binding = map.get(ks);
+				LOG.info(binding==null ? "binding=null" : binding.toString());
+		    	Action action = (binding == null) ? null : am.get(binding);
+				LOG.info(action==null ? "action=null" : action.toString());
+		    	if (action != null) {
+		    		retValue = SwingUtilities.notifyAction(action, ks, e, this, e.getModifiers());
+		    	}
+		    }
+		}
+		*/
+		LOG.info("super.processKeyBinding():end=" + retValue);
 		if(retValue) {
-			LOG.info("siper.processKeyBinding()=true");
 			return true;
 		}
-		return editorHandler.onProcessKeyBinding(
+		LOG.info("editorHandler.onProcessKeyBinding():start");
+		retValue = editorHandler.onProcessKeyBinding(
 				retValue,
 				ks,
 	            e,
 	            condition,
 	            pressed);
+		LOG.info("editorHandler.onProcessKeyBinding():end=" + retValue);
+		return retValue;
 	}
 }

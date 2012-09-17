@@ -35,19 +35,19 @@ public class GanttChart extends JGridPane {
 	private void init() {
 		IGridModel m = getSpread().getGridModel();
 		Columns columns = getSpread().getColumns();
-		int row = 1;
-		ICell cell = m.getCellAt(1,1);
+		int row = 0;
+		ICell cell = m.getCellAt(0,0);
 		cell.setValue("ID");
-		cell.setColumn(2);
+		cell.setColumn(1);
 		cell.setValue("階層");
-		m.setValueAt("タスク名", row, 3);
-		m.setValueAt("開始日", row, 4);
-		m.setValueAt("終了日", row, 5);
+		m.setValueAt("タスク名", row, 2);
+		m.setValueAt("開始日", row, 3);
+		m.setValueAt("終了日", row, 4);
+		columns.setWidth(0, 32);
 		columns.setWidth(1, 32);
-		columns.setWidth(2, 32);
-		columns.setWidth(3, 160);
+		columns.setWidth(2, 160);
+		columns.setWidth(3, 64);
 		columns.setWidth(4, 64);
-		columns.setWidth(5, 64);
 	}
 
 	public GanttChartModel getGanttChartModel() {
