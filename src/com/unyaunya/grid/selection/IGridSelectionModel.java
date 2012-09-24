@@ -1,11 +1,15 @@
 package com.unyaunya.grid.selection;
 
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 import com.unyaunya.grid.IRange;
 
-public interface IGridSelectionModel extends KeyListener {
+public interface IGridSelectionModel extends KeyListener, TableModelListener {
 	//
 	//セレクション情報の取得
 	//
@@ -38,8 +42,8 @@ public interface IGridSelectionModel extends KeyListener {
 	//
 	//マウス入力の取り扱い
 	//
-	public void onMousePressed(int row, int column, boolean shft, boolean ctrl);
-	public void onMouseDragged(int row, int column, boolean shft, boolean ctrl);
+	public void onMousePressed(MouseEvent e);
+	public void onMouseDragged(MouseEvent e);
 
 	//
 	//キーボード入力の取り扱い
@@ -52,4 +56,8 @@ public interface IGridSelectionModel extends KeyListener {
 	public void onKeyPageRight();
 	public void onKeyPageUp();
 	public void onKeyPageDown();
+	
+	//テーブル変更への対応
+	@Override
+	public void tableChanged(TableModelEvent e);
 }

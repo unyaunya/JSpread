@@ -2,6 +2,8 @@ package com.unyaunya.grid.table;
 
 import java.util.Vector;
 
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
@@ -111,9 +113,10 @@ public class GridTableModel extends DefaultTableModel implements IEditableTableM
 	}
 
 	@Override
-	public void insertColumn(int row, Object[] columnData) {
-		columnIndexes.add(row, Integer.valueOf(this.getColumnCount()));
+	public void insertColumn(int column, Object[] columnData) {
+		columnIndexes.add(column, Integer.valueOf(this.getColumnCount()));
 		super.addColumn(super.getColumnName(this.getColumnCount()), columnData);
+		fireTableColumnInserted(column);
 	}
 
 	@Override
@@ -157,5 +160,13 @@ public class GridTableModel extends DefaultTableModel implements IEditableTableM
 		Integer n = columnIndexes.get(column);
 		assert(n != null);
 		return n.intValue();
+	}
+
+	public void fireTableColumnInserted(int column) {
+		TableModelEvent e = new TableModelEvent(this, -1, -1, column, TableModelEvent.INSERT);
+		TableModelListener[] ls = getTableModelListeners();
+		for(int i = 0; i < ls.length; i++) {
+			ls[i].tableChanged(e);
+		}
 	}
 }

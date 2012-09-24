@@ -28,8 +28,8 @@ import com.unyaunya.grid.ScrollModel;
 import com.unyaunya.grid.action.Actions;
 import com.unyaunya.grid.editor.EditorHandler;
 import com.unyaunya.grid.format.GridBorder;
+import com.unyaunya.grid.selection.DefaultSelectionModel;
 import com.unyaunya.grid.selection.IGridSelectionModel;
-import com.unyaunya.grid.selection.SingleCellSelectionModel;
 import com.unyaunya.swing.plaf.GridUI;
 
 /**
@@ -165,7 +165,7 @@ public class JGrid extends JComponent implements TableModelListener {
 	 * @return
 	 */
 	protected IGridSelectionModel createSelectionModel() {
-		return new SingleCellSelectionModel(this);
+		return new DefaultSelectionModel(this);
 	}
 	
 	public Actions getActions() {
@@ -184,6 +184,7 @@ public class JGrid extends JComponent implements TableModelListener {
 	private void setGridSelectionModel(IGridSelectionModel selectionModel) {
 		assert(selectionModel != null);
 		this.selectionModel = selectionModel;
+		getGridModel().getTableModel().addTableModelListener(selectionModel);
 		this.addKeyListener(getGridSelectionModel());
 		if(isVisible()) {
 			repaint();
@@ -222,25 +223,8 @@ public class JGrid extends JComponent implements TableModelListener {
 		return getScrollModel().getGridRect(rowIndex, colIndex);
 	}
 
-	public Rectangle getCellRect(int rowIndex, int colIndex) {
-		IRange r = getCellRange(rowIndex, colIndex);
-		if(r == null) {
-			return getGridRect(rowIndex, colIndex);
-		}
-		if(r.getTop() == rowIndex && r.getLeft() == colIndex) {
-			int top = r.getTop();
-			int left = r.getLeft();
-			int bottom = r.getBottom();
-			int right = r.getRight();
-			ScrollModel scrollModel = getScrollModel();
-			Rectangle cellRect = new Rectangle();
-			cellRect.y = scrollModel.getRowPosition(top);
-			cellRect.height = scrollModel.getRowPosition(bottom+1) - cellRect.y;
-			cellRect.x = scrollModel.getColumnPosition(left);
-			cellRect.width = scrollModel.getColumnPosition(right+1) - cellRect.x;
-			return cellRect;
-		}
-		return null;
+	public Rectangle getRangeRect(IRange r) {
+		return getScrollModel().getRangeRect(r);
 	}
 
 	/*
@@ -250,8 +234,26 @@ public class JGrid extends JComponent implements TableModelListener {
 		return defaultCellRenderer;
     }
 
+	private String getRowName(int row) {
+		return Integer.toString(row+1);
+	}
+
+	private String getColumnName(int col) {
+		String ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		String name = "";
+		int pos = col % 26;
+		name = ABC.substring(pos, pos+1);
+		col = col / 26;
+		while(col > 0) {
+			col = col - 1;
+			pos = col % 26;
+			name = ABC.substring(pos, pos+1) + name;
+			col = col / 26;
+		}
+		return name;
+	}
+
 	public Component prepareRenderer(IGridCellRenderer renderer, int row, int col) {
-		IGridModel m = getGridModel();
 		Object value = null;
 		boolean hasFocus = false;
 		boolean isSelected = false;
@@ -267,14 +269,14 @@ public class JGrid extends JComponent implements TableModelListener {
 		}
 		else if(row < 0) {
 			isSelected = this.getGridSelectionModel().isColumnSelected(col);
-			value = m.getColumnName(col);
+			value = getColumnName(col);
 		}
 		else if(col < 0) {
 			isSelected = this.getGridSelectionModel().isRowSelected(row);
-			value = m.getRowName(row);
+			value = getRowName(row);
 		}
 		else {
-			ICell cell = m.getCellAt(row, col);
+			ICell cell = getGridModel().getCellAt(row, col);
 			hasFocus = getGridSelectionModel().hasFocus(row, col);
 			isSelected = this.getGridSelectionModel().isSelected(row, col);
 			if(hasFocus) {

@@ -1,9 +1,14 @@
 package com.unyaunya.grid.selection;
 
+import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import javax.swing.event.TableModelEvent;
+
+import com.unyaunya.grid.CellPosition;
 import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.RangeUtil;
 import com.unyaunya.swing.JGrid;
@@ -12,6 +17,13 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
     private static final Logger LOG = Logger.getLogger(AbstractSelectionModel.class.getName());
 
     private JGrid grid;
+
+	/**
+	 * currentRangeの角であり、anchorCellの対角となるセル位置。
+	 * 入力コンポーネントが配置されるセル位置でもある。 
+	 */
+	private CellPosition focusCell;
+
 	private boolean shiftDown;
 	private boolean controlDown;
 
@@ -26,6 +38,7 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 	public AbstractSelectionModel(JGrid grid) {
 		assert(grid != null);
 		this.grid = grid;
+		this.focusCell = new CellPosition();
 		this.selectedRangeList = new ArrayList<IRange>();
 	}
 
@@ -37,9 +50,32 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 	protected JGrid getGrid() {
 		return grid;
 	}
-
+	
 	protected void repaint() {
 		getGrid().repaint();
+	}
+
+	protected CellPosition getFocusCell() {
+		return focusCell;
+	}
+
+	@Override
+	public int getFocusedColumn() {
+		return Math.max(0, getFocusCell().getColumn());
+	}
+
+	@Override
+	public int getFocusedRow() {
+		return Math.max(0, getFocusCell().getRow());
+	}
+
+	@Override
+	public boolean hasFocus(int row, int col) {
+		IRange range = getGrid().getCellRange(row, col);
+		if(range.contains(this.getFocusedRow(), this.getFocusedColumn())) {
+			return true;
+		}
+		return false;
 	}
 
 	protected boolean isShiftDown() {
@@ -76,20 +112,19 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 	}
 
 	@Override
-	public void onMousePressed(int row, int column, boolean shft, boolean ctrl) {
-		if(!shft) {
-			if(!ctrl) {
-				clear();
-			}
-			onFocusMoved(row, column);
-		}
-		focus(row, column);
-		repaint();
+	public void onMousePressed(MouseEvent e) {
+		Point pt = e.getPoint();
+		int row = grid.rowAtPoint(pt);
+		int col = grid.columnAtPoint(pt);
+		moveTo(row, col, e.isShiftDown(), e.isControlDown());
 	}
-
+	
 	@Override
-	public void onMouseDragged(int row, int column, boolean shft, boolean ctrl) {
-		focus(row, column);
+	public void onMouseDragged(MouseEvent e) {
+		Point pt = e.getPoint();
+		int row = grid.rowAtPoint(pt);
+		int col = grid.columnAtPoint(pt);
+		focus(row, col);
 		repaint();
 	}
 
@@ -168,25 +203,29 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 		}
 		int newRowIndex = _rowIndex(row);
 		int newColumnIndex = _columnIndex(col);
+		boolean shft = isShiftDown();
+		boolean ctrl = isControlDown();
+		moveTo(newRowIndex, newColumnIndex, shft, ctrl);
+	}
+
+	protected void moveTo(int newRowIndex, int newColumnIndex, boolean shft, boolean ctrl) {
+		int currentRow = getFocusedRow();
+		int currentCol = getFocusedColumn();
 		if(currentRow != newRowIndex || currentCol != newColumnIndex) {
 			getGrid().getEditorHandler().stopEditing();
 			getGrid().scrollToVisible(newRowIndex, newColumnIndex);
 		}
 
-		{
-			boolean shft = isShiftDown();
-			boolean ctrl = isControlDown();
-			if(!shft) {
-				if(!ctrl) {
-					clear();
-				}
-				onFocusMoved(newRowIndex, newColumnIndex);
+		if(!shft) {
+			if(!ctrl) {
+				clear();
 			}
+			onFocusMoved(newRowIndex, newColumnIndex);
 		}
 		focus(newRowIndex, newColumnIndex);
 		repaint();
 	}
-
+	
 	private int _rowIndex(int rowIndex) {
 		if(rowIndex < 0) {
 			rowIndex = 0;
@@ -235,4 +274,10 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 
 	@Override
 	public void keyTyped(KeyEvent e) {}
+	
+	@Override
+	public void tableChanged(TableModelEvent e) {
+		RangeUtil.tableChanged(selectedRangeList, e);
+	}
+
 }

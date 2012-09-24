@@ -20,20 +20,6 @@ import javax.swing.KeyStroke;
 import com.unyaunya.grid.IGridCellRenderer;
 import com.unyaunya.swing.JGrid;
 
-class TextField extends JTextField {
-	private static final long serialVersionUID = 1L;
-	public TextField() {
-		super();
-	}
-
-	public boolean _processKeyBinding(KeyStroke ks,
-            KeyEvent e,
-            int condition,
-            boolean pressed){
-		return super.processKeyBinding(ks, e, condition, pressed);
-	}
-}
-
 /**
  * @author wata
  *
@@ -42,20 +28,18 @@ class TextField extends JTextField {
 public class DefaultCellEditor extends javax.swing.DefaultCellEditor implements
 		IGridCellEditor {
 
-	//private final JSpread spread; 
 	/**
 	 * 
 	 */
 	public DefaultCellEditor(JGrid spread) {
-		super(new TextField());
-		//this.spread = spread;
+		super(new JTextField());
+		//clickCountToStart = 2;
 		JComponent c = (JComponent)getComponent();
 		String key;
 
 		//ESCキーで編集キャンセル
 		key = "edit-cancel";
 		Action editCancelAction = new AbstractAction(key) {
-			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent ae) {
 				fireEditingCanceled();
@@ -83,19 +67,18 @@ public class DefaultCellEditor extends javax.swing.DefaultCellEditor implements
 		c.getActionMap().put(actionMapKey, action);
 		c.getInputMap().put(KeyStroke.getKeyStroke(key, 0), actionMapKey);
 	}
-
 	
 	/* (non-Javadoc)
 	 * @see com.unyaunya.spread.ICellEditor#getCellEditorComponent(com.unyaunya.swing.JSpread, java.lang.Object, boolean, int, int)
 	 */
 	@Override
-	public Component getCellEditorComponent(JGrid spread, Object value,
+	public Component getCellEditorComponent(JGrid grid, Object value,
 			boolean isSelected, int row, int column) {
-		//delegate.setValue(value);
-		delegate.setValue(null); //編集開始時は空白
+		delegate.setValue(value);
+		//delegate.setValue(null); //編集開始時は空白
         if (editorComponent instanceof JCheckBox) {
-        	IGridCellRenderer renderer = spread.getCellRenderer(row, column);
-        	Component c = renderer.getGridCellRendererComponent(spread, value, isSelected, true, row, column);
+        	IGridCellRenderer renderer = grid.getCellRenderer(row, column);
+        	Component c = renderer.getGridCellRendererComponent(grid, value, isSelected, true, row, column);
         	if (c != null) {
         		editorComponent.setOpaque(true);
         		editorComponent.setBackground(c.getBackground());
@@ -106,6 +89,9 @@ public class DefaultCellEditor extends javax.swing.DefaultCellEditor implements
         	else {
         		editorComponent.setOpaque(false);
         	}
+        }
+        else if (editorComponent instanceof JTextField) {
+    		((JTextField)editorComponent).selectAll();
         }
         return editorComponent;	
 	}

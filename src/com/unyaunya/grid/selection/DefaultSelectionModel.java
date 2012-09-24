@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import com.unyaunya.grid.CellPosition;
 import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.IRange;
-import com.unyaunya.grid.IGridModel;
 import com.unyaunya.swing.JGrid;
 
 /**
@@ -22,19 +21,11 @@ import com.unyaunya.swing.JGrid;
 public class DefaultSelectionModel extends AbstractSelectionModel {
     private static final Logger LOG = Logger.getLogger(DefaultSelectionModel.class.getName());
 	
-    private IGridModel gridModel;
-    
     /**
      * マウス、キーボードにより、直接操作されるセル範囲。
      * セル範囲の限界は、常にleadCellとanchorCellを含むように設定される。
      */
 	private CellRange currentRange;
-
-	/**
-	 * currentRangeの角であり、anchorCellの対角となるセル位置。
-	 * 入力コンポーネントが配置されるセル位置でもある。 
-	 */
-	private CellPosition focusCell;
 
 	/**
 	 * currentRangeの角であり、leadCellの対角となるセル位置
@@ -46,14 +37,8 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	 */
 	public DefaultSelectionModel(JGrid grid) {
 		super(grid);
-		this.gridModel = getGrid().getGridModel();
-		this.currentRange = new CellRange();
-		this.focusCell = new CellPosition();
 		this.tailCell = new CellPosition();
-		//
-		getSelectedRangeList().add(currentRange);
-		focus(0, 0);
-		setTailCell(0, 0);
+		clear();
 	}
 
 	/**
@@ -62,8 +47,8 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	@Override
 	public void clear(){
 		getSelectedRangeList().clear();
-		currentRange = new CellRange(0, 0);
-		getSelectedRangeList().add(currentRange);
+		pushDownCurrentRange();
+		adjustCurrentRange();
 	}
 
 	/**
@@ -71,9 +56,38 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	 */
 	private void setTailCell(int row, int column) {
 		tailCell.set(row, column);
-		currentRange.set(focusCell, tailCell);
+		adjustCurrentRange();
 	}
 
+	private void pushDownCurrentRange() {
+		currentRange = new CellRange(0, 0);
+		getSelectedRangeList().add(currentRange);
+	}
+	
+	/**
+	 * focusCell, tailCellの値に応じて、curentRangeの範囲を調整する。
+	 */
+	private void adjustCurrentRange() {
+		int top = Math.min(getFocusCell().getRow(), tailCell.getRow());
+		int bottom = Math.max(getFocusCell().getRow(), tailCell.getRow());
+		int left = Math.min(getFocusCell().getColumn(), tailCell.getColumn());
+		int right = Math.max(getFocusCell().getColumn(), tailCell.getColumn());
+		int t = top;
+		int b = bottom;
+		int l = left;
+		int r = right;
+		for(int i = top; i <= bottom; i++) {
+			for(int j = left; j<= right; j++) {
+				IRange range = getGrid().getGridModel().getCellAt(i, j).getRange();
+				t = Math.min(t, range.getTop());
+				b = Math.max(b, range.getBottom());
+				l = Math.min(l, range.getLeft());
+				r = Math.max(r, range.getRight());
+			}
+		}
+		currentRange.set(t, l, b, r);
+	}
+	
 	/**
 	 * フォーカスセルが移動した場合の処理を行う。
 	 * 
@@ -91,9 +105,8 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 
 		if(ctrl) {
 			//CTRL=ON:選択リストはクリアしない。
-			currentRange = new CellRange();
-			rangeList.add(currentRange);
-			currentRange.set(focusCell, tailCell);
+			pushDownCurrentRange();
+			adjustCurrentRange();
 		}
 		else {
 			//CTRL=OFF:選択リストはクリアする。
@@ -110,49 +123,10 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 		}
 	}
 
-	private boolean isLeadCell(int rowIndex, int columnIndex) {
-		return (rowIndex == getFocusedRow() && columnIndex == getFocusedColumn());
-	}
-
-	private int getRowOfLeadCell() {
-		return Math.max(0, focusCell.getRow());
-	}
-
-	private int getColumnOfLeadCell() {
-		return Math.max(0, focusCell.getColumn());
-	}
-
-	@Override
-	public boolean hasFocus(int row, int col) {
-		boolean rslt = false;
-		IRange range = gridModel.getCellAt(row, col).getRange();
-		if(range == null) {
-			rslt = this.isLeadCell(row, col);
-		}
-		else {
-			int rowLeadCell = this.getFocusedRow();
-			int colLeadCell = this.getFocusedColumn();
-			if(range.contains(rowLeadCell, colLeadCell)) {
-				rslt = true;
-			}
-		}
-		return rslt;
-	}
-
-	@Override
-	public int getFocusedColumn() {
-		return getColumnOfLeadCell();
-	}
-
-	@Override
-	public int getFocusedRow() {
-		return getRowOfLeadCell();
-	}
-
 	@Override
 	protected void focus(int row, int column) {
 		LOG.info("focus("+row+","+column+")");
-		focusCell.set(row, column);
-		currentRange.set(focusCell, tailCell);
+		getFocusCell().set(row, column);
+		adjustCurrentRange();
 	}
 }

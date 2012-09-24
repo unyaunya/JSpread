@@ -3,6 +3,7 @@ package com.unyaunya.grid;
 import javax.swing.table.TableModel;
 
 import com.unyaunya.grid.format.CellFormatModel;
+import com.unyaunya.grid.format.CellSpanModel;
 
 /**
  * グリッドモデルは、次の３つのサブ・モデルを管理する。

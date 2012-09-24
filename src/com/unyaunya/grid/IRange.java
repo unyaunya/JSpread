@@ -5,6 +5,10 @@ public interface IRange {
 	public int getLeft();
 	public int getBottom();
 	public int getRight();
+	public void setTop(int top);
+	public void setLeft(int left);
+	public void setBottom(int bottom);
+	public void setRight(int right);
 	
 	/**
 	 * ・当該セル範囲が、位置(0,0)を含んでいれば、containsは常にtrueを返す。

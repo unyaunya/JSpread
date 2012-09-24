@@ -3,6 +3,7 @@ package com.unyaunya.grid.format;
 import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.IRange;
 
+@SuppressWarnings("serial")
 public class RangedInteger extends RangedObject {
 	public RangedInteger(Integer value, IRange range){
 		super(range, value);

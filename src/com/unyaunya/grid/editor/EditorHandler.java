@@ -3,7 +3,6 @@ package com.unyaunya.grid.editor;
 import java.awt.Component;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.EventObject;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
@@ -11,7 +10,7 @@ import javax.swing.KeyStroke;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 
-import com.unyaunya.grid.CellPosition;
+import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.IRange;
 import com.unyaunya.swing.JGrid;
 
@@ -109,30 +108,41 @@ public class EditorHandler implements CellEditorListener  {
 		}
 	}
 
-	private boolean editCellAt(int row, int column, EventObject e){
+	private boolean editCellAt(int row, int column){
 		if (row < 0 || row >= grid.getRows().getCount() || column < 0 || column >= grid.getColumns().getCount()) {
 			return false;
 		}
-		//T.B.D: セルが結合されている場合、riw,columnから、結合範囲の左上隅のセルを取得して描画する必要がある。
-		IGridCellEditor editor = getCellEditor(row, column);
-		setEditorComponent(prepareEditor(editor, row, column));
-		getEditorComponent().setBounds(grid.getCellRect(row, column));
+		//セルが結合されている場合、riw,columnから、結合範囲の左上隅のセルを取得して描画する必要がある。
+		//CellPosition cell = getEffectiveCell(row, column);
+		IRange range = grid.getCellRange(row, column);
+		if(range == null) {
+			range = new CellRange(row, column);
+		}
+		int top = range.getTop();
+		int left = range.getLeft();
+		IGridCellEditor editor = getCellEditor(top, left);
+		setEditorComponent(prepareEditor(editor, top, left));
+		getEditorComponent().setBounds(grid.getRangeRect(range));
 		grid.add(getEditorComponent());
 		getEditorComponent().validate();
 		
 		setCellEditor(editor);
 		editor.addCellEditorListener(this);
-		setEditingRow(row);
-		setEditingColumn(column);
+		setEditingRow(top);
+		setEditingColumn(left);
 		LOG.info("editCellAt("+row+","+column+")");
 		return true;
 	}
 
 	public void stopEditing() {
+		int row = getEditingRow();
+		int col = getEditingColumn();
 		IGridCellEditor editor = getCellEditor();
 		if (editor != null) {
 			Object value = editor.getCellEditorValue();
+			LOG.info(grid.getRangeRect(grid.getCellRange(row, col)).toString());
 			grid.getGridModel().setValueAt(value, getEditingRow(), getEditingColumn());
+			LOG.info(grid.getRangeRect(grid.getCellRange(row, col)).toString());
 			removeEditor();
 			LOG.info("editingStopped(" + value +  ")");
 		}
@@ -140,27 +150,7 @@ public class EditorHandler implements CellEditorListener  {
 			LOG.info("editingStopped():editor = null");
 		}
 	}
-
-	/**
-	 * 実効セル(連結した場合は、左上隅)を取得する。
-	 * @param row
-	 * @param col
-	 * @return
-	 */
-	private CellPosition getEffectiveCell(int row, int col) {
-		IRange range = grid.getCellRange(row, col);
-		if(range == null) {
-			return new CellPosition(row, col);
-		}
-		else {
-			return new CellPosition(range.getTop(), range.getLeft());
-		}
-	}
 	
-	private boolean editCellAt(int row, int column) {
-		return editCellAt(row, column, null);
-	}
-
 	public boolean onProcessKeyBinding(
 			boolean retValue,
 			KeyStroke ks,
@@ -195,8 +185,8 @@ public class EditorHandler implements CellEditorListener  {
 				//if (leadRow != -1 && leadColumn != -1 && !isEditing()) {
 				int row = grid.getGridSelectionModel().getFocusedRow();
 				int col = grid.getGridSelectionModel().getFocusedColumn();
-				CellPosition cell = getEffectiveCell(row, col);
-				if (!editCellAt(cell.getRow(), cell.getColumn())) {
+				//CellPosition cell = getEffectiveCell(row, col);
+				if (!editCellAt(row, col)) {
 					return false;
 				}
 				editorComponent = getEditorComponent();

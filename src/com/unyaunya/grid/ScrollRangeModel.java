@@ -94,6 +94,24 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 		sizeModel.reset(count, defaultSize);
 	}
 
+	public void insert(int index) {
+		insert(index, 1);
+	}
+	
+	public void insert(int index, int length) {
+		sizeModel.insertEntries(index, length, getDefaultSize());
+		fireChangeEvent();
+	}
+	
+	public void remove(int index) {
+		remove(index, 1);
+	}
+
+	public void remove(int index, int length) {
+		sizeModel.removeEntries(index, length);
+		fireChangeEvent();
+	}
+
 	/**
 	 * indexで指定された行または列の高さ/幅を取得する。
 	 * @param index　行または列のインデックス
@@ -235,7 +253,7 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	
 	/**
 	 * indexで指定した行または列の開始位置。
-	 * スクロール考慮された値が算出される。
+	 * スクロールを考慮した値が算出される。
 	 * @param index
 	 * @return
 	 */
@@ -245,9 +263,9 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 			return getPositionLC(index);
 		}
 		//スクロールして非表示になっている領域
-		else if((index - getFixedPartNum()) < getValue()) {
-			return Integer.MIN_VALUE;
-		}
+		//else if((index - getFixedPartNum()) < getValue()) {
+		//	return Integer.MIN_VALUE;
+		//}
 		//可変領域
 		else {
 			return getPositionLC(index) - scrolledSize();
@@ -304,11 +322,15 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	 * @param index
 	 * @return
 	 */
-	private int getPositionLC(int index) {
+	public int getPositionLC(int index) {
 		if(index < 0) {
 			return 0;
 		}
 		return headerSize + sizeModel.getPosition(index);
+	}
+
+	public int getDistance(int from_index, int to_index) {
+		return getPositionLC(to_index) - getPositionLC(from_index);
 	}
 
 	/**
@@ -391,12 +413,12 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 		}
 		//指定された箇所が可変領域の前にある場合
 		else if(index < (getFixedPartNum()+getValue())) {
-			System.out.println("scrollToVisible:getFixedPartNum()");
+			LOG.info("scrollToVisible:getFixedPartNum()");
 			setValue(index - getFixedPartNum());
 		}
 		//可変領域のサイズが、セル自体のサイズよりも小さい場合
 		else if(getScrollPartSize() <= sizeModel.getSize(index)) {
-			System.out.println("getScrollPartSize() <= size");
+			LOG.info("getScrollPartSize() <= size");
 			setValue(index - getFixedPartNum());
 		}
 		//指定された箇所が可変領域の後にある場合

@@ -178,10 +178,7 @@ public class Handler extends MouseInputAdapter {
 			LOG.info("列リサイズ開始");
 		}
 		else {
-			Point pt = e.getPoint();
-			int row = grid.rowAtPoint(pt);
-			int col = grid.columnAtPoint(pt);
-			getSelectionModel().onMousePressed(row, col, e.isShiftDown(), e.isControlDown());
+			getSelectionModel().onMousePressed(e);
 		}
 	}
 
@@ -248,7 +245,7 @@ public class Handler extends MouseInputAdapter {
 				//if(row != 0 && col != 0) {
 				//}
 			}
-			grid.getGridSelectionModel().onMouseDragged(row, col, e.isShiftDown(), e.isControlDown());
+			grid.getGridSelectionModel().onMouseDragged(e);
 		}
 	}
 }

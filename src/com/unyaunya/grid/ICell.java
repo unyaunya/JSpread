@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import javax.swing.border.Border;
 
-public interface ICell extends IRangeable {
+public interface ICell {
 	/**
 	 * 行番号を取得する
 	 * @return
@@ -75,4 +75,12 @@ public interface ICell extends IRangeable {
 	 * @return
 	 */
 	public int getVerticalAlignment();
+
+	/**
+	 * このセルが属するセル結合範囲を取得する。
+	 * セル結合していない場合は、当該セルのみを含んだセル範囲を返す。
+	 * 
+	 * @return
+	 */
+	public IRange getRange();
 }

@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.Serializable;
+import java.util.logging.Logger;
 
 import javax.swing.JComponent;
 import javax.swing.JScrollBar;
@@ -16,7 +17,6 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-
 /**
  * JGridのスクロール処理を処理するクラス
  * 行方向/列方向それぞれに、内部的にRangeModelを保持している。
@@ -24,11 +24,13 @@ import javax.swing.table.TableModel;
  * @author wata
  *
  */
+@SuppressWarnings("serial")
 public class ScrollModel implements ComponentListener, TableModelListener, Serializable {
+    private static final Logger LOG = Logger.getLogger(ScrollModel.class.getName());
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
 	private ScrollRangeModel colRangeModel;
 	private ScrollRangeModel rowRangeModel;
 	private TableModel tableModel;
@@ -97,10 +99,38 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 
 	@Override
 	public void tableChanged(TableModelEvent e) {
-		rowRangeModel.reset(tableModel.getRowCount());
-		colRangeModel.reset(tableModel.getColumnCount(), 40);
-		this.rowRangeModel.setValue(0);
-		this.colRangeModel.setValue(0);
+		LOG.info("TableModelEvent:type=" + e.getType());
+		LOG.info("TableModelEvent:firstRow, lastRow, column=" + e.getFirstRow() + "," + e.getLastRow() + "," + e.getColumn());
+		if(e.getFirstRow() == 0 && e.getLastRow() == Integer.MAX_VALUE && e.getColumn() == TableModelEvent.ALL_COLUMNS) {
+			rowRangeModel.reset(tableModel.getRowCount());
+			colRangeModel.reset(tableModel.getColumnCount(), 40);
+			this.rowRangeModel.setValue(0);
+			this.colRangeModel.setValue(0);
+		}
+		else {
+			switch(e.getType()) {
+			case TableModelEvent.INSERT:
+				if(e.getColumn() == TableModelEvent.ALL_COLUMNS) {
+					rowRangeModel.insert(e.getFirstRow(), e.getLastRow() - e.getFirstRow() + 1);
+				}
+				else {
+					colRangeModel.insert(e.getColumn(), 1);
+				}
+				break;
+			case TableModelEvent.DELETE:
+				if(e.getColumn() == TableModelEvent.ALL_COLUMNS) {
+					rowRangeModel.remove(e.getFirstRow(), e.getLastRow() - e.getFirstRow() + 1);
+				}
+				else {
+					colRangeModel.remove(e.getColumn());
+				}
+				break;
+			case TableModelEvent.UPDATE:
+				break;
+			default:
+				break;
+			}
+		}
 	}
 
 	/**
@@ -117,6 +147,20 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 					rowRangeModel.getPosition(rowIndex),
 					colRangeModel.getSize(colIndex),
 					rowRangeModel.getSize(rowIndex));
+	}
+
+	public Rectangle getRangeRect(IRange r) {
+		assert(r != null);
+		int top = r.getTop();
+		int left = r.getLeft();
+		int bottom = r.getBottom();
+		int right = r.getRight();
+		Rectangle cellRect = new Rectangle();
+		cellRect.y = getRowPosition(top);
+		cellRect.height = rowRangeModel.getDistance(top, bottom+1);
+		cellRect.x = getColumnPosition(left);
+		cellRect.width = colRangeModel.getDistance(left, right+1);
+		return cellRect;
 	}
 	
 	public Dimension getPreferredSize() {
@@ -217,8 +261,8 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	}
 
 	public void unfreezePanes() {
-		colRangeModel.setFixedPartNum(1);
-		rowRangeModel.setFixedPartNum(1);
+		colRangeModel.setFixedPartNum(0);
+		rowRangeModel.setFixedPartNum(0);
 	}
 
 	@Override

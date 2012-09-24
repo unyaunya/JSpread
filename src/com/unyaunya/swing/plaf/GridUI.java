@@ -14,7 +14,6 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.ComponentUI;
 
-import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.IGridCellRenderer;
 import com.unyaunya.grid.ScrollModel;
@@ -134,7 +133,8 @@ public class GridUI extends ComponentUI {
      * @param rect è€å¿ÇàÕÇﬁãÈå`
      */
     private void paintQuadrant(ScrollModel sm, Graphics g, Rectangle rect){
-	    Rectangle currentClip = g.getClipBounds();
+    	LOG.info("rect=" + rect);
+    	Rectangle currentClip = g.getClipBounds();
 		if(!rect.intersects(currentClip)) {
 			return;
 		}
@@ -187,13 +187,14 @@ public class GridUI extends ComponentUI {
     	}
     	
     	void mark(IRange range) {
-    		for(int rr = range.getTop()-rMin; rr < range.getBottom()-rMin; rr++) {
-    			for(int cc = range.getLeft()-cMin; cc < range.getRight()-cMin; cc++) {
+    		for(int rr = range.getTop()-rMin; rr <= range.getBottom()-rMin; rr++) {
+    			for(int cc = range.getLeft()-cMin; cc <= range.getRight()-cMin; cc++) {
     				if(rr >= 0 && rr < rowSpan && cc >= 0 && cc < colSpan) {
     					map[rr][cc] = true;
     				}
     			}
     		}
+    		//LOG.info("kkkk");
     	}
 
         /**
@@ -217,6 +218,7 @@ public class GridUI extends ComponentUI {
     				}
     			}
     		}
+    		//LOG.info("kkkkkkkkkkkk");
     	}
     }
   
@@ -231,16 +233,14 @@ public class GridUI extends ComponentUI {
 	 * @return ï`âÊÇµÇΩÉZÉãîÕàÕ
 	 */
 	protected IRange paintCell(Graphics g, int row, int col) {
-		Rectangle cellRect = grid.getCellRect(row, col);
-		if(cellRect != null) {
-			IGridCellRenderer tcr = grid.getCellRenderer(row,col);
-			Component c = grid.prepareRenderer(tcr, row, col);
-			rendererPane.paintComponent(g, c, grid, cellRect);
-		}
+		Rectangle cellRect;
 		IRange range = grid.getCellRange(row, col);
-		if(range == null) {
-			range = new CellRange(row, col);
-		}
+		cellRect = grid.getRangeRect(range);
+		int top = range.getTop();
+		int left = range.getLeft();
+		IGridCellRenderer tcr = grid.getCellRenderer(top, left);
+		Component c = grid.prepareRenderer(tcr, top, left);
+		rendererPane.paintComponent(g, c, grid, cellRect);
 		return range;
 	}
 

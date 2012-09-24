@@ -5,6 +5,7 @@ import java.awt.Color;
 import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.IRange;
 
+@SuppressWarnings("serial")
 public class RangedColor extends RangedObject {
 	public RangedColor(Color color, IRange range){
 		super(range, color);

@@ -1,20 +1,19 @@
 package com.unyaunya.grid.format;
 
+import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.IRange;
-import com.unyaunya.grid.IRangeable;
 
-public class RangedObject implements IRangeable{
-	private IRange range;
+@SuppressWarnings("serial")
+public class RangedObject extends CellRange /*implements IRangeable*/{
 	private Object object;
 
 	public RangedObject(IRange range, Object object){
-		this.range = range;
+		super(range);
 		this.object = object;
 	}
 
-	@Override
 	public IRange getRange() {
-		return range;
+		return this;
 	}
 
 	public Object getObject() {

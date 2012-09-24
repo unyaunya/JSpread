@@ -5,6 +5,7 @@ import javax.swing.border.Border;
 import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.IRange;
 
+@SuppressWarnings("serial")
 public class RangedBorder extends RangedObject {
 	public RangedBorder(Border border, IRange range){
 		super(range, border);

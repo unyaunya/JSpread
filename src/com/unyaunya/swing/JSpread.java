@@ -65,7 +65,7 @@ public class JSpread extends JGrid  {
 	 * 選択されている行の上に、新たな行を挿入する。
 	 */
 	public int insertRow() {
-		int newRow = getGridSelectionModel().getFocusedRow()-1;
+		int newRow = getGridSelectionModel().getFocusedRow();
 		insertRow(newRow, true);
 		return newRow;
 	}
@@ -85,7 +85,7 @@ public class JSpread extends JGrid  {
 	}
 
 	public void insertColumn() {
-		insertColumn(getGridSelectionModel().getFocusedColumn()-1, true);
+		insertColumn(getGridSelectionModel().getFocusedColumn(), true);
 	}
 
 	public void insertColumn(int row) {

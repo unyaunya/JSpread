@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import javax.swing.table.TableModel;
 
 import com.unyaunya.grid.format.CellFormatModel;
+import com.unyaunya.grid.format.CellSpanModel;
 import com.unyaunya.grid.table.IEditableTableModel;
 
 public class GridModel implements IGridModel {
@@ -22,6 +23,8 @@ public class GridModel implements IGridModel {
 		this.tableModel = model;
 		this.cellFormatModel = new CellFormatModel();
 		this.cellSpanModel = new CellSpanModel();
+		tableModel.addTableModelListener(cellSpanModel);
+		tableModel.addTableModelListener(cellFormatModel);
 	}
 
 	public TableModel getTableModel() {
@@ -114,7 +117,7 @@ public class GridModel implements IGridModel {
 	 * セルスパンﾓﾃﾞﾙ関連
 	 */
 	public IRange getCellRange(int row, int column) {
-   		return getCellSpanModel().getCellRange(row, column);
+   		return getCellSpanModel().getCellRangeOld(row, column);
     }
     
 	public void coupleCells(CellRange range) {

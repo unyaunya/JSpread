@@ -15,7 +15,7 @@ import com.unyaunya.swing.JGrid;
  *
  */
 public interface IGridCellEditor extends CellEditor {
-	public Component getCellEditorComponent(JGrid spread,
+	public Component getCellEditorComponent(JGrid grid,
             Object value,
             boolean isSelected,
             int row,

@@ -14,11 +14,11 @@ import javax.swing.SizeSequence;
  * @author wata
  *　行高さまたは列幅を管理するクラス
  */
+@SuppressWarnings("serial")
 class SizeModel extends SizeSequence implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
 	private int defaultSize = 20;
 	private int length = 0;
 
