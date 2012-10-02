@@ -9,6 +9,10 @@ public class RangedInteger extends RangedObject {
 		super(range, value);
 	}
 
+	public RangedInteger(Integer value, int top, int left, int bottom, int right){
+		this(value, new CellRange(top, left, bottom, right));
+	}
+
 	public RangedInteger(Integer value, int row, int column){
 		this(value, new CellRange(row, column));
 	}

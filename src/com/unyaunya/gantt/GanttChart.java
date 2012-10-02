@@ -7,24 +7,21 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import com.unyaunya.grid.Columns;
-import com.unyaunya.grid.ICell;
-import com.unyaunya.grid.IGridModel;
 import com.unyaunya.swing.JGridPane;
 import com.unyaunya.swing.JSpread;
 
+@SuppressWarnings("serial")
 public class GanttChart extends JGridPane {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	private static Logger LOG = Logger.getLogger(GanttChart.class.getName());
 	private GanttDocument document = new GanttDocument();
+	private int[] columnWidth = {32, 32, 160, 64, 64, 48, 48};
 	
 	public GanttChart() {
 		super(new JSpread());
-		getSpread().setGridModel(new GanttChartModel());
+		getGrid().setGridModel(new GanttChartModel());
+		getGrid().setCellEditor(new GanttCellEditor(getGrid()));
 		getSpread().getConfig().setRowInsertionSuppoorted(true);
+		
 		init();
 	}
 
@@ -32,22 +29,21 @@ public class GanttChart extends JGridPane {
 		return (JSpread)getGrid();
 	}
 
+	private int getDefaultColumnWidth() {
+		return 32;
+	}
+	
 	private void init() {
-		IGridModel m = getSpread().getGridModel();
 		Columns columns = getSpread().getColumns();
-		int row = 0;
-		ICell cell = m.getCellAt(0,0);
-		cell.setValue("ID");
-		cell.setColumn(1);
-		cell.setValue("階層");
-		m.setValueAt("タスク名", row, 2);
-		m.setValueAt("開始日", row, 3);
-		m.setValueAt("終了日", row, 4);
-		columns.setWidth(0, 32);
-		columns.setWidth(1, 32);
-		columns.setWidth(2, 160);
-		columns.setWidth(3, 64);
-		columns.setWidth(4, 64);
+		
+		for(int i = 0; i < columns.getCount(); i++) {
+			if(i < columnWidth.length) {
+				columns.setWidth(i, columnWidth[i]);
+			}
+			else {
+				columns.setWidth(i, getDefaultColumnWidth());
+			}
+		}
 	}
 
 	public GanttChartModel getGanttChartModel() {

@@ -267,5 +267,4 @@ public class GridUI extends ComponentUI {
     	ActionMap map = getActionMap();
         SwingUtilities.replaceUIActionMap(grid, map);
     }
-
 }

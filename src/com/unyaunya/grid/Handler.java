@@ -248,4 +248,21 @@ public class Handler extends MouseInputAdapter {
 			grid.getGridSelectionModel().onMouseDragged(e);
 		}
 	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if(e.getButton() != MouseEvent.BUTTON1) {
+			return;
+		}
+		if(e.getClickCount() != 2) {
+			return;
+		}
+		Point pt = e.getPoint();
+		int row = grid.rowAtPoint(pt);
+		int col = grid.columnAtPoint(pt);
+		if(!grid.getGridModel().getTableModel().isCellEditable(row, col)) {
+			return;
+		}
+		grid.getEditorHandler().editCellAt(row, col);
+	}
 }

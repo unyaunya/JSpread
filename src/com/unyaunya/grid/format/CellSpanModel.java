@@ -55,11 +55,15 @@ public class CellSpanModel implements TableModelListener, Serializable {
     	return (range != null) ? range : new CellRange(row, column); 
     }
 
-	public void coupleCells(CellRange range) {
+	public void add(CellRange range) {
+		cellSpanList.add(range);
+	}
+	
+    public void coupleCells(CellRange range) {
 		//
 		IRange r = this.getCellRangeOld(range.getTop(), range.getLeft());  
 		if(r == null) {
-			cellSpanList.add(range);
+			add(range);
 		}
 		else {
 			cellSpanList.remove(r);

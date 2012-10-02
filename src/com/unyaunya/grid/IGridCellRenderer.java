@@ -15,4 +15,5 @@ public interface IGridCellRenderer {
 	public void setBackground(Color color);
 	public void setHorizontalAlignment(int alignment);
 	public void setVerticalAlignment(int verticalAlignment);
+	public void setDateFormat(String pattern);
 }

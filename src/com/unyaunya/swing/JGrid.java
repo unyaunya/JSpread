@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
+import java.text.Format;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
@@ -27,6 +28,7 @@ import com.unyaunya.grid.Rows;
 import com.unyaunya.grid.ScrollModel;
 import com.unyaunya.grid.action.Actions;
 import com.unyaunya.grid.editor.EditorHandler;
+import com.unyaunya.grid.editor.IGridCellEditor;
 import com.unyaunya.grid.format.GridBorder;
 import com.unyaunya.grid.selection.DefaultSelectionModel;
 import com.unyaunya.grid.selection.IGridSelectionModel;
@@ -51,8 +53,8 @@ public class JGrid extends JComponent implements TableModelListener {
 	protected Color selectionBackground = DEFAULT_SELECTION_BACKGROUND_COLOR;
 	protected Color selectionForeground = DEFAULT_FOREGROUND_COLOR;
 
-	protected static IGridCellRenderer defaultCellRenderer = new DefaultCellRenderer();
-	protected EditorHandler editorHandler;
+	private IGridCellRenderer cellRenderer;
+	private EditorHandler editorHandler;
 	
 	private IGridModel gridModel;
 	private IGridSelectionModel selectionModel;
@@ -125,6 +127,7 @@ public class JGrid extends JComponent implements TableModelListener {
 		this.rows = new Rows(getScrollModel());
         this.actions = new Actions(this);
     	this.editorHandler = new EditorHandler(this);
+    	setCellRenderer(new DefaultCellRenderer());
 		setUI(new GridUI());
 		init(model);
 	}
@@ -143,6 +146,10 @@ public class JGrid extends JComponent implements TableModelListener {
 		this.addMouseMotionListener(getHandler());
 	}
 
+	protected void setCellRenderer(IGridCellRenderer cellRenderer) {
+		this.cellRenderer = cellRenderer; 
+	}
+
 	public EditorHandler getEditorHandler() {
 		return editorHandler;
 	}
@@ -155,6 +162,10 @@ public class JGrid extends JComponent implements TableModelListener {
 	 */
 	protected ScrollModel createScrollModel() {
 		return new ScrollModel(this, getColumnHeaderHeight(), getRowHeaderWidth());
+	}
+
+	public void setCellEditor(IGridCellEditor cellEditor) {
+		getEditorHandler().setCellEditor(cellEditor);
 	}
 
 	/**
@@ -231,7 +242,7 @@ public class JGrid extends JComponent implements TableModelListener {
 	 * methods implementing to paint
 	 */
 	public IGridCellRenderer getCellRenderer(int row, int column) {
-		return defaultCellRenderer;
+		return cellRenderer;
     }
 
 	private String getRowName(int row) {
@@ -287,6 +298,12 @@ public class JGrid extends JComponent implements TableModelListener {
 			horizontalAlignment = cell.getHorizontalAlignment();
 			verticalAlignment = cell.getVerticalAlignment();
 			value = cell.getValue();
+			if(value != null) {
+				Format f = getGridModel().getCellFormatModel().getFormat(row, col);
+				if(f != null) {
+					value = f.format(value);
+				}
+			}
 		}
 		if(isSelected) {
 			backgroundColor = this.getSelectionBackground();
@@ -296,8 +313,7 @@ public class JGrid extends JComponent implements TableModelListener {
 		renderer.setBackground(backgroundColor);
 		renderer.setHorizontalAlignment(horizontalAlignment);
 		renderer.setVerticalAlignment(verticalAlignment);
-		Component c = renderer.getGridCellRendererComponent(this, value, isSelected, hasFocus, row, col);
-		return c;
+		return renderer.getGridCellRendererComponent(this, value, isSelected, hasFocus, row, col);
 	}
 
 	/*

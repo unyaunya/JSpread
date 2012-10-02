@@ -2,6 +2,7 @@ package com.unyaunya.grid.format;
 
 import java.awt.Color;
 import java.io.Serializable;
+import java.text.Format;
 import java.util.ArrayList;
 
 import javax.swing.SwingConstants;
@@ -25,6 +26,7 @@ public class CellFormatModel implements TableModelListener, Serializable {
 	private ArrayList<IRange> borderList;
 	private ArrayList<IRange> horizontalAlignmentList;
 	private ArrayList<IRange> verticalAlignmentList;
+	private ArrayList<IRange> formatList;
 
 	/**
 	 * コンストラクタ
@@ -35,6 +37,7 @@ public class CellFormatModel implements TableModelListener, Serializable {
 		 borderList = new ArrayList<IRange>();
 		 horizontalAlignmentList = new ArrayList<IRange>();
 		 verticalAlignmentList = new ArrayList<IRange>();
+		 formatList = new ArrayList<IRange>();
 	}
 
 	/**
@@ -55,6 +58,9 @@ public class CellFormatModel implements TableModelListener, Serializable {
 	public ArrayList<IRange> getVerticalAlignmentList() {
 		return verticalAlignmentList;
 	}
+	public ArrayList<IRange> getFormatList() {
+		return formatList;
+	}
 	
 	public void addBackgroundColor(RangedColor rangedColor) {
 		backgroundColorList.add(0, rangedColor);
@@ -71,6 +77,9 @@ public class CellFormatModel implements TableModelListener, Serializable {
 	public void addVerticalAlignment(RangedInteger rangedInteger) {
 		verticalAlignmentList.add(0, rangedInteger);
 	}
+	public void addFormat(RangedFormat rangedFormat) {
+		formatList.add(0, rangedFormat);
+	}
 
 	public Color getBackgroundColor(int row, int col) {
 		RangedColor rc = (RangedColor)RangeUtil.getRange(backgroundColorList, row, col);
@@ -85,6 +94,11 @@ public class CellFormatModel implements TableModelListener, Serializable {
 	public Border getBorder(int row, int col) {
 		RangedBorder rc = (RangedBorder)RangeUtil.getRange(borderList, row, col);
 		return (rc != null) ? rc.getBorder() : null;
+	}
+
+	public Format getFormat(int row, int col) {
+		RangedFormat rc = (RangedFormat)RangeUtil.getRange(formatList, row, col);
+		return (rc != null) ? rc.getFormat() : null;
 	}
 
 	public int getHorizontalAlignment(int row, int col) {
@@ -112,6 +126,6 @@ public class CellFormatModel implements TableModelListener, Serializable {
 		RangeUtil.tableChanged(borderList, e);
 		RangeUtil.tableChanged(horizontalAlignmentList, e);
 		RangeUtil.tableChanged(verticalAlignmentList, e);
+		RangeUtil.tableChanged(formatList, e);
 	}
-	
 }

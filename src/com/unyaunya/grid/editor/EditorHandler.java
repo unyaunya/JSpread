@@ -32,28 +32,28 @@ public class EditorHandler implements CellEditorListener  {
     	this.defaultCellEditor = new DefaultCellEditor(grid);
 	}
 
-	public int getEditingRow() {
+	private int getEditingRow() {
 		return editingRow;
 	}
-	public int getEditingColumn() {
+	private int getEditingColumn() {
 		return editingColumn;
 	}
-	public void setEditingRow(int row) {
+	private void setEditingRow(int row) {
 		editingRow = row;
 	}
-	public void setEditingColumn(int column) {
+	private void setEditingColumn(int column) {
 		editingColumn = column;
 	}
 
-	public Component getEditorComponent() {
+	private Component getEditorComponent() {
 		return editorComponent;
 	}
 
-	public void setEditorComponent(Component c) {
+	private void setEditorComponent(Component c) {
 		this.editorComponent = c;
 	}
 
-	public IGridCellEditor getDefaultCellEditor() {
+	private IGridCellEditor getDefaultCellEditor() {
 		return defaultCellEditor;
 	}
 
@@ -61,7 +61,7 @@ public class EditorHandler implements CellEditorListener  {
 	 * Returns the active cell editor 
 	 * @return
 	 */
-	public IGridCellEditor getCellEditor() {
+	private IGridCellEditor getCellEditor() {
 		return cellEditor;
 	}
 
@@ -69,7 +69,7 @@ public class EditorHandler implements CellEditorListener  {
 		this.cellEditor = cellEditor;
 	}
 
-	public IGridCellEditor getCellEditor(int row, int col) {
+	private IGridCellEditor getCellEditor(int row, int col) {
 		IGridCellEditor editor = getCellEditor();
 		if(editor == null) {
 			editor = getDefaultCellEditor();
@@ -77,7 +77,7 @@ public class EditorHandler implements CellEditorListener  {
 		return editor;
 	}
 
-	public Component prepareEditor(IGridCellEditor editor, int row, int column) {
+	private Component prepareEditor(IGridCellEditor editor, int row, int column) {
 		Object value = grid.getGridModel().getValueAt(row, column);
 		boolean hasFocus = grid.getGridSelectionModel().hasFocus(row, column);
 		Component comp = editor.getCellEditorComponent(grid, value, hasFocus, row, column);
@@ -91,7 +91,7 @@ public class EditorHandler implements CellEditorListener  {
 		return comp;
 	}
 
-	public void removeEditor() {
+	private void removeEditor() {
 		IGridCellEditor editor = getCellEditor();
 		if(editor != null) {
 			editor.removeCellEditorListener(this);
@@ -108,7 +108,7 @@ public class EditorHandler implements CellEditorListener  {
 		}
 	}
 
-	private boolean editCellAt(int row, int column){
+	public boolean editCellAt(int row, int column){
 		if (row < 0 || row >= grid.getRows().getCount() || column < 0 || column >= grid.getColumns().getCount()) {
 			return false;
 		}
@@ -120,6 +120,9 @@ public class EditorHandler implements CellEditorListener  {
 		}
 		int top = range.getTop();
 		int left = range.getLeft();
+		if(!grid.getGridModel().getTableModel().isCellEditable(top, left)) {
+			return false;
+		}
 		IGridCellEditor editor = getCellEditor(top, left);
 		setEditorComponent(prepareEditor(editor, top, left));
 		getEditorComponent().setBounds(grid.getRangeRect(range));

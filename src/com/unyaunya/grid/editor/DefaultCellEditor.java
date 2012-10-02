@@ -6,6 +6,7 @@ package com.unyaunya.grid.editor;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.text.Format;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -13,6 +14,7 @@ import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
@@ -32,7 +34,7 @@ public class DefaultCellEditor extends javax.swing.DefaultCellEditor implements
 	 * 
 	 */
 	public DefaultCellEditor(JGrid spread) {
-		super(new JTextField());
+		super(new JFormattedTextField());
 		//clickCountToStart = 2;
 		JComponent c = (JComponent)getComponent();
 		String key;
@@ -83,7 +85,7 @@ public class DefaultCellEditor extends javax.swing.DefaultCellEditor implements
         		editorComponent.setOpaque(true);
         		editorComponent.setBackground(c.getBackground());
         		if (c instanceof JComponent) {
-        				editorComponent.setBorder(((JComponent)c).getBorder());
+        			editorComponent.setBorder(((JComponent)c).getBorder());
         		}
         	}
         	else {
@@ -91,7 +93,15 @@ public class DefaultCellEditor extends javax.swing.DefaultCellEditor implements
         	}
         }
         else if (editorComponent instanceof JTextField) {
-    		((JTextField)editorComponent).selectAll();
+        	JTextField textField = (JTextField)editorComponent;
+        	if(value != null) {
+        		Format f = grid.getGridModel().getCellFormatModel().getFormat(row, column);
+        		if(f != null) {
+        			value = f.format(value);
+        		}
+        		textField.setText(value.toString());
+            	textField.selectAll();
+        	}
         }
         return editorComponent;	
 	}

@@ -83,4 +83,10 @@ public interface ICell {
 	 * @return
 	 */
 	public IRange getRange();
+
+	/**
+	 * ƒZƒ‹‚Ì•‚ğæ“¾‚·‚éB
+	 * @param width
+	 */
+	//public void setWidth(int width);
 }

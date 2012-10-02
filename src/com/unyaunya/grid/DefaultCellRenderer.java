@@ -8,7 +8,6 @@ import java.awt.Component;
 import javax.swing.JLabel;
 
 import com.unyaunya.swing.JGrid;
-import com.unyaunya.swing.JSpread;
 
 /**
  * @author wata
@@ -16,6 +15,8 @@ import com.unyaunya.swing.JSpread;
  */
 @SuppressWarnings("serial")
 public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
+	private String dateFormat = "YYYY/MM/dd";
+
 	public DefaultCellRenderer() {
     	super();
     	setOpaque(true);
@@ -26,17 +27,22 @@ public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
 	 */
 	@Override
 	public Component getGridCellRendererComponent(JGrid grid, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-		JSpread spread = (JSpread)grid;
 		if(value == null) {
 			value = "";
 		}
 		setText(value.toString());
 		if(isSelected) {
-			super.setForeground(spread.getSelectionForeground());
+			super.setForeground(grid.getSelectionForeground());
 		}
 		else {
 			
 		}
 		return this;
+	}
+
+	public void setDateFormat(String pattern) {
+		if(!dateFormat.equals(pattern)) {
+			dateFormat = pattern;
+		}
 	}
 }
