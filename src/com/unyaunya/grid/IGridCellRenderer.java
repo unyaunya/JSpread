@@ -2,6 +2,7 @@ package com.unyaunya.grid;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.text.Format;
 
 import javax.swing.border.Border;
 
@@ -15,5 +16,6 @@ public interface IGridCellRenderer {
 	public void setBackground(Color color);
 	public void setHorizontalAlignment(int alignment);
 	public void setVerticalAlignment(int verticalAlignment);
-	public void setDateFormat(String pattern);
+	public void setFormat(Format format);
+	public Format getFormat();
 }

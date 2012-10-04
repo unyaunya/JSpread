@@ -4,6 +4,7 @@
 package com.unyaunya.grid;
 
 import java.awt.Component;
+import java.text.Format;
 
 import javax.swing.JLabel;
 
@@ -15,7 +16,7 @@ import com.unyaunya.swing.JGrid;
  */
 @SuppressWarnings("serial")
 public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
-	private String dateFormat = "YYYY/MM/dd";
+	private Format format;
 
 	public DefaultCellRenderer() {
     	super();
@@ -40,9 +41,13 @@ public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
 		return this;
 	}
 
-	public void setDateFormat(String pattern) {
-		if(!dateFormat.equals(pattern)) {
-			dateFormat = pattern;
-		}
+	@Override
+	public void setFormat(Format format) {
+		this.format = format;
+	}
+	
+	@Override
+	public Format getFormat() {
+		return format;
 	}
 }

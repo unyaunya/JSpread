@@ -36,7 +36,7 @@ public class Task {
 	 * デフォルトコンストラクタ
 	 */
 	public Task() {
-		this("", null, new Date());
+		this("", new Date(), new Date(112,9,23));
 	}
 
 	public Task(String name, Date start, Date end) {

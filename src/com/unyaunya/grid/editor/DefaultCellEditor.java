@@ -15,7 +15,6 @@ import javax.swing.InputMap;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 
@@ -33,8 +32,8 @@ public class DefaultCellEditor extends javax.swing.DefaultCellEditor implements
 	/**
 	 * 
 	 */
-	public DefaultCellEditor(JGrid spread) {
-		super(new JFormattedTextField());
+	public DefaultCellEditor(JGrid grid) {
+		super(new JFormattedTextField(new GridFormatterFactory(grid)));
 		//clickCountToStart = 2;
 		JComponent c = (JComponent)getComponent();
 		String key;
@@ -50,11 +49,11 @@ public class DefaultCellEditor extends javax.swing.DefaultCellEditor implements
 		registerKeyAction(c,KeyEvent.VK_ESCAPE, editCancelAction);
 
 		//セル移動のアクションを、登録する。
-		ActionMap actionMap = spread.getActions().getActionMap();
+		ActionMap actionMap = grid.getActions().getActionMap();
 		for(Object i : actionMap.keys()) {
 			c.getActionMap().put(i, actionMap.get(i));
 		}
-		InputMap inputMap = spread.getActions().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		InputMap inputMap = grid.getActions().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 		for(KeyStroke i : inputMap.keys()) {
 			c.getInputMap().put(i, inputMap.get(i));
 			//VK_ENTERは、VK_DOWNと同じアクションを実行する。
@@ -92,12 +91,13 @@ public class DefaultCellEditor extends javax.swing.DefaultCellEditor implements
         		editorComponent.setOpaque(false);
         	}
         }
-        else if (editorComponent instanceof JTextField) {
-        	JTextField textField = (JTextField)editorComponent;
+        else if (editorComponent instanceof JFormattedTextField) {
+        	JFormattedTextField textField = (JFormattedTextField)editorComponent;
         	if(value != null) {
         		Format f = grid.getGridModel().getCellFormatModel().getFormat(row, column);
         		if(f != null) {
         			value = f.format(value);
+        			//textField.setFormatter(f);
         		}
         		textField.setText(value.toString());
             	textField.selectAll();
