@@ -19,7 +19,8 @@ import com.unyaunya.swing.JGrid;
  *
  */
 public class DefaultSelectionModel extends AbstractSelectionModel {
-    private static final Logger LOG = Logger.getLogger(DefaultSelectionModel.class.getName());
+    @SuppressWarnings("unused")
+	private static final Logger LOG = Logger.getLogger(DefaultSelectionModel.class.getName());
 	
     /**
      * マウス、キーボードにより、直接操作されるセル範囲。
@@ -37,7 +38,7 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	 */
 	public DefaultSelectionModel(JGrid grid) {
 		super(grid);
-		this.tailCell = new CellPosition();
+		this.tailCell = new CellPosition(getMinimumFocusedRow(), getMinimumFocusedColumn());
 		clear();
 	}
 
@@ -55,6 +56,8 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	 * 指定したセルをテールセルにする。リードセルは移動しない。
 	 */
 	private void setTailCell(int row, int column) {
+		row = Math.max(getMinimumFocusedRow(), row);
+		column = Math.max(getMinimumFocusedColumn(), column);
 		tailCell.set(row, column);
 		adjustCurrentRange();
 	}
@@ -68,10 +71,10 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	 * focusCell, tailCellの値に応じて、curentRangeの範囲を調整する。
 	 */
 	private void adjustCurrentRange() {
-		int top = Math.min(getFocusCell().getRow(), tailCell.getRow());
-		int bottom = Math.max(getFocusCell().getRow(), tailCell.getRow());
-		int left = Math.min(getFocusCell().getColumn(), tailCell.getColumn());
-		int right = Math.max(getFocusCell().getColumn(), tailCell.getColumn());
+		int top = Math.min(getFocusedRow(), tailCell.getRow());
+		int bottom = Math.max(getFocusedRow(), tailCell.getRow());
+		int left = Math.min(getFocusedColumn(), tailCell.getColumn());
+		int right = Math.max(getFocusedColumn(), tailCell.getColumn());
 		int t = top;
 		int b = bottom;
 		int l = left;
@@ -124,9 +127,21 @@ public class DefaultSelectionModel extends AbstractSelectionModel {
 	}
 
 	@Override
-	protected void focus(int row, int column) {
-		LOG.info("focus("+row+","+column+")");
-		getFocusCell().set(row, column);
+	public void focus(int row, int column) {
+		super.focus(row, column);
 		adjustCurrentRange();
 	}
+
+	@Override
+	public void setMinimumFocusedRow(int row) {
+		super.setMinimumFocusedRow(row);
+		tailCell.setRow(Math.max(tailCell.getRow(), getMinimumFocusedRow()));
+	}
+
+	@Override
+	public void setMinimumFocusedColumn(int column) {
+		super.setMinimumFocusedColumn(column);
+		tailCell.setColumn(Math.max(tailCell.getColumn(), getMinimumFocusedColumn()));
+	}
+	
 }

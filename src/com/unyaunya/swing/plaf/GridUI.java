@@ -3,6 +3,7 @@ package com.unyaunya.swing.plaf;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.logging.Logger;
@@ -68,34 +69,7 @@ public class GridUI extends ComponentUI {
     	return getPreferredSize(c);
     }
  
-    /**
-     * コンポーネントの描画を行う
-     * 
-     * 描画領域全体を、列方向、行方向それぞれに、固定部分とスクロール部分で
-     * 分割し、４つの象限を設定し、各象限ごとに描画を行う。
-     */
-    public void paint(Graphics g, JComponent c) {
-		LOG.info("paint():start");
-		JGrid gs = (JGrid)c;
-		ScrollModel sm = gs.getScrollModel();
-
-		LOG.info("row="+sm.getRowCount());
-		LOG.info("col="+sm.getColumnCount());
-		/*if (sm.getRowCount() <= 0 || sm.getColumnCount() <= 0) {
-			LOG.info("行数または列数が0のため、描画をスキップした");
-			return;
-		}*/
-		Rectangle clip = g.getClipBounds();
-		Rectangle bounds = gs.getBounds();
-		bounds.x = bounds.y = 0;
-		if (!bounds.intersects(clip)) {
-            // this check prevents us from painting the entire table
-            // when the clip doesn't intersect our bounds at all
-			LOG.info("\tbounds:"+bounds);
-			LOG.info("\tclip:"+clip);
-			LOG.info("クリッピング領域との交差がないため、描画をスキップした");
-			return;
-		}
+    private void paintGrid(Graphics g, ScrollModel sm, Rectangle bounds) {
 		int fixedRowSize = sm.getFixedAreaHight();
 		int fixedColumnSize = sm.getFixedAreaWidth();
 		int scrollRowSize = sm.getScrollAreaHeight();
@@ -123,9 +97,42 @@ public class GridUI extends ComponentUI {
 			g.drawLine(x, bounds.y, x, bounds.y + bounds.height);
 		}
 		LOG.info("paint():end");
+    }
+    
+    /**
+     * コンポーネントの描画を行う
+     * 
+     * 描画領域全体を、列方向、行方向それぞれに、固定部分とスクロール部分で
+     * 分割し、４つの象限を設定し、各象限ごとに描画を行う。
+     */
+    public void paint(Graphics g, JComponent c) {
+		LOG.info("paint():start");
+		JGrid grid = (JGrid)c;
+		ScrollModel sm = grid.getScrollModel();
+		LOG.info("row="+sm.getRowCount());
+		LOG.info("col="+sm.getColumnCount());
+		/*if (sm.getRowCount() <= 0 || sm.getColumnCount() <= 0) {
+			LOG.info("行数または列数が0のため、描画をスキップした");
+			return;
+		}*/
+		Rectangle clip = g.getClipBounds();
+		Rectangle bounds = grid.getBounds();
+		bounds.x = bounds.y = 0;
+		if (!bounds.intersects(clip)) {
+            // this check prevents us from painting the entire table
+            // when the clip doesn't intersect our bounds at all
+			LOG.info("\tbounds:"+bounds);
+			LOG.info("\tclip:"+clip);
+			LOG.info("クリッピング領域との交差がないため、描画をスキップした");
+			return;
+		}
+		Graphics2D g2d = (Graphics2D)g;
+		grid.paintBackground(g2d);
+		paintGrid(g2d, sm, bounds);
+		grid.paintForeground(g2d);
 	}
 
-    /**
+	/**
      * paintメソッドが設定した象限一つの描画を担当する。
      * 
      * @param scrollModel

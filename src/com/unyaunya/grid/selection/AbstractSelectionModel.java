@@ -18,6 +18,9 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 
     private JGrid grid;
 
+	private int minimumFocusedRow;
+	private int minimumFocusedColumn;
+
 	/**
 	 * currentRangeの角であり、anchorCellの対角となるセル位置。
 	 * 入力コンポーネントが配置されるセル位置でもある。 
@@ -38,7 +41,7 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 	public AbstractSelectionModel(JGrid grid) {
 		assert(grid != null);
 		this.grid = grid;
-		this.focusCell = new CellPosition();
+		this.focusCell = new CellPosition(getMinimumFocusedRow(), getMinimumFocusedColumn());
 		this.selectedRangeList = new ArrayList<IRange>();
 	}
 
@@ -55,7 +58,7 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 		getGrid().repaint();
 	}
 
-	protected CellPosition getFocusCell() {
+	private CellPosition getFocusCell() {
 		return focusCell;
 	}
 
@@ -69,6 +72,31 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 		return Math.max(0, getFocusCell().getRow());
 	}
 
+	//
+	//セレクション範囲の制限
+	//
+	@Override
+	public int getMinimumFocusedRow() {
+		return minimumFocusedRow;
+	}
+
+	@Override
+	public int getMinimumFocusedColumn() {
+		return minimumFocusedColumn;
+	}
+
+	@Override
+	public void setMinimumFocusedRow(int row) {
+		minimumFocusedRow = row;
+		getFocusCell().setRow(Math.max(getFocusCell().getRow(), minimumFocusedRow));
+	}
+
+	@Override
+	public void setMinimumFocusedColumn(int column) {
+		minimumFocusedColumn = column;
+		getFocusCell().setColumn(Math.max(getFocusCell().getColumn(), minimumFocusedColumn));
+	}
+	
 	@Override
 	public boolean hasFocus(int row, int col) {
 		IRange range = getGrid().getCellRange(row, col);
@@ -94,7 +122,12 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 		controlDown = value;
 	}
 
-	abstract protected void focus(int row, int column);
+	public void focus(int row, int column) {
+		LOG.info("focus("+row+","+column+")");
+		row = Math.max(0, Math.max(getMinimumFocusedRow(), row));
+		column = Math.max(0, Math.max(getMinimumFocusedColumn(), column));
+		getFocusCell().set(row, column);
+	}
 
 	@Override
 	public boolean isSelected(int rowIndex, int columnIndex) {

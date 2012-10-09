@@ -20,6 +20,10 @@ public class GanttChart extends JGridPane {
 		super(new JSpread());
 		getGrid().setGridModel(new GanttChartModel());
 		getGrid().setCellEditor(new GanttCellEditor(getGrid()));
+		int headerRowCount = getGanttChartModel().getGanttTableModel().getHeaderRowCount();
+		getGrid().getGridSelectionModel().setMinimumFocusedRow(headerRowCount);
+		getGrid().getGridSelectionModel().focus(headerRowCount, 0);
+		
 		getSpread().getConfig().setRowInsertionSuppoorted(true);
 		
 		init();

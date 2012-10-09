@@ -21,7 +21,7 @@ public class GanttChartModel extends GridModel {
 		initHeader();
 	}
 
-	private GanttTableModel getGanttTableModel() {
+	public GanttTableModel getGanttTableModel() {
 		return (GanttTableModel)getTableModel();
 	}
 	private GanttDocument getGanttDocument() {

@@ -1,12 +1,15 @@
 package com.unyaunya.gantt;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.swing.table.AbstractTableModel;
 
 @SuppressWarnings("serial")
 public class GanttTableModel extends AbstractTableModel {
+    private static final Logger LOG = Logger.getLogger(GanttTableModel.class.getName());
 	private int headerRowCount;
 	private GanttDocument document;
 	
@@ -99,6 +102,7 @@ public class GanttTableModel extends AbstractTableModel {
 			task = new Task();
 			getDocument().getTasks().set(row - getHeaderRowCount(), task);
 		}
+		Date date;
 		switch(col) {
 		case 0:
 		case 1:
@@ -107,10 +111,20 @@ public class GanttTableModel extends AbstractTableModel {
 			task.setName(value == null ? "NULL" : value.toString());
 			break;
 		case 3:
-			//task().setStartDate(value);
+			LOG.info(value.toString());
+			LOG.info(value.getClass().toString());
+			date = CalendarUtil.toDate(value);
+			if(date != null) {
+				task.setStartDate(date);
+			}
 			break;
 		case 4:
-			//task().setEndDate(value);
+			LOG.info(value.toString());
+			LOG.info(value.getClass().toString());
+			date = CalendarUtil.toDate(value);
+			if(date != null) {
+				task.setEndDate(date);
+			}
 			break;
 		}
 	}

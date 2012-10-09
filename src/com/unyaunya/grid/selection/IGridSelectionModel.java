@@ -22,6 +22,14 @@ public interface IGridSelectionModel extends KeyListener, TableModelListener {
 	public ArrayList<IRange> getSelectedRangeList();
 
 	//
+	//セレクション範囲の制限
+	//
+	public int getMinimumFocusedRow();
+	public int getMinimumFocusedColumn();
+	public void setMinimumFocusedRow(int row);
+	public void setMinimumFocusedColumn(int column);
+
+	//
 	//セレクション操作
 	//
 
@@ -29,6 +37,8 @@ public interface IGridSelectionModel extends KeyListener, TableModelListener {
 	 * 選択をリセットして、デフォルト状態に戻す。
 	 */
 	public void clear();
+
+	public void focus(int row, int column);
 
 	/**
 	 * 指定したセルを選択する。(リードセル、テールセルは同じセルを指す。)

@@ -2,10 +2,13 @@ package com.unyaunya.swing;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.KeyEvent;
 import java.text.Format;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
@@ -32,6 +35,7 @@ import com.unyaunya.grid.editor.IGridCellEditor;
 import com.unyaunya.grid.format.GridBorder;
 import com.unyaunya.grid.selection.DefaultSelectionModel;
 import com.unyaunya.grid.selection.IGridSelectionModel;
+import com.unyaunya.grid.shape.ShapeList;
 import com.unyaunya.swing.plaf.GridUI;
 
 /**
@@ -58,6 +62,7 @@ public class JGrid extends JComponent implements TableModelListener {
 	
 	private IGridModel gridModel;
 	private IGridSelectionModel selectionModel;
+	private ShapeList shapeList;
 	private Handler handler;
 	
 	transient private ScrollModel scrollModel;
@@ -116,17 +121,20 @@ public class JGrid extends JComponent implements TableModelListener {
     /**
 	 * default constructor
 	 */
-	public JGrid() {
-		this(null);
-	}
+	//public JGrid() {
+	//	this(null);
+	//}
 
 	public JGrid(IGridModel model) {
 		this.setFocusable(true);
+		assert(model != null);
+		this.gridModel = model;
 		this.scrollModel = createScrollModel();
 		this.columns = new Columns(getScrollModel());
 		this.rows = new Rows(getScrollModel());
         this.actions = new Actions(this);
     	this.editorHandler = new EditorHandler(this);
+    	this.shapeList = new ShapeList();
     	setCellRenderer(new DefaultCellRenderer());
 		setUI(new GridUI());
 		init(model);
@@ -148,6 +156,10 @@ public class JGrid extends JComponent implements TableModelListener {
 
 	protected void setCellRenderer(IGridCellRenderer cellRenderer) {
 		this.cellRenderer = cellRenderer; 
+	}
+
+	public ShapeList getShapeList() {
+		return shapeList;
 	}
 
 	public EditorHandler getEditorHandler() {
@@ -314,6 +326,27 @@ public class JGrid extends JComponent implements TableModelListener {
 		renderer.setHorizontalAlignment(horizontalAlignment);
 		renderer.setVerticalAlignment(verticalAlignment);
 		return renderer.getGridCellRendererComponent(this, value, isSelected, hasFocus, row, col);
+	}
+
+	/**
+	 * 
+	 */
+	public void paintBackground(Graphics2D g2d) {
+		
+	}
+	
+	/**
+	 * 
+	 */
+	public void paintForeground(Graphics2D g2d) {
+		paintShapes(g2d);
+	}
+
+    protected void paintShapes(Graphics2D g) {
+    	List<Shape> shapes = this.getShapeList().getShapeList();
+    	for(Shape s: shapes) {
+    		g.draw(s);
+    	}
 	}
 
 	/*
