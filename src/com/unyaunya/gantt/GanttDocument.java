@@ -2,6 +2,7 @@ package com.unyaunya.gantt;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -17,9 +18,9 @@ public class GanttDocument {
 	public static Task NULL = new NullTask();
 	
 	@XmlElement
-	private Calendar startDate;
+	private Date startDate;
 	@XmlElement
-	private Calendar endDate;
+	private Date endDate;
 	
 	@XmlElement
 	protected List<Task> tasks;
@@ -31,8 +32,8 @@ public class GanttDocument {
 		Calendar end = CalendarUtil.today();
 		Calendar start = (Calendar)end.clone();
 		end.add(Calendar.DATE, 180);
-		setStartDate(start);
-		setEndDate(end);
+		setStartDate(start.getTime());
+		setEndDate(end.getTime());
 		tasks = new ArrayList<Task>();
 	}
 	/**
@@ -61,20 +62,20 @@ public class GanttDocument {
 		tasks.add(task);
 	}
 
-	public Calendar getStartDate() {
+	public Date getStartDate() {
 		return this.startDate;
 	}
 
-	public Calendar getEndDate() {
+	public Date getEndDate() {
 		return this.endDate;
 	}
 	
-	public void setStartDate(Calendar date) {
-		this.startDate = date;
+	public void setStartDate(Date date) {
+		this.startDate = new Date(date.getTime());
 	}
 
-	public void setEndDate(Calendar date) {
-		this.endDate = date;
+	public void setEndDate(Date date) {
+		this.endDate = new Date(date.getTime());
 	}
 
 	public int getColumnCount() {

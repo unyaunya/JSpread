@@ -155,61 +155,51 @@ public class EditorHandler implements CellEditorListener  {
 	}
 	
 	public boolean onProcessKeyBinding(
-			boolean retValue,
 			KeyStroke ks,
             KeyEvent e,
-            int condition,
             boolean pressed){
+		LOG.info("onProcessKeyBinding():start");
 		if(isProcessingKeyboardEvent) {
+			LOG.info("isProcessingKeyboardEvent=true");
 			return false;
 		}
-		if (retValue) {
-			return true;
-		}
-		if (condition != JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT || !grid.isFocusOwner()) {
-			return false;
-		}
-		{
-			Component editorComponent = getEditorComponent();
-			if(editorComponent == null) {
-				// Only attempt to install the editor on a KEY_PRESSED,
-				if (e == null || e.getID() != KeyEvent.KEY_PRESSED) {
-					return false;
-				}
-				// Don't start when just a modifier is pressed
-				int code = e.getKeyCode();
-				if (code == KeyEvent.VK_SHIFT || code == KeyEvent.VK_CONTROL || code == KeyEvent.VK_ALT) {
-					return false;
-				}
-				// Try to install the editor
-				
-				//int leadRow = getSelectionModel().getLeadSelectionIndex();
-				//int leadColumn = getColumnModel().getSelectionModel().getLeadSelectionIndex();
-				//if (leadRow != -1 && leadColumn != -1 && !isEditing()) {
-				int row = grid.getGridSelectionModel().getFocusedRow();
-				int col = grid.getGridSelectionModel().getFocusedColumn();
-				//CellPosition cell = getEffectiveCell(row, col);
-				if (!editCellAt(row, col)) {
-					return false;
-				}
-				editorComponent = getEditorComponent();
-				if (editorComponent == null) {
-					return false;
-				}
+
+		Component editorComponent = getEditorComponent();
+		//install editorComponent
+		if(editorComponent == null) {
+			// Only attempt to install the editor on a KEY_PRESSED,
+			if (e == null || e.getID() != KeyEvent.KEY_PRESSED) {
+				return false;
 			}
-			if ((editorComponent instanceof JComponent) && ((e.getModifiers() & InputEvent.ALT_MASK) == 0)) {
-				//retValue = ((JComponent)editorComponent).processKeyBinding(ks, e, WHEN_FOCUSED, pressed);
-				KeyEvent ke = new KeyEvent(editorComponent, e.getID(), e.getWhen(), e.getModifiers(), e.getKeyCode(), e.getKeyChar(), e.getKeyLocation());
-				isProcessingKeyboardEvent = true;
-				LOG.info("editorComponent.dispatchEvent(ke):start");
-				editorComponent.dispatchEvent(ke);
-				LOG.info("editorComponent.dispatchEvent(ke):end");
-				isProcessingKeyboardEvent = false;
-				retValue = true;
-				//if (getSurrendersFocusOnKeystroke()) {
-				editorComponent.requestFocus();
-				//}
+			// Don't start when just a modifier is pressed
+			int code = e.getKeyCode();
+			if (code == KeyEvent.VK_SHIFT || code == KeyEvent.VK_CONTROL || code == KeyEvent.VK_ALT) {
+				return false;
 			}
+			// Try to install the editor
+			int row = grid.getGridSelectionModel().getFocusedRow();
+			int col = grid.getGridSelectionModel().getFocusedColumn();
+			//TODO:editorCellAtでコンポーネントが表示される位置がおかしい
+			if (!editCellAt(row, col)) {
+				return false;
+			}
+			editorComponent = getEditorComponent();
+			if (editorComponent == null) {
+				return false;
+			}
+		}
+		if ((editorComponent instanceof JComponent) && ((e.getModifiers() & InputEvent.ALT_MASK) == 0)) {
+			boolean retValue = true;
+			//retValue = ((JComponent)editorComponent).processKeyBinding(ks, e, WHEN_FOCUSED, pressed);
+			KeyEvent ke = new KeyEvent(editorComponent, e.getID(), e.getWhen(), e.getModifiers(), e.getKeyCode(), e.getKeyChar(), e.getKeyLocation());
+			isProcessingKeyboardEvent = true;
+			LOG.info("editorComponent.dispatchEvent(ke):start");
+			editorComponent.dispatchEvent(ke);
+			LOG.info("editorComponent.dispatchEvent(ke):end");
+			isProcessingKeyboardEvent = false;
+			//if (getSurrendersFocusOnKeystroke()) {
+			editorComponent.requestFocus();
+			//}
 		}
 		return false;
 	}

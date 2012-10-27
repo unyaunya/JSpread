@@ -172,6 +172,7 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	public int getRowPosition(int rowIndex) {
 		return rowRangeModel.getPosition(rowIndex);
 	}
+
 	public int getDefaultRowHeight() {
 		return rowRangeModel.getDefaultSize();
 	}
@@ -198,6 +199,7 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	public int getColumnWidth(int columnIndex) {
 		return colRangeModel.getSize(columnIndex);
 	}
+
 	public void setColumnWidth(int colIndex, int width) {
 		colRangeModel.setSize(colIndex, width);
 	}
@@ -205,9 +207,15 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	public int rowAtPoint(Point pt) {
 		return rowRangeModel.getIndexFromCC(pt.y);
 	}
+	public int rowAtPointLC(Point pt) {
+		return rowRangeModel.getIndexFromLC(pt.y);
+	}
 	
 	public int columnAtPoint(Point pt) {
 		return colRangeModel.getIndexFromCC(pt.x);
+	}
+	public int columnAtPointLC(Point pt) {
+		return colRangeModel.getIndexFromLC(pt.x);
 	}
 
 	public int getFixedRowNum() {
@@ -229,6 +237,54 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	}
 	public int getScrollAreaWidth() {
 		return colRangeModel.getScrollPartSize();
+	}
+
+	/**
+	 * 画面座標における行方向のスクロール量を取得する。
+	 * @return
+	 */
+	public int getRowScrollAmount() {
+		return rowRangeModel.getScrollAmount();
+	}
+
+	/**
+	 * 画面座標における列方向のスクロール量を取得する。
+	 * @return
+	 */
+	public int getColumnScrollAmount() {
+		return colRangeModel.getScrollAmount();
+	}
+
+	/**
+	 * TODO:クリッピング領域の考慮がなされていない。
+	 * 
+	 * @param row
+	 * @return
+	 */
+	public boolean isVisibleRow(int row) {
+		if(row < getFixedRowNum()) {
+			return true;
+		}
+		else if(row < getFixedRowNum() + rowRangeModel.getValue()) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * 行方向のスクロール値を取得する。
+	 * @return
+	 */
+	public int getRowScrollValue() {
+		return rowRangeModel.getValue();
+	}
+
+	/**
+	 * 列方向のスクロール値を取得する。
+	 * @return
+	 */
+	public int getColumnScrollValue() {
+		return colRangeModel.getValue();
 	}
 
 	/**

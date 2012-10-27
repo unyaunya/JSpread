@@ -31,11 +31,11 @@ public class GanttTableModel extends AbstractTableModel {
 		return getDocument().getColumnCount();
 	}
 
-	public Calendar getStartDate() {
+	public Date getStartDate() {
 		return (getDocument() == null)  ? null : getDocument().getStartDate();
 	}
 
-	public Calendar getEndDate() {
+	public Date getEndDate() {
 		return (getDocument() == null)  ? null : getDocument().getEndDate();
 	}
 	
@@ -55,7 +55,8 @@ public class GanttTableModel extends AbstractTableModel {
 				}
 				return null;
 			}
-			Calendar c = (Calendar)getStartDate().clone();
+			Calendar c = Calendar.getInstance();
+			c.setTime((Date)getStartDate().clone());
 			c.add(Calendar.DATE, col - getDataColumnCount());
 			switch(row) {
 			case 0:
@@ -146,5 +147,49 @@ public class GanttTableModel extends AbstractTableModel {
 	@Override
 	public int getRowCount() {
 		return Math.max(getMinimmiumRowCount(), getHeaderRowCount() + getDocument().getTasks().size());
+	}
+
+	public Task getTask(int row) {
+		if(getDocument() == null) {
+			return Task.NULL;
+		}
+		int index = row - getHeaderRowCount();
+		if(index < 0 || index >= getDocument().getTasks().size()) {
+			return Task.NULL;
+		}
+		Task task = getDocument().getTask(index);
+		assert(task != null);
+		return task;
+	}
+
+	public Date getStartDate(int row) {
+		return getTask(row).getStartDate();
+	}
+
+	public Date getEndDate(int row) {
+		return getTask(row).getEndDate();
+	}
+
+	public int getStartDateColumn(int row) {
+		return getColumnByDate(getTask(row).getStartDate());
+	}
+
+	public int getEndDateColumn(int row) {
+		return getColumnByDate(getTask(row).getEndDate());
+	}
+
+	public int getColumnByDate(Date date) {
+		if(date == null) {
+			return -1;
+		}
+		if(date.getTime() < getStartDate().getTime()) {
+			return -1;
+		}
+		if(date.getTime() > getEndDate().getTime()) {
+			return -1;
+		}
+		date = CalendarUtil.round(date).getTime();
+		int delta = (int)CalendarUtil.getDiffInDate(date, getStartDate());
+		return getDataColumnCount() + delta;
 	}
 }

@@ -64,6 +64,7 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	 * 変更リスナーのリスト。基本的にJGridPaneのスクロールバーがリスナーとして設定される。
 	 */
 	transient private ArrayList<ChangeListener> changeListenerList;
+
 	/**
 	 * リスナーへの伝達に使用するイベント
 	 */
@@ -155,7 +156,7 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	 */
 	public int getPreferredSize() {
 		//return headerSize + sizeModel.getPosition(sizeModel.getLength());
-		return getPositionLC(sizeModel.getLength());
+		return getPosition(sizeModel.getLength());
 	}
 
 	/**
@@ -223,7 +224,7 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	 */
 	public int getPreferredFixedPartSize() {
 		//return headerSize + sizeModel.getPosition(getFixedPartNum());
-		return getPositionLC(getFixedPartNum());
+		return getPosition(getFixedPartNum());
 	}
 
 	/**
@@ -251,32 +252,29 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 		return getComponentSize() - getFixedPartSize();
 	}
 	
-	/**
-	 * indexで指定した行または列の開始位置。
-	 * スクロールを考慮した値が算出される。
-	 * @param index
-	 * @return
-	 */
-	public int getPosition(int index) {
-		//固定領域
-		if(index < getFixedPartNum()) {
-			return getPositionLC(index);
-		}
-		//スクロールして非表示になっている領域
-		//else if((index - getFixedPartNum()) < getValue()) {
-		//	return Integer.MIN_VALUE;
-		//}
-		//可変領域
-		else {
-			return getPositionLC(index) - scrolledSize();
-		}
-	}
-
 	int getIndexFromCC(int cc) {
 		if(headerSize > cc) {
 			return -1;
 		}
 		return sizeModel.getIndex(this.cc2lc(cc)-headerSize);
+	}
+
+	int getIndexFromLC(int lc) {
+		if(headerSize > lc) {
+			return -1;
+		}
+		return sizeModel.getIndex(lc - headerSize);
+	}
+
+	/**
+	 * 画面座標におけるスクロール量を取得する。
+	 * @return
+	 */
+	public int getScrollAmount() {
+		if(getValue() <= 0) {
+			return 0;
+		}
+		return getPosition(getFixedPartNum()+getValue()) - getPosition(getFixedPartNum());
 	}
 	
 	/**
@@ -292,7 +290,7 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 			//delta : 可変領域先頭からの距離
 			int delta = cc - getFixedPartSize();
 			//return = 可変領域先頭の論理位置 + delta
-			return getPositionLC(getFixedPartNum()+getValue()) + delta;
+			return getPosition(getFixedPartNum()+getValue()) + delta;
 		}
 	}
 
@@ -307,7 +305,7 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 		//論理座標が可変領域内の場合
 		else {
 			//delta : 可変領域先頭からの距離
-			int delta = lc - getPositionLC(getFixedPartNum()+getValue());
+			int delta = lc - getPosition(getFixedPartNum()+getValue());
 			if(delta >= 0) {
 				return getFixedPartSize() + delta;
 			}
@@ -318,11 +316,11 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	}
 
 	/**
-	 * indexeで指定した行または列の論理座標を取得する。
+	 * indexで指定した行または列の論理座標を取得する。
 	 * @param index
 	 * @return
 	 */
-	public int getPositionLC(int index) {
+	public int getPosition(int index) {
 		if(index < 0) {
 			return 0;
 		}
@@ -330,17 +328,9 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	}
 
 	public int getDistance(int from_index, int to_index) {
-		return getPositionLC(to_index) - getPositionLC(from_index);
+		return getPosition(to_index) - getPosition(from_index);
 	}
 
-	/**
-	 * 現在のスクロール量を取得する
-	 * @return
-	 */
-	private int scrolledSize() {
-		return getPositionLC(getFixedPartNum()+getValue()) - getPositionLC(getFixedPartNum());
-	}
-	
 	/**
 	 * リスナーを登録する。
 	 * @see javax.swing.BoundedRangeModel#addChangeListener(javax.swing.event.ChangeListener)

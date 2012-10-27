@@ -35,6 +35,7 @@ public class Task {
 	/**
 	 * デフォルトコンストラクタ
 	 */
+	@SuppressWarnings("deprecation")
 	public Task() {
 		this("", new Date(), new Date(112,9,23));
 	}

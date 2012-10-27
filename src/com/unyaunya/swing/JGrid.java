@@ -5,10 +5,8 @@ import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.event.KeyEvent;
 import java.text.Format;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
@@ -24,11 +22,13 @@ import com.unyaunya.grid.Columns;
 import com.unyaunya.grid.DefaultCellRenderer;
 import com.unyaunya.grid.Handler;
 import com.unyaunya.grid.ICell;
+import com.unyaunya.grid.IPainter;
 import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.IGridCellRenderer;
 import com.unyaunya.grid.IGridModel;
 import com.unyaunya.grid.Rows;
 import com.unyaunya.grid.ScrollModel;
+import com.unyaunya.grid.ShapePainter;
 import com.unyaunya.grid.action.Actions;
 import com.unyaunya.grid.editor.EditorHandler;
 import com.unyaunya.grid.editor.IGridCellEditor;
@@ -64,7 +64,7 @@ public class JGrid extends JComponent implements TableModelListener {
 	private IGridSelectionModel selectionModel;
 	private ShapeList shapeList;
 	private Handler handler;
-	
+	private IPainter foregroundPainter;	
 	transient private ScrollModel scrollModel;
 	transient private Columns columns;
 	transient private Rows rows;
@@ -135,6 +135,7 @@ public class JGrid extends JComponent implements TableModelListener {
         this.actions = new Actions(this);
     	this.editorHandler = new EditorHandler(this);
     	this.shapeList = new ShapeList();
+    	this.foregroundPainter = new ShapePainter(this);
     	setCellRenderer(new DefaultCellRenderer());
 		setUI(new GridUI());
 		init(model);
@@ -166,6 +167,10 @@ public class JGrid extends JComponent implements TableModelListener {
 		return editorHandler;
 	}
 
+	public void setForegroundPainter(IPainter painter) {
+		this.foregroundPainter = painter;
+	}
+	
 	/**
 	 * スクロールモデルを作成する。
 	 * スクロールモデルの機能拡張を行う場合、派生クラスでこのメソッドをオーバライドし、
@@ -339,14 +344,9 @@ public class JGrid extends JComponent implements TableModelListener {
 	 * 
 	 */
 	public void paintForeground(Graphics2D g2d) {
-		paintShapes(g2d);
-	}
-
-    protected void paintShapes(Graphics2D g) {
-    	List<Shape> shapes = this.getShapeList().getShapeList();
-    	for(Shape s: shapes) {
-    		g.draw(s);
-    	}
+		if(foregroundPainter != null) {
+			foregroundPainter.paint(g2d);
+		}
 	}
 
 	/*
@@ -469,14 +469,23 @@ public class JGrid extends JComponent implements TableModelListener {
 		if(retValue) {
 			return true;
 		}
-		LOG.info("editorHandler.onProcessKeyBinding():start");
+		if (condition != JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT) {
+			LOG.info("condition != JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT");
+			return retValue;
+		}
+		if (!isFocusOwner()) {
+			LOG.info("!isFocusOwner()");
+			return retValue;
+		}
+
 		retValue = editorHandler.onProcessKeyBinding(
-				retValue,
 				ks,
 	            e,
-	            condition,
 	            pressed);
-		LOG.info("editorHandler.onProcessKeyBinding():end=" + retValue);
+		
+		//retValue = ((JComponent)null).processKeyBinding(ks, e, WHEN_FOCUSED, pressed);
+		
+		LOG.info("editorHandler.onProcessKeyBinding()=" + retValue);
 		return retValue;
 	}
 }

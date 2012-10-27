@@ -12,19 +12,31 @@ public class CalendarUtil {
 	private static List<DateFormat> dateFormatList;
 	
 	public static Calendar round(Calendar c) {
-		c.set(Calendar.HOUR, 0);
+		c.set(Calendar.HOUR_OF_DAY, 0);
 		c.set(Calendar.MINUTE, 0);
 		c.set(Calendar.SECOND, 0);
 		c.set(Calendar.MILLISECOND, 0);
 		return c;
 	}
 
+	public static Calendar round(Date date) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		return round(c);
+	}
+
 	public static Calendar today() {
 		return round(Calendar.getInstance());
 	}
 
-	public static long getDiffInDate(Calendar c1, Calendar c2) {
-		return (c1.getTimeInMillis() - c2.getTimeInMillis()) / 86400000;
+	public static long getDiffInDate(Date c1, Date c2) {
+		long t1, t2;
+		t1 = c1.getTime();
+		t2 = c2.getTime();
+		long delta = t1 - t2;
+		delta = delta / 86400000;
+		return delta;
+		//return (c1.getTime() - c2.getTime()) / 86400000;
 	}
 
 	public static Date toDate(Object value) {

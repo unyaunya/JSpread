@@ -18,14 +18,15 @@ public class GanttChart extends JGridPane {
 	
 	public GanttChart() {
 		super(new JSpread());
-		getGrid().setGridModel(new GanttChartModel());
+		GanttChartModel gcm = new GanttChartModel();
+		getGrid().setGridModel(gcm);
 		getGrid().setCellEditor(new GanttCellEditor(getGrid()));
 		int headerRowCount = getGanttChartModel().getGanttTableModel().getHeaderRowCount();
 		getGrid().getGridSelectionModel().setMinimumFocusedRow(headerRowCount);
 		getGrid().getGridSelectionModel().focus(headerRowCount, 0);
 		
 		getSpread().getConfig().setRowInsertionSuppoorted(true);
-		
+		getGrid().setForegroundPainter(new GanttPainter(getGrid().getScrollModel(), gcm.getGanttTableModel()));
 		init();
 	}
 

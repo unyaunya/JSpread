@@ -10,7 +10,6 @@ import java.text.Format;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -49,16 +48,19 @@ public class DefaultCellEditor extends javax.swing.DefaultCellEditor implements
 		registerKeyAction(c,KeyEvent.VK_ESCAPE, editCancelAction);
 
 		//セル移動のアクションを、登録する。
+		/*
 		ActionMap actionMap = grid.getActions().getActionMap();
 		for(Object i : actionMap.keys()) {
 			c.getActionMap().put(i, actionMap.get(i));
 		}
+		*/
 		InputMap inputMap = grid.getActions().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 		for(KeyStroke i : inputMap.keys()) {
 			c.getInputMap().put(i, inputMap.get(i));
 			//VK_ENTERは、VK_DOWNと同じアクションを実行する。
 			if(i.getKeyCode() == KeyEvent.VK_DOWN) {
 				c.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0), inputMap.get(i));
+				break;
 			}
 		}
 	}

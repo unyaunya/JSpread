@@ -69,67 +69,110 @@ public class GridUI extends ComponentUI {
     	return getPreferredSize(c);
     }
  
-    private void paintGrid(Graphics g, ScrollModel sm, Rectangle bounds) {
-		int fixedRowSize = sm.getFixedAreaHight();
-		int fixedColumnSize = sm.getFixedAreaWidth();
-		int scrollRowSize = sm.getScrollAreaHeight();
-		int scrollColumnSize = sm.getScrollAreaWidth();
-		LOG.info("\nfixedRowSize:"+fixedRowSize);
-		LOG.info("\nfixedColumnSize:"+fixedColumnSize);
-		LOG.info("\nscrollRowSize:"+scrollRowSize);
-		LOG.info("\nscrollColumnSize:"+scrollColumnSize);
-		
-		//	左上部分の描画
-		paintQuadrant(sm, g, new Rectangle(bounds.x, bounds.y, fixedColumnSize, fixedRowSize));
-		//	右上部分の描画
-		paintQuadrant(sm, g, new Rectangle(bounds.x + fixedColumnSize, bounds.y, scrollColumnSize, fixedRowSize));
-		//	左下部分の描画
-		paintQuadrant(sm, g, new Rectangle(bounds.x, bounds.y + fixedRowSize, fixedColumnSize, scrollRowSize));
-		//	右下部分の描画
-		paintQuadrant(sm, g, new Rectangle(bounds.x + fixedColumnSize, bounds.y + fixedRowSize, scrollColumnSize, scrollRowSize));
-		//ウィンドウ固定の場合、固定部との境界線を引く。
-		if(sm.arePanesFreezed()) {
-			int x = bounds.x + fixedColumnSize;
-			int y = bounds.y + fixedRowSize;
-			//横線
-			g.drawLine(bounds.x, y, bounds.x + bounds.width, y);
-			//縦線
-			g.drawLine(x, bounds.y, x, bounds.y + bounds.height);
-		}
-		LOG.info("paint():end");
-    }
-    
     /**
      * コンポーネントの描画を行う
      * 
      * 描画領域全体を、列方向、行方向それぞれに、固定部分とスクロール部分で
      * 分割し、４つの象限を設定し、各象限ごとに描画を行う。
      */
+   private void paintGrid(Graphics2D g, JGrid grid) {
+	   assert(this.grid == grid);
+
+	   ScrollModel sm = grid.getScrollModel();
+	   //LOG.info("row="+sm.getRowCount());
+	   //LOG.info("col="+sm.getColumnCount());
+	   /*if (sm.getRowCount() <= 0 || sm.getColumnCount() <= 0) {
+		LOG.info("行数または列数が0のため、描画をスキップした");
+		return;
+		}*/
+	   
+	   //領域全体を４象限に分割したときの、各象限の境界の行・列番号
+	   int row[] = new int[4];
+	   int col[] = new int[4];
+
+	   row[0] = -1;
+	   row[1] = sm.getFixedRowNum()-1;
+	   row[2] = sm.getFixedRowNum() + sm.getRowScrollValue();
+	   row[3] = sm.getRowCount()-1;
+	   col[0] = -1;
+	   col[1] = sm.getFixedColumnNum()-1;
+	   col[2] = sm.getFixedColumnNum() + sm.getColumnScrollValue();
+	   col[3] = sm.getColumnCount()-1;
+	   
+	   //row[], col[]に対応するx,y座標
+	   int x[] = new int[4];
+	   int y[] = new int[4];
+	   x[0] = 0;
+	   x[1] = sm.getColumnPosition(col[1]+1);
+	   x[2] = sm.getColumnPosition(col[2]);
+	   x[3] = sm.getColumnPosition(col[3]+1);
+	   y[0] = 0;
+	   y[1] = sm.getRowPosition(row[1]+1);
+	   y[2] = sm.getRowPosition(row[2]);
+	   y[3] = sm.getRowPosition(row[3]+1);
+
+	   int scrollX = sm.getColumnScrollAmount();
+	   int scrollY = sm.getRowScrollAmount();
+	   Rectangle lcRect = new Rectangle();
+
+	   //	左上部分の描画
+	   lcRect.setBounds(x[0], y[0], x[1]-x[0], y[1]-y[0]);
+	   paintQuadrant(sm, g, 0, 0, lcRect, row[0], row[1], col[0], col[1]);
+	   //	右上部分の描画
+	   lcRect.setBounds(x[2], y[0], x[3]-x[2], y[1]-y[0]);
+	   paintQuadrant(sm, g, scrollX, 0, lcRect, row[0], row[1], col[2], col[3]);
+	   //	左下部分の描画
+	   lcRect.setBounds(x[0], y[2], x[1]-x[0], y[3]-y[2]);
+	   paintQuadrant(sm, g, 0, scrollY, lcRect, row[2], row[3], col[0], col[1]);
+	   //	右下部分の描画
+	   lcRect.setBounds(x[2], y[2], x[3]-x[2], y[3]-y[2]);
+	   //LOG.info("rect=" + rect);
+	   paintQuadrant(sm, g, scrollX, scrollY, lcRect, row[2], row[3], col[2], col[3]);
+	   //
+	   LOG.info("paint():end");
+
+	   //
+	   //行列番号領域
+	   //
+	   
+	   //左上角
+
+	   //列番号
+
+	   //行番号
+
+	   //
+	   //データ領域
+	   //
+
+	   //左上
+
+	   //右上
+	   
+	   //左下
+	   
+	   //右下
+   }
+    
+    /**
+     * コンポーネントの描画を行う
+     * 
+     * クリッピング領域の値をチェックし、描画の必要性があれば、paintGrid()を呼び出す。
+     */
     public void paint(Graphics g, JComponent c) {
 		LOG.info("paint():start");
-		JGrid grid = (JGrid)c;
-		ScrollModel sm = grid.getScrollModel();
-		LOG.info("row="+sm.getRowCount());
-		LOG.info("col="+sm.getColumnCount());
-		/*if (sm.getRowCount() <= 0 || sm.getColumnCount() <= 0) {
-			LOG.info("行数または列数が0のため、描画をスキップした");
-			return;
-		}*/
 		Rectangle clip = g.getClipBounds();
-		Rectangle bounds = grid.getBounds();
+		Rectangle bounds = c.getBounds();
 		bounds.x = bounds.y = 0;
+		LOG.info("\tbounds=" + bounds);
 		if (!bounds.intersects(clip)) {
             // this check prevents us from painting the entire table
             // when the clip doesn't intersect our bounds at all
-			LOG.info("\tbounds:"+bounds);
 			LOG.info("\tclip:"+clip);
 			LOG.info("クリッピング領域との交差がないため、描画をスキップした");
 			return;
 		}
-		Graphics2D g2d = (Graphics2D)g;
-		grid.paintBackground(g2d);
-		paintGrid(g2d, sm, bounds);
-		grid.paintForeground(g2d);
+		paintGrid((Graphics2D)g, (JGrid)c);
 	}
 
 	/**
@@ -137,35 +180,52 @@ public class GridUI extends ComponentUI {
      * 
      * @param scrollModel
      * @param g
-     * @param rect 象限を囲む矩形
+     * @param ccRect 象限を囲む矩形
      */
-    private void paintQuadrant(ScrollModel sm, Graphics g, Rectangle rect){
-    	LOG.info("rect=" + rect);
-    	Rectangle currentClip = g.getClipBounds();
-		if(!rect.intersects(currentClip)) {
-			return;
-		}
-    	Rectangle clip = rect.intersection(currentClip);
-		//LOG.info("\tpaintCells(currentClip,rect):");
-		//LOG.info("\t\trect:"+currentClip);
-		//LOG.info("\t\tclip:"+clip);
-		Point upperLeft = clip.getLocation();
-	    Point lowerRight = new Point(clip.x + clip.width - 1, clip.y + clip.height - 1);
-	    g.setClip(clip.x, clip.y, clip.width, clip.height);
-	    {
-			int rMin = sm.rowAtPoint(upperLeft);
-			int rMax = sm.rowAtPoint(lowerRight);
-			int cMin = sm.columnAtPoint(upperLeft);
-			int cMax = sm.columnAtPoint(lowerRight);
-			rMax = Math.min(rMax, sm.getRowCount()-1);
-			cMax = Math.min(cMax, sm.getColumnCount()-1);
-			LOG.info("(rMin,rMax,cMin,cMax)=(" + rMin + "," + rMax + "," + cMin + "," + cMax + ")");
-			QuadrantPainter qp = new QuadrantPainter(rMin, rMax, cMin, cMax);
-			qp.paintCells(sm, g);
-	    }
-	    g.setClip(currentClip.x, currentClip.y, currentClip.width, currentClip.height);
-	}
-
+    private void paintQuadrant(ScrollModel sm, Graphics2D g, int scrollX, int scrollY, Rectangle lcRect, int rMin, int rMax, int cMin, int cMax){
+    	//cc: component coordination
+    	//lc: logical coordination
+    	LOG.info("lcRect=" + lcRect);
+    	Rectangle ccCurrentClip = g.getClipBounds();
+    	LOG.info("ccCurrentClip=" + ccCurrentClip);
+    	LOG.info("scrollX=" + scrollX + ", scrollY=" + scrollY);
+		g.translate(-scrollX, -scrollY);
+    	try {
+    		//背景の描画
+    		grid.paintBackground(g);
+    		//グリッドの描画
+        	Rectangle lcCurrentClip = g.getClipBounds();
+        	LOG.info("lcCurrentClip=" + lcCurrentClip);
+    		if(!lcRect.intersects(lcCurrentClip)) {
+    	    	LOG.info("skip: !ccRect.intersects(ccCurrentClip)");
+    			return;
+    		}
+        	Rectangle lcClip = lcRect.intersection(lcCurrentClip);
+    		//LOG.info("\tpaintCells(currentClip,rect):");
+    		//LOG.info("\t\trect:"+currentClip);
+    		LOG.info("\t\tlcClip:"+lcClip);
+    	    g.setClip(lcClip.x, lcClip.y, lcClip.width, lcClip.height);
+    	    {
+    			Point upperLeft = lcClip.getLocation();
+    		    Point lowerRight = new Point(lcClip.x + lcClip.width - 1, lcClip.y + lcClip.height - 1);
+    			int rmin = Math.max(rMin, sm.rowAtPointLC(upperLeft));
+    			int rmax = Math.min(rMax, sm.rowAtPointLC(lowerRight));
+    			int cmin = Math.max(cMin, sm.columnAtPointLC(upperLeft));
+    			int cmax = Math.min(cMax, sm.columnAtPointLC(lowerRight));
+    			LOG.info("(rMin,rMax,cMin,cMax)=(" + rMin + "," + rMax + "," + cMin + "," + cMax + ")");
+    			LOG.info("(rmin,rmax,cmin,cmax)=(" + rmin + "," + rmax + "," + cmin + "," + cmax + ")");
+    			QuadrantPainter qp = new QuadrantPainter(rmin, rmax, cmin, cmax);
+    			qp.paintCells(sm, g);
+    	    }
+    		//前景の描画
+    		grid.paintForeground(g);
+    	}
+    	finally {
+   			g.translate(+scrollX, +scrollY);
+    	    g.setClip(ccCurrentClip.x, ccCurrentClip.y, ccCurrentClip.width, ccCurrentClip.height);
+    	}
+    }
+ 
     class QuadrantPainter {
     	public int rMin;
     	public int rMax;
@@ -201,7 +261,6 @@ public class GridUI extends ComponentUI {
     				}
     			}
     		}
-    		//LOG.info("kkkk");
     	}
 
         /**
