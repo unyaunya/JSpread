@@ -112,6 +112,10 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 		sizeModel.removeEntries(index, length);
 		fireChangeEvent();
 	}
+	
+	public int getHeaderSize() {
+		return headerSize;
+	}
 
 	/**
 	 * indexで指定された行または列の高さ/幅を取得する。
@@ -252,14 +256,7 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 		return getComponentSize() - getFixedPartSize();
 	}
 	
-	int getIndexFromCC(int cc) {
-		if(headerSize > cc) {
-			return -1;
-		}
-		return sizeModel.getIndex(this.cc2lc(cc)-headerSize);
-	}
-
-	int getIndexFromLC(int lc) {
+	int getIndex(int lc) {
 		if(headerSize > lc) {
 			return -1;
 		}
@@ -280,15 +277,15 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	/**
 	 * コンポーネント座標→論理座標
 	 */
-	int cc2lc(int cc) {
+	public int viewToModel(int position) {
 		//コンポーネント座標が固定領域内の場合
-		if(cc < getFixedPartSize()) {
-			return cc;
+		if(position < getFixedPartSize()) {
+			return position;
 		}
 		//コンポーネントが可変領域内の場合
 		else {
 			//delta : 可変領域先頭からの距離
-			int delta = cc - getFixedPartSize();
+			int delta = position - getFixedPartSize();
 			//return = 可変領域先頭の論理位置 + delta
 			return getPosition(getFixedPartNum()+getValue()) + delta;
 		}
@@ -297,15 +294,15 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	/**
 	 * 論理座標→コンポーネント座標
 	 */
-	int lc2cc(int lc) {
+	public int modelToView(int position) {
 		//論理座標が固定領域内の場合
-		if(lc < getFixedPartSize()) {
-			return lc;
+		if(position < getFixedPartSize()) {
+			return position;
 		}
 		//論理座標が可変領域内の場合
 		else {
 			//delta : 可変領域先頭からの距離
-			int delta = lc - getPosition(getFixedPartNum()+getValue());
+			int delta = position - getPosition(getFixedPartNum()+getValue());
 			if(delta >= 0) {
 				return getFixedPartSize() + delta;
 			}
@@ -316,7 +313,7 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	}
 
 	/**
-	 * indexで指定した行または列の論理座標を取得する。
+	 * indexで指定した行の上端または列の左端の論理座標を取得する。
 	 * @param index
 	 * @return
 	 */
@@ -362,11 +359,11 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	 * 
 	 * @return
 	 */
-	int  calcExtent() {
+	int calcExtent() {
 		return Math.max(1, _calcExtent());
 	}
 	
-	int  _calcExtent() {
+	private int _calcExtent() {
 		int scrollPartSize = getScrollPartSize();
 		int preferredScrollPartSize = getPreferredScrollPartSize();
 
@@ -388,7 +385,11 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 			if(endPos > getPreferredSize()) {
 				endPos = getPreferredSize();
 				startPos = endPos - scrollPartSize;
-				return getMaximum() - (sizeModel.getIndex(startPos) + 0);
+				int startIndex = sizeModel.getIndex(startPos);
+				if(startPos > getPosition(startIndex)) {
+					startIndex += 1;
+				}
+				return getMaximum() - startIndex;
 			}
 			else {
 				return sizeModel.getIndex(endPos) - getFixedPartNum() - getValue();

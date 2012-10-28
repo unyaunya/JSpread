@@ -147,16 +147,16 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 	@Override
 	public void onMousePressed(MouseEvent e) {
 		Point pt = e.getPoint();
-		int row = grid.rowAtPoint(pt);
-		int col = grid.columnAtPoint(pt);
+		int row = grid.rowAtViewPoint(pt);
+		int col = grid.columnAtViewPoint(pt);
 		moveTo(row, col, e.isShiftDown(), e.isControlDown());
 	}
 	
 	@Override
 	public void onMouseDragged(MouseEvent e) {
 		Point pt = e.getPoint();
-		int row = grid.rowAtPoint(pt);
-		int col = grid.columnAtPoint(pt);
+		int row = grid.rowAtViewPoint(pt);
+		int col = grid.columnAtViewPoint(pt);
 		focus(row, col);
 		repaint();
 	}

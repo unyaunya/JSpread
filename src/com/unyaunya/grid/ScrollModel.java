@@ -149,6 +149,11 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 					rowRangeModel.getSize(rowIndex));
 	}
 
+	/**
+	 * 指定したセル範囲に対応する矩形を論理座標で返す。
+	 * @param r
+	 * @return
+	 */
 	public Rectangle getRangeRect(IRange r) {
 		assert(r != null);
 		int top = r.getTop();
@@ -204,18 +209,48 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 		colRangeModel.setSize(colIndex, width);
 	}
 	
-	public int rowAtPoint(Point pt) {
-		return rowRangeModel.getIndexFromCC(pt.y);
+	public int rowAtViewPoint(Point pt) {
+		return rowRangeModel.getIndex(rowRangeModel.viewToModel(pt.y));
 	}
-	public int rowAtPointLC(Point pt) {
-		return rowRangeModel.getIndexFromLC(pt.y);
+	public int rowAtPoint(Point pt) {
+		return rowRangeModel.getIndex(pt.y);
 	}
 	
-	public int columnAtPoint(Point pt) {
-		return colRangeModel.getIndexFromCC(pt.x);
+	public int columnAtViewPoint(Point pt) {
+		return colRangeModel.getIndex(colRangeModel.viewToModel(pt.x));
 	}
-	public int columnAtPointLC(Point pt) {
-		return colRangeModel.getIndexFromLC(pt.x);
+	public int columnAtPoint(Point pt) {
+		return colRangeModel.getIndex(pt.x);
+	}
+
+	public CellPosition getCellPosition(Point pt) {
+		CellPosition cp = new CellPosition();
+		cp.setRow(rowAtPoint(pt));
+		cp.setRow(columnAtPoint(pt));
+		return cp;
+	}
+
+	public CellPosition getCellPositionFromView(Point pt) {
+		CellPosition cp = new CellPosition();
+		cp.setRow(rowAtViewPoint(pt));
+		cp.setRow(columnAtViewPoint(pt));
+		return cp;
+	}
+
+	public Point modelToView(Point pt) {
+		Point rc = new Point();
+		rc.x = colRangeModel.modelToView(pt.x);
+		rc.y = rowRangeModel.modelToView(pt.y);
+		return rc;
+	}
+
+	public Rectangle modelToView(Rectangle rect) {
+		Rectangle rc = new Rectangle();
+		rc.x = colRangeModel.modelToView(rect.x);
+		rc.y = rowRangeModel.modelToView(rect.y);
+		rc.width = rect.width;
+		rc.height = rect.height;
+		return rc;
 	}
 
 	public int getFixedRowNum() {

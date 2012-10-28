@@ -208,10 +208,10 @@ public class GridUI extends ComponentUI {
     	    {
     			Point upperLeft = lcClip.getLocation();
     		    Point lowerRight = new Point(lcClip.x + lcClip.width - 1, lcClip.y + lcClip.height - 1);
-    			int rmin = Math.max(rMin, sm.rowAtPointLC(upperLeft));
-    			int rmax = Math.min(rMax, sm.rowAtPointLC(lowerRight));
-    			int cmin = Math.max(cMin, sm.columnAtPointLC(upperLeft));
-    			int cmax = Math.min(cMax, sm.columnAtPointLC(lowerRight));
+    			int rmin = Math.max(rMin, sm.rowAtPoint(upperLeft));
+    			int rmax = Math.min(rMax, sm.rowAtPoint(lowerRight));
+    			int cmin = Math.max(cMin, sm.columnAtPoint(upperLeft));
+    			int cmax = Math.min(cMax, sm.columnAtPoint(lowerRight));
     			LOG.info("(rMin,rMax,cMin,cMax)=(" + rMin + "," + rMax + "," + cMin + "," + cMax + ")");
     			LOG.info("(rmin,rmax,cmin,cmax)=(" + rmin + "," + rmax + "," + cmin + "," + cmax + ")");
     			QuadrantPainter qp = new QuadrantPainter(rmin, rmax, cmin, cmax);

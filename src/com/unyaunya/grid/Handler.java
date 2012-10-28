@@ -117,8 +117,8 @@ public class Handler extends MouseInputAdapter {
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		Point pt = e.getPoint();
-		int row = grid.rowAtPoint(pt);
-		int col = grid.columnAtPoint(pt);
+		int row = grid.rowAtViewPoint(pt);
+		int col = grid.columnAtViewPoint(pt);
 		Cursor nextCursor = null;
 		resizeBorderIndex = -1;
 
@@ -227,8 +227,8 @@ public class Handler extends MouseInputAdapter {
 		}
 		else {
 			Point pt = e.getPoint();
-			int row = grid.rowAtPoint(pt);
-			int col = grid.columnAtPoint(pt);
+			int row = grid.rowAtViewPoint(pt);
+			int col = grid.columnAtViewPoint(pt);
 			if(currentCursor == COLUMN_SELECT_CURSOR) {
 				row = 0;
 				if(col == 0) {
@@ -258,8 +258,9 @@ public class Handler extends MouseInputAdapter {
 			return;
 		}
 		Point pt = e.getPoint();
-		int row = grid.rowAtPoint(pt);
-		int col = grid.columnAtPoint(pt);
+		//CellPosition cp = grid.getCellPositionFromView(pt);
+		int row = grid.rowAtViewPoint(pt);
+		int col = grid.columnAtViewPoint(pt);
 		if(!grid.getGridModel().getTableModel().isCellEditable(row, col)) {
 			return;
 		}

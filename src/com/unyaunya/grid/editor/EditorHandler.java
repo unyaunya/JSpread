@@ -1,6 +1,7 @@
 package com.unyaunya.grid.editor;
 
 import java.awt.Component;
+import java.awt.Rectangle;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.logging.Logger;
@@ -125,7 +126,9 @@ public class EditorHandler implements CellEditorListener  {
 		}
 		IGridCellEditor editor = getCellEditor(top, left);
 		setEditorComponent(prepareEditor(editor, top, left));
-		getEditorComponent().setBounds(grid.getRangeRect(range));
+		Rectangle boundingRect = grid.getRangeRect(range);
+		boundingRect = grid.getScrollModel().modelToView(boundingRect);
+		getEditorComponent().setBounds(boundingRect);
 		grid.add(getEditorComponent());
 		getEditorComponent().validate();
 		
@@ -189,7 +192,7 @@ public class EditorHandler implements CellEditorListener  {
 			}
 		}
 		if ((editorComponent instanceof JComponent) && ((e.getModifiers() & InputEvent.ALT_MASK) == 0)) {
-			boolean retValue = true;
+			//boolean retValue = true;
 			//retValue = ((JComponent)editorComponent).processKeyBinding(ks, e, WHEN_FOCUSED, pressed);
 			KeyEvent ke = new KeyEvent(editorComponent, e.getID(), e.getWhen(), e.getModifiers(), e.getKeyCode(), e.getKeyChar(), e.getKeyLocation());
 			isProcessingKeyboardEvent = true;

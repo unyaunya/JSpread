@@ -56,8 +56,8 @@ public class ScrollModelTest {
 		scrollModel = new ScrollModel(new JPanel(), 0, 0);
 		assertEquals(23, scrollModel.getDefaultRowHeight());
 		assertEquals(60, scrollModel.getDefaultColumnWidth());
-		assertEquals(1, scrollModel.getFixedRowNum());
-		assertEquals(1, scrollModel.getFixedColumnNum());
+		assertEquals(0, scrollModel.getFixedRowNum());
+		assertEquals(0, scrollModel.getFixedColumnNum());
 	}
 	
 	

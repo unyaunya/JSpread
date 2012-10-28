@@ -18,6 +18,7 @@ import javax.swing.border.Border;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import com.unyaunya.grid.CellPosition;
 import com.unyaunya.grid.Columns;
 import com.unyaunya.grid.DefaultCellRenderer;
 import com.unyaunya.grid.Handler;
@@ -181,6 +182,14 @@ public class JGrid extends JComponent implements TableModelListener {
 		return new ScrollModel(this, getColumnHeaderHeight(), getRowHeaderWidth());
 	}
 
+	/**
+	 * スクロールを禁止する／禁止を解除する。
+	 * セルエディタで編集中にスクロールするのをやめるために使用する。
+	 */
+	public void setScrollEnabled() {
+		
+	}
+	
 	public void setCellEditor(IGridCellEditor cellEditor) {
 		getEditorHandler().setCellEditor(cellEditor);
 	}
@@ -352,12 +361,16 @@ public class JGrid extends JComponent implements TableModelListener {
 	/*
 	 * methods delegating to ScrollModel
 	 */
-	public int rowAtPoint(Point pt) {
-		return getScrollModel().rowAtPoint(pt);
+	public CellPosition getCellPositionFromView(Point pt) {
+		return getScrollModel().getCellPositionFromView(pt);
 	}
 	
-	public int columnAtPoint(Point pt) {
-		return getScrollModel().columnAtPoint(pt);
+	public int rowAtViewPoint(Point pt) {
+		return getScrollModel().rowAtViewPoint(pt);
+	}
+	
+	public int columnAtViewPoint(Point pt) {
+		return getScrollModel().columnAtViewPoint(pt);
 	}
 	
 	public void scrollToVisible(int rowIndex, int columnIndex) {
