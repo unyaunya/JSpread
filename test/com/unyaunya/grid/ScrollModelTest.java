@@ -5,8 +5,6 @@ package com.unyaunya.grid;
 
 import static org.junit.Assert.*;
 
-import javax.swing.JPanel;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -14,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.unyaunya.grid.ScrollModel;
+import com.unyaunya.swing.JGrid;
 
 /**
  * @author wata
@@ -41,7 +40,7 @@ public class ScrollModelTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		scrollModel = new ScrollModel(new JPanel(), 0, 0);
+		scrollModel = new ScrollModel(new JGrid(null), 0, 0);
 	}
 
 	/**
@@ -53,7 +52,7 @@ public class ScrollModelTest {
 
 	@Test
 	public void testScrollModel() {
-		scrollModel = new ScrollModel(new JPanel(), 0, 0);
+		scrollModel = new ScrollModel(new JGrid(null), 0, 0);
 		assertEquals(23, scrollModel.getDefaultRowHeight());
 		assertEquals(60, scrollModel.getDefaultColumnWidth());
 		assertEquals(0, scrollModel.getFixedRowNum());

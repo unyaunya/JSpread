@@ -1,6 +1,7 @@
 package com.unyaunya.grid.editor;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Rectangle;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -13,6 +14,7 @@ import javax.swing.event.ChangeEvent;
 
 import com.unyaunya.grid.CellRange;
 import com.unyaunya.grid.IRange;
+import com.unyaunya.grid.QuadrantPanel;
 import com.unyaunya.swing.JGrid;
 
 public class EditorHandler implements CellEditorListener  {
@@ -54,6 +56,10 @@ public class EditorHandler implements CellEditorListener  {
 		this.editorComponent = c;
 	}
 
+	private boolean isEditing() {
+		return getEditorComponent() != null;
+	}
+	
 	private IGridCellEditor getDefaultCellEditor() {
 		return defaultCellEditor;
 	}
@@ -97,8 +103,14 @@ public class EditorHandler implements CellEditorListener  {
 		if(editor != null) {
 			editor.removeCellEditorListener(this);
 		}
-		if (getEditorComponent() != null) {
-			grid.remove(getEditorComponent());
+		if (isEditing()) {
+			Container container = getEditorComponent().getParent();
+			if(container!= null) {
+				container.remove(getEditorComponent());
+			}
+			else {
+				//container = container;
+			}
 			//Rectangle cellRect = getCellRect(editingRow, editingColumn, false);
 			setCellEditor(null);
 			setEditingColumn(-1);
@@ -108,7 +120,7 @@ public class EditorHandler implements CellEditorListener  {
 			grid.repaint();
 		}
 	}
-
+	
 	public boolean editCellAt(int row, int column){
 		if (row < 0 || row >= grid.getRows().getCount() || column < 0 || column >= grid.getColumns().getCount()) {
 			return false;
@@ -127,17 +139,45 @@ public class EditorHandler implements CellEditorListener  {
 		IGridCellEditor editor = getCellEditor(top, left);
 		setEditorComponent(prepareEditor(editor, top, left));
 		Rectangle boundingRect = grid.getRangeRect(range);
-		boundingRect = grid.getScrollModel().modelToView(boundingRect);
-		getEditorComponent().setBounds(boundingRect);
-		grid.add(getEditorComponent());
-		getEditorComponent().validate();
-		
-		setCellEditor(editor);
-		editor.addCellEditorListener(this);
-		setEditingRow(top);
-		setEditingColumn(left);
-		LOG.info("editCellAt("+row+","+column+")");
-		return true;
+		if(addEditorToQuadrantPanel(getEditorComponent(), boundingRect)) {
+			grid.getScrollModel().adjustQuadrant();
+			getEditorComponent().validate();
+			setCellEditor(editor);
+			editor.addCellEditorListener(this);
+			setEditingRow(top);
+			setEditingColumn(left);
+			LOG.info("editCellAt("+row+","+column+")");
+			return true;
+		}
+		setEditorComponent(null);
+		return false;
+	}
+	
+	private boolean addEditorToQuadrantPanel(Component c, Rectangle boundingRect) {
+		QuadrantPanel qp;
+		c.setBounds(boundingRect);
+		qp = grid.getLowerRight(); 
+		if(qp.contains(boundingRect)) {
+			qp.add(c);
+			return true;
+		}
+		qp = grid.getLowerLeft(); 
+		if(qp.contains(boundingRect)) {
+			qp.add(c);
+			return true;
+		}
+		qp = grid.getUpperRight(); 
+		if(qp.contains(boundingRect)) {
+			qp.add(c);
+			return true;
+		}
+		qp = grid.getUpperLeft(); 
+		if(qp.contains(boundingRect)) {
+			qp.add(c);
+			return true;
+		}
+		LOG.info("---------");
+		return false;
 	}
 
 	public void stopEditing() {
@@ -169,14 +209,17 @@ public class EditorHandler implements CellEditorListener  {
 
 		Component editorComponent = getEditorComponent();
 		//install editorComponent
-		if(editorComponent == null) {
+		if(!isEditing()) {
+			LOG.info("isEditing()=false");
 			// Only attempt to install the editor on a KEY_PRESSED,
 			if (e == null || e.getID() != KeyEvent.KEY_PRESSED) {
+				LOG.info(e.toString());
 				return false;
 			}
 			// Don't start when just a modifier is pressed
 			int code = e.getKeyCode();
 			if (code == KeyEvent.VK_SHIFT || code == KeyEvent.VK_CONTROL || code == KeyEvent.VK_ALT) {
+				LOG.info("code="+code);
 				return false;
 			}
 			// Try to install the editor
@@ -184,12 +227,15 @@ public class EditorHandler implements CellEditorListener  {
 			int col = grid.getGridSelectionModel().getFocusedColumn();
 			//TODO:editorCellAtでコンポーネントが表示される位置がおかしい
 			if (!editCellAt(row, col)) {
+				LOG.info("editCellAt("+row+","+col+")=false");
 				return false;
 			}
 			editorComponent = getEditorComponent();
 			if (editorComponent == null) {
+				LOG.info("editorComponent=false:("+row+","+col+")");
 				return false;
 			}
+			LOG.info(editorComponent.getBounds().toString());
 		}
 		if ((editorComponent instanceof JComponent) && ((e.getModifiers() & InputEvent.ALT_MASK) == 0)) {
 			//boolean retValue = true;

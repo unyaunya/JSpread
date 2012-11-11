@@ -27,6 +27,7 @@ import com.unyaunya.grid.IPainter;
 import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.IGridCellRenderer;
 import com.unyaunya.grid.IGridModel;
+import com.unyaunya.grid.QuadrantPanel;
 import com.unyaunya.grid.Rows;
 import com.unyaunya.grid.ScrollModel;
 import com.unyaunya.grid.ShapePainter;
@@ -69,7 +70,48 @@ public class JGrid extends JComponent implements TableModelListener {
 	transient private ScrollModel scrollModel;
 	transient private Columns columns;
 	transient private Rows rows;
+	transient private QuadrantPanel upperLeft;
+	transient private QuadrantPanel upperRight;
+	transient private QuadrantPanel lowerLeft;
+	transient private QuadrantPanel lowerRight;
+	
 	private Actions actions;
+
+    /**
+	 * default constructor
+	 */
+	//public JGrid() {
+	//	this(null);
+	//}
+
+	public JGrid(IGridModel model) {
+		this.setFocusable(true);
+		assert(model != null);
+		this.gridModel = model;
+		this.scrollModel = createScrollModel();
+		this.columns = new Columns(getScrollModel());
+		this.rows = new Rows(getScrollModel());
+        this.actions = new Actions(this);
+    	this.editorHandler = new EditorHandler(this);
+    	this.shapeList = new ShapeList();
+    	this.foregroundPainter = new ShapePainter(this);
+    	this.upperLeft = createQuadrantPanel();
+    	this.upperRight = createQuadrantPanel();
+    	this.lowerLeft = createQuadrantPanel();
+    	this.lowerRight = createQuadrantPanel();
+		this.add(this.upperLeft);
+		this.add(this.upperRight);
+		this.add(this.lowerLeft);
+		this.add(this.lowerRight);
+		upperLeft.setBounds(0,0,100,100);
+		upperRight.setBounds(200,0,100,100);
+		lowerLeft.setBounds(0,200,100,100);
+		lowerRight.setBounds(200,200,100,100);
+
+    	setCellRenderer(new DefaultCellRenderer());
+		setUI(new GridUI());
+		init(model);
+	}
 
 	//
 	// Managing GridUI
@@ -119,29 +161,25 @@ public class JGrid extends JComponent implements TableModelListener {
         return uiClassID;
     }
 
-    /**
-	 * default constructor
-	 */
-	//public JGrid() {
-	//	this(null);
-	//}
-
-	public JGrid(IGridModel model) {
-		this.setFocusable(true);
-		assert(model != null);
-		this.gridModel = model;
-		this.scrollModel = createScrollModel();
-		this.columns = new Columns(getScrollModel());
-		this.rows = new Rows(getScrollModel());
-        this.actions = new Actions(this);
-    	this.editorHandler = new EditorHandler(this);
-    	this.shapeList = new ShapeList();
-    	this.foregroundPainter = new ShapePainter(this);
-    	setCellRenderer(new DefaultCellRenderer());
-		setUI(new GridUI());
-		init(model);
+	public QuadrantPanel getUpperLeft() {
+		return upperLeft;
+	}
+	public QuadrantPanel getUpperRight() {
+		return upperRight;
+	}
+	public QuadrantPanel getLowerLeft() {
+		return lowerLeft;
+	}
+	public QuadrantPanel getLowerRight() {
+		return lowerRight;
 	}
 
+	private static QuadrantPanel createQuadrantPanel() {
+		QuadrantPanel panel = new QuadrantPanel();
+    	panel.setOpaque(false);
+		return panel;
+	}
+	
 	private void init(IGridModel model) {
 		setGridModel(model);
 		setGridSelectionModel(createSelectionModel());
@@ -156,7 +194,7 @@ public class JGrid extends JComponent implements TableModelListener {
 		this.addMouseMotionListener(getHandler());
 	}
 
-	protected void setCellRenderer(IGridCellRenderer cellRenderer) {
+	public void setCellRenderer(IGridCellRenderer cellRenderer) {
 		this.cellRenderer = cellRenderer; 
 	}
 

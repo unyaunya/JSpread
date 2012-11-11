@@ -23,6 +23,10 @@ public class GanttTableModel extends AbstractTableModel {
 		return document;
 	}
 
+	public void setDocument(GanttDocument document) {
+		this.document = document;
+	}
+
 	public int getHeaderRowCount() {
 		return headerRowCount;
 	}
@@ -73,10 +77,12 @@ public class GanttTableModel extends AbstractTableModel {
 			int index = row - getHeaderRowCount(); 
 			if(index < taskList.size() && col < getDataColumnCount()) {
 				Task task = getDocument().getTask(index);
+				assert(task != null);
 				switch(col) {
 				case 0:
-				case 1:
 					return null;
+				case 1:
+					return task.getLevel();
 				case 2:
 					return task.getName();
 				case 3:
@@ -106,7 +112,9 @@ public class GanttTableModel extends AbstractTableModel {
 		Date date;
 		switch(col) {
 		case 0:
+			break;
 		case 1:
+			task.setLevel(value == null ? 0 : Integer.parseInt(value.toString()));
 			break;
 		case 2:
 			task.setName(value == null ? "NULL" : value.toString());

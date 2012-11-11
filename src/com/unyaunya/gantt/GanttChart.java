@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import com.unyaunya.grid.CellPosition;
 import com.unyaunya.grid.Columns;
 import com.unyaunya.swing.JGridPane;
 import com.unyaunya.swing.JSpread;
@@ -22,11 +23,14 @@ public class GanttChart extends JGridPane {
 		getGrid().setGridModel(gcm);
 		getGrid().setCellEditor(new GanttCellEditor(getGrid()));
 		int headerRowCount = getGanttChartModel().getGanttTableModel().getHeaderRowCount();
+		getGrid().getScrollModel().setDefaultSplitPosition(new CellPosition(headerRowCount, 0));
 		getGrid().getGridSelectionModel().setMinimumFocusedRow(headerRowCount);
 		getGrid().getGridSelectionModel().focus(headerRowCount, 0);
 		
 		getSpread().getConfig().setRowInsertionSuppoorted(true);
 		getGrid().setForegroundPainter(new GanttPainter(getGrid().getScrollModel(), gcm.getGanttTableModel()));
+		getGrid().setCellRenderer(new GanttCellRenderer());
+
 		init();
 	}
 
@@ -54,6 +58,7 @@ public class GanttChart extends JGridPane {
 	public GanttChartModel getGanttChartModel() {
 		return (GanttChartModel)getSpread().getGridModel();
 	}
+
 	/**
 	 * 表示対象のドキュメントを取得する
 	 * @return

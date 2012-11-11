@@ -180,7 +180,7 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	 * @return
 	 */
 	public int getFixedPartNum() {
-		return fixedPartNum;
+		return Math.max(0, fixedPartNum);
 	}
 
 	/**

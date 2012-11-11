@@ -95,7 +95,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 
 	class MyFileMenuHandler extends AbstractFileMenuHandler {
 		private FileNameExtensionFilter ssdFilter = new FileNameExtensionFilter(
-		        "ガントチャート", "xml");
+		        "ガントチャート(.xml)", "xml");
 		
 		MyFileMenuHandler(){}
 
@@ -134,6 +134,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 			try {
 				GanttDocument doc = (GanttDocument)JAXBUtil.read(GanttDocument.class, file);
 				getGanttChart().getGanttChartModel().readDocument(doc);
+				getGanttChart().repaint();
 	    		return doc;
 			} catch (IOException e) {
 				LOG.info(e.getMessage());
@@ -144,10 +145,17 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
     		return null;
 		}
 
+		public boolean isXmlFile(File file) {
+			return file.isFile() && file.canRead() && file.getPath().endsWith(".jar");
+		}
+		
 		@Override
 		protected void saveDocument(Object document, File file) {
+			if(!file.getPath().endsWith(".xml")) {
+				file = new File(file.getPath()+".xml");
+			}
 	    	if(!ssdFilter.accept(file)) {
-	    		return;
+	    		throw new RuntimeException("!ssdFilter.accept(file)");
 	    	}
 			try {
 				JAXBUtil.save(document, file);

@@ -28,6 +28,21 @@ public class CellPosition implements Serializable {
 		this.column = column;
 	}
 
+	/**
+	 * コンストラクタ
+	 */
+	public CellPosition(CellPosition src) {
+		this();
+		copy(src);
+	}
+
+	public CellPosition copy(CellPosition src) {
+		assert(src != null);
+		this.row = src.row;
+		this.column = src.column;
+		return this;
+	}
+
 	public int getRow() {
 		return row;
 	}

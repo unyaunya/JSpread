@@ -2,11 +2,15 @@ package com.unyaunya.gantt;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.util.logging.Logger;
 
 import com.unyaunya.grid.IPainter;
 import com.unyaunya.grid.ScrollModel;
 
 public class GanttPainter implements IPainter {
+	@SuppressWarnings("unused")
+	private static final Logger LOG = Logger.getLogger(GanttPainter.class.getName());
+
 	private GanttTableModel ganttTableModel;
 	private ScrollModel scrollModel;
 	
@@ -28,9 +32,6 @@ public class GanttPainter implements IPainter {
 	}
 
 	private void drawTask(Graphics2D g2d, int index) {
-		Task task = ganttTableModel.getDocument().getTask(index);
-		assert(task != null);
-		
 		int c1 = ganttTableModel.getStartDateColumn(index);
 		int c2 = ganttTableModel.getEndDateColumn(index);
 		if(c1 < 0 || c2 < 0) {

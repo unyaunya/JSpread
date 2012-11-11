@@ -5,24 +5,30 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 class NullTask extends Task {
 	
 }
 
-@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "GanttDocument")
 public class GanttDocument {
-	private String[] columnName = {"ID", "階層", "タスク名", "開始日", "終了日", "進捗率", "sss"};
+	private static String[] columnName = {"ID", "階層", "タスク名", "開始日", "終了日", "進捗率", "sss"};
 	public static Task NULL = new NullTask();
 	
-	@XmlElement
+	@XmlAttribute(name = "start-date")
 	private Date startDate;
-	@XmlElement
+	@XmlAttribute(name = "end-date")
 	private Date endDate;
-	
-	@XmlElement
+
+	@XmlElementWrapper(name = "Tasks")
+    @XmlElement(name = "Task")
 	protected List<Task> tasks;
 
 	/**

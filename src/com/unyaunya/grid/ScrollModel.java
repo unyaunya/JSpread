@@ -9,13 +9,14 @@ import java.awt.event.ComponentListener;
 import java.io.Serializable;
 import java.util.logging.Logger;
 
-import javax.swing.JComponent;
 import javax.swing.JScrollBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
+
+import com.unyaunya.swing.JGrid;
 
 /**
  * JGridのスクロール処理を処理するクラス
@@ -34,14 +35,17 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	private ScrollRangeModel colRangeModel;
 	private ScrollRangeModel rowRangeModel;
 	private TableModel tableModel;
-	private JComponent component;
+	private JGrid component;
+	
+	private CellPosition defaultSplitPosition;
 
-	public ScrollModel(JComponent c, int columnHeaderheight, int rowHeaderWidth) {
+	public ScrollModel(JGrid c, int columnHeaderheight, int rowHeaderWidth) {
 		this(columnHeaderheight, rowHeaderWidth, 23, 60);
 		setComponent(c);
 	}
 
 	private ScrollModel(int columnHeaderheight, int rowHeaderWidth, int defaultRowHeight, int defaultColumnWidth) {
+		this.defaultSplitPosition = new CellPosition(0,0);
 		this.rowRangeModel = new ScrollRangeModel(columnHeaderheight);
 		this.colRangeModel = new ScrollRangeModel(rowHeaderWidth);
 		this.setDefaultRowHeight(defaultRowHeight);
@@ -51,7 +55,7 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	/**
 	 * スクロール対象のコンポーネントを設定する。
 	 */
-	private void setComponent(JComponent component) {
+	private void setComponent(JGrid component) {
 		if(this.component != null) {
 			throw new RuntimeException("Can't reset the component");
 		}
@@ -60,18 +64,38 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 		colRangeModel.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
+				adjustQuadrant();
 				ScrollModel.this.component.repaint();
 			}
 		});
 		rowRangeModel.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
+				adjustQuadrant();
 				ScrollModel.this.component.repaint();
 			}
 		});
 		this.component.repaint();
 	}
 	
+	/**
+	 * グリッド四分割の基準セルのデフォルト位置を取得する。
+	 * unfreezePanesを実行すると、このｾﾙ位置を基準にグリッドは四分割される
+	 */
+	public CellPosition getDefaultSplitPosition() {
+		return defaultSplitPosition; 
+	}
+
+	/**
+	 * グリッド四分割の基準セルのデフォルト位置を設定する。
+	 */
+	public void setDefaultSplitPosition(CellPosition newPosition) {
+		defaultSplitPosition = new CellPosition(newPosition);
+		CellPosition currentSplitPosiition = getCurrentSplitPosiition();
+		freezePanes(Math.max(currentSplitPosiition.getRow(), defaultSplitPosition.getRow()),
+				Math.max(currentSplitPosiition.getColumn(), defaultSplitPosition.getColumn()));
+	}
+
 	/**
 	 * @param tableModel the tableModel to set
 	 */
@@ -257,11 +281,19 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 		return rowRangeModel.getFixedPartNum();
 	}
 
+	public void setFixedRowNum(int num) {
+		rowRangeModel.setFixedPartNum(num);
+	}
+
 	public int getFixedColumnNum() {
 		return colRangeModel.getFixedPartNum();
 	}
 
-	public int getFixedAreaHight() {
+	public void setFixedColumnNum(int num) {
+		colRangeModel.setFixedPartNum(num);
+	}
+
+	public int getFixedAreaHeight() {
 		return rowRangeModel.getFixedPartSize();
 	}
 	public int getFixedAreaWidth() {
@@ -343,17 +375,31 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	}
 
 	public boolean arePanesFreezed() {
-		return (this.getFixedRowNum()!=0 || this.getFixedColumnNum()!=0);
+		if(this.getFixedRowNum()!=getDefaultSplitPosition().getRow()) {
+			return true;
+		}
+		if( this.getFixedColumnNum()!=getDefaultSplitPosition().getColumn()) {
+			return true;
+		}
+		return false;
 	}
 
+	public CellPosition getCurrentSplitPosiition() {
+		return new CellPosition(
+				rowRangeModel.getFixedPartNum(),
+				colRangeModel.getFixedPartNum()
+				);
+	}
 	public void freezePanes(int rowIndex, int columnIndex) {
-		colRangeModel.setFixedPartNum(columnIndex);
 		rowRangeModel.setFixedPartNum(rowIndex);
+		colRangeModel.setFixedPartNum(columnIndex);
+		adjustQuadrant();
 	}
 
 	public void unfreezePanes() {
-		colRangeModel.setFixedPartNum(0);
-		rowRangeModel.setFixedPartNum(0);
+		rowRangeModel.setFixedPartNum(getDefaultSplitPosition().getRow());
+		colRangeModel.setFixedPartNum(getDefaultSplitPosition().getColumn());
+		adjustQuadrant();
 	}
 
 	@Override
@@ -371,8 +417,25 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 		Component c = e.getComponent();
 		colRangeModel.setComponentSize(c.getWidth());
 		rowRangeModel.setComponentSize(c.getHeight());
+		assert(c == this.component);
+		adjustQuadrant();
 	}
 
+	public void adjustQuadrant() {
+		int dx = colRangeModel.getScrollAmount();
+		int dy = rowRangeModel.getScrollAmount();
+		LOG.info("(dx,dy)=("+dx+","+dy+")");
+		JGrid grid = this.component;
+		grid.getUpperLeft().setBounds(0, 0, getFixedAreaWidth(), getFixedAreaHeight());
+		grid.getUpperLeft().setViewPosiition(0, 0);
+		grid.getUpperRight().setBounds(getFixedAreaWidth(), 0, getScrollAreaWidth(), getFixedAreaHeight());
+		grid.getUpperRight().setViewPosiition(getFixedAreaWidth()+dx, 0);
+		grid.getLowerLeft().setBounds(0, getFixedAreaHeight(), getFixedAreaWidth(), getScrollAreaHeight());
+		grid.getLowerLeft().setViewPosiition(0, getFixedAreaHeight()+dy);
+		grid.getLowerRight().setBounds(getFixedAreaWidth(), getFixedAreaHeight(), getScrollAreaWidth(), getScrollAreaHeight());
+		grid.getLowerRight().setViewPosiition(getFixedAreaWidth()+dx, getFixedAreaHeight()+dy);
+	}
+	
 	@Override
 	public void componentShown(ComponentEvent e) {
 		//nothing to do

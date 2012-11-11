@@ -208,7 +208,6 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 		LOG.info("SHIFT="+isShiftDown()+",CTRL="+isControlDown());
 		int currentRow = getFocusedRow();
 		int currentCol = getFocusedColumn();
-		//
 		IRange range = grid.getCellRange(currentRow, currentCol);
 		int row = currentRow+deltaRow;
 		int col = currentCol+deltaColumn;
@@ -244,6 +243,7 @@ abstract public class AbstractSelectionModel implements IGridSelectionModel {
 	protected void moveTo(int newRowIndex, int newColumnIndex, boolean shft, boolean ctrl) {
 		int currentRow = getFocusedRow();
 		int currentCol = getFocusedColumn();
+		LOG.info("(newRowIndex,newColumnIndex)=("+newRowIndex+","+newColumnIndex+")");
 		if(currentRow != newRowIndex || currentCol != newColumnIndex) {
 			getGrid().getEditorHandler().stopEditing();
 			getGrid().scrollToVisible(newRowIndex, newColumnIndex);

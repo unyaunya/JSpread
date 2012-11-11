@@ -20,6 +20,7 @@ public class GridModel implements IGridModel {
 	}
 
 	public void setTableModel(TableModel model) {
+		assert(model != null);
 		this.tableModel = model;
 		this.cellFormatModel = new CellFormatModel();
 		this.cellSpanModel = new CellSpanModel();

@@ -6,7 +6,6 @@ package com.unyaunya.grid;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
 import javax.swing.SizeSequence;
 
@@ -14,13 +13,16 @@ import javax.swing.SizeSequence;
  * @author wata
  *　行高さまたは列幅を管理するクラス
  */
-@SuppressWarnings("serial")
-class SizeModel extends SizeSequence implements Serializable {
+class SizeModel extends SizeSequence {
+	private static int[] emptyArray = new int[0];
+	private int a[];
+	
 	/**
 	 * 
 	 */
 	private int defaultSize = 20;
 	private int length = 0;
+	//private 
 
 	/**
 	 * 

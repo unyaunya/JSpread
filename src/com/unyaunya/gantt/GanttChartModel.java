@@ -2,7 +2,6 @@ package com.unyaunya.gantt;
 
 import java.awt.Color;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 import javax.swing.SwingConstants;
 
@@ -24,6 +23,7 @@ public class GanttChartModel extends GridModel {
 	public GanttTableModel getGanttTableModel() {
 		return (GanttTableModel)getTableModel();
 	}
+	
 	private GanttDocument getGanttDocument() {
 		return getGanttTableModel().getDocument();
 	}
@@ -84,13 +84,8 @@ public class GanttChartModel extends GridModel {
 		fm.addFormat(new RangedFormat(new SimpleDateFormat("YYYY/MM/dd"), new CellRange(tm.getHeaderRowCount(), 3, tm.getRowCount()-1, 4)));
 	}
 	
-	public GanttChartModel readDocument(GanttDocument doc) { 
-		//SpreadSheetModel.clear()‚ðŽÀ‘•‚·‚×‚«
-		this.setTableModel(null);
-		List<Task> taskList = doc.getTasks();
-		for(int i = 0; i < taskList.size(); i++) {
-			this.insertRow(5);
-		}
+	public GanttChartModel readDocument(GanttDocument document) { 
+		getGanttTableModel().setDocument(document);
 		return this;
 	}
 }

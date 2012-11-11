@@ -23,6 +23,10 @@ public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
     	setOpaque(true);
     }
 
+	protected String getValueString(JGrid grid, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+		return value.toString();
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.unyaunya.spread.ICellRenderer#getCellRendererComponent()
 	 */
@@ -31,7 +35,7 @@ public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
 		if(value == null) {
 			value = "";
 		}
-		setText(value.toString());
+		setText(getValueString(grid, value, isSelected, hasFocus, row, column));
 		if(isSelected) {
 			super.setForeground(grid.getSelectionForeground());
 		}
