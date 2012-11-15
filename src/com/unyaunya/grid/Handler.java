@@ -257,13 +257,18 @@ public class Handler extends MouseInputAdapter {
 		if(e.getClickCount() != 2) {
 			return;
 		}
-		Point pt = e.getPoint();
-		//CellPosition cp = grid.getCellPositionFromView(pt);
-		int row = grid.rowAtViewPoint(pt);
-		int col = grid.columnAtViewPoint(pt);
-		if(!grid.getGridModel().getTableModel().isCellEditable(row, col)) {
-			return;
+		if(javax.swing.SwingUtilities.isRightMouseButton(e)){
+		    // 右クリック時の処理
+			
+		} else if(javax.swing.SwingUtilities.isLeftMouseButton(e)) {
+			Point pt = e.getPoint();
+			//CellPosition cp = grid.getCellPositionFromView(pt);
+			int row = grid.rowAtViewPoint(pt);
+			int col = grid.columnAtViewPoint(pt);
+			if(!grid.getGridModel().getTableModel().isCellEditable(row, col)) {
+				return;
+			}
+			grid.getEditorHandler().editCellAt(row, col);
 		}
-		grid.getEditorHandler().editCellAt(row, col);
 	}
 }

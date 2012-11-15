@@ -27,7 +27,16 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	private static final long serialVersionUID = 1L;
 	private GanttChart gantt; 
 
-	public AppWindow() {
+	public static AppWindow instance;
+	
+	public static AppWindow GetInstance() {
+		if(instance == null) {
+			instance = new AppWindow();
+		}
+		return instance;
+	}
+	
+	private AppWindow() {
 		super("çHíˆï\");
 		LOG.info("AppWindow()");
 	}

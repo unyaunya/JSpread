@@ -5,7 +5,7 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		AppWindow f = new AppWindow();
+		AppWindow f = AppWindow.GetInstance();
 		f.init();
 	}
 }

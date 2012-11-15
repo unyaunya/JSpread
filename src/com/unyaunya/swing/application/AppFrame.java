@@ -3,6 +3,7 @@ package com.unyaunya.swing.application;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
@@ -13,6 +14,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 /**
  * 
@@ -29,6 +31,7 @@ public abstract class AppFrame extends JFrame {
 	
 	private boolean isInited = false; 
 	private JComponent	mainComponent;
+	private JPopupMenu popupMenu;
 	transient IFileMenuHandler fileMenuHandler; 
 	
 	public AppFrame(String title) {
@@ -124,4 +127,19 @@ public abstract class AppFrame extends JFrame {
 		return this.fileMenuHandler;
 	}
 
+	protected JPopupMenu createPopupMenu() {
+		JPopupMenu popup = new JPopupMenu();
+		return popup;
+	}
+
+	public JPopupMenu getPopupMenu() {
+		if(popupMenu == null) {
+			popupMenu = createPopupMenu();
+		}
+		return popupMenu;
+	}
+	
+	public void showPopupMenu(MouseEvent e) {
+		getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+	}
 }
