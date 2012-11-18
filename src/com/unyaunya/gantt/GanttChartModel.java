@@ -81,7 +81,7 @@ public class GanttChartModel extends GridModel {
 		fm.addBackgroundColor(new RangedColor(Color.PINK, headerRange));
 
 		//日付フォーマットの設定
-		fm.addFormat(new RangedFormat(new SimpleDateFormat("YYYY/MM/dd"), new CellRange(tm.getHeaderRowCount(), 3, tm.getRowCount()-1, 4)));
+		fm.addFormat(new RangedFormat(new SimpleDateFormat("yyyy/MM/dd"), new CellRange(tm.getHeaderRowCount(), 3, tm.getRowCount()-1, 4)));
 	}
 	
 	public GanttChartModel readDocument(GanttDocument document) { 

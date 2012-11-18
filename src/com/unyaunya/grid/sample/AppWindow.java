@@ -165,6 +165,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		    	try {
 		    		CSVReader reader = new CSVReader(new FileReader(file));
 		    	    List<String[]> myEntries = reader.readAll();
+		    	    reader.close();
 		    	    GridModel tmp = new GridModel(new CsvTable(myEntries));
 		    	    return tmp;
 		    	} catch (IOException e) {
