@@ -24,6 +24,25 @@ public class GanttChartModel extends GridModel {
 		return (GanttTableModel)getTableModel();
 	}
 	
+	@Override
+	public int getLevel(int row) {
+		GanttTableModel tm = getGanttTableModel();
+		Task task = tm.getTask(row);
+		if(task != null) {
+			return task.getLevel();
+		}
+		return 0;
+	}
+
+	/**
+	 * ヘッダとして扱う行の数を返す。
+	 * 派生クラスでオーバライドする。
+	 * @return
+	 */
+	public int getHeaderRowCount() {
+		return getGanttTableModel().getHeaderRowCount();
+	}
+
 	private GanttDocument getGanttDocument() {
 		return getGanttTableModel().getDocument();
 	}

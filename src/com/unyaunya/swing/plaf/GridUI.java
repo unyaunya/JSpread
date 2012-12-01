@@ -15,8 +15,10 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.ComponentUI;
 
+import com.unyaunya.grid.Columns;
 import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.IGridCellRenderer;
+import com.unyaunya.grid.Rows;
 import com.unyaunya.grid.ScrollModel;
 import com.unyaunya.grid.action.Actions;
 import com.unyaunya.swing.JGrid;
@@ -79,6 +81,9 @@ public class GridUI extends ComponentUI {
 	   assert(this.grid == grid);
 
 	   ScrollModel sm = grid.getScrollModel();
+	   Columns columns = sm.getColumns();
+	   Rows rows = sm.getRows();
+	   
 	   //LOG.info("row="+sm.getRowCount());
 	   //LOG.info("col="+sm.getColumnCount());
 	   /*if (sm.getRowCount() <= 0 || sm.getColumnCount() <= 0) {
@@ -91,25 +96,25 @@ public class GridUI extends ComponentUI {
 	   int col[] = new int[4];
 
 	   row[0] = -1;
-	   row[1] = sm.getFixedRowNum()-1;
-	   row[2] = sm.getFixedRowNum() + sm.getRowScrollValue();
-	   row[3] = sm.getRowCount()-1;
+	   row[1] = rows.getCountOfFixedPart()-1;
+	   row[2] = rows.getCountOfFixedPart() + sm.getRowScrollValue();
+	   row[3] = rows.getCount()-1;
 	   col[0] = -1;
-	   col[1] = sm.getFixedColumnNum()-1;
-	   col[2] = sm.getFixedColumnNum() + sm.getColumnScrollValue();
-	   col[3] = sm.getColumnCount()-1;
+	   col[1] = columns.getCountOfFixedPart()-1;
+	   col[2] = columns.getCountOfFixedPart() + sm.getColumnScrollValue();
+	   col[3] = columns.getCount()-1;
 	   
 	   //row[], col[]‚É‘Î‰ž‚·‚éx,yÀ•W
 	   int x[] = new int[4];
 	   int y[] = new int[4];
 	   x[0] = 0;
-	   x[1] = sm.getColumnPosition(col[1]+1);
-	   x[2] = sm.getColumnPosition(col[2]);
-	   x[3] = sm.getColumnPosition(col[3]+1);
+	   x[1] = sm.getColumns().getPosition(col[1]+1);
+	   x[2] = sm.getColumns().getPosition(col[2]);
+	   x[3] = sm.getColumns().getPosition(col[3]+1);
 	   y[0] = 0;
-	   y[1] = sm.getRowPosition(row[1]+1);
-	   y[2] = sm.getRowPosition(row[2]);
-	   y[3] = sm.getRowPosition(row[3]+1);
+	   y[1] = sm.getRows().getPosition(row[1]+1);
+	   y[2] = sm.getRows().getPosition(row[2]);
+	   y[3] = sm.getRows().getPosition(row[3]+1);
 
 	   int scrollX = sm.getColumnScrollAmount();
 	   int scrollY = sm.getRowScrollAmount();
@@ -208,10 +213,10 @@ public class GridUI extends ComponentUI {
     	    {
     			Point upperLeft = lcClip.getLocation();
     		    Point lowerRight = new Point(lcClip.x + lcClip.width - 1, lcClip.y + lcClip.height - 1);
-    			int rmin = Math.max(rMin, sm.rowAtPoint(upperLeft));
-    			int rmax = Math.min(rMax, sm.rowAtPoint(lowerRight));
-    			int cmin = Math.max(cMin, sm.columnAtPoint(upperLeft));
-    			int cmax = Math.min(cMax, sm.columnAtPoint(lowerRight));
+    			int rmin = Math.max(rMin, sm.getRows().rowAtPoint(upperLeft));
+    			int rmax = Math.min(rMax, sm.getRows().rowAtPoint(lowerRight));
+    			int cmin = Math.max(cMin, sm.getColumns().columnAtPoint(upperLeft));
+    			int cmax = Math.min(cMax, sm.getColumns().columnAtPoint(lowerRight));
     			LOG.info("(rMin,rMax,cMin,cMax)=(" + rMin + "," + rMax + "," + cMin + "," + cMax + ")");
     			LOG.info("(rmin,rmax,cmin,cmax)=(" + rmin + "," + rmax + "," + cmin + "," + cmax + ")");
     			QuadrantPainter qp = new QuadrantPainter(rmin, rmax, cmin, cmax);

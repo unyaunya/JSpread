@@ -24,7 +24,7 @@ public class GanttPainter implements IPainter {
 	@Override
 	public void paint(Graphics2D g2d) {
 		for(int i = ganttTableModel.getHeaderRowCount(); i < ganttTableModel.getRowCount(); i++) {
-			if(!scrollModel.isVisibleRow(i)) {
+			if(!scrollModel.getRows().isVisible(i)) {
 				continue;
 			}
 			drawTask(g2d, i);
@@ -39,10 +39,10 @@ public class GanttPainter implements IPainter {
 		}
 		Rectangle rectangle = new Rectangle();
 		int x, y, w, h;
-		h = scrollModel.getRowHeight(index);
-		y = scrollModel.getRowPosition(index)+h/4;
-		x = scrollModel.getColumnPosition(c1);
-		w = scrollModel.getColumnPosition(c2+1) - x;
+		h = scrollModel.getRows().getHeight(index);
+		y = scrollModel.getRows().getPosition(index)+h/4;
+		x = scrollModel.getColumns().getPosition(c1);
+		w = scrollModel.getColumns().getPosition(c2+1) - x;
 		h /= 2;
 		rectangle.setBounds(x, y, w, h);
 		g2d.draw(rectangle);

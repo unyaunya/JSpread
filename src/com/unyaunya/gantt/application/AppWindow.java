@@ -1,15 +1,19 @@
 package com.unyaunya.gantt.application;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBException;
 
@@ -17,26 +21,20 @@ import javax.xml.bind.JAXBException;
 import com.unyaunya.gantt.GanttChart;
 import com.unyaunya.gantt.GanttDocument;
 import com.unyaunya.grid.IGridModel;
+import com.unyaunya.grid.IRange;
+import com.unyaunya.grid.Rows;
 import com.unyaunya.grid.action.SpreadActionProvider;
+import com.unyaunya.grid.selection.IGridSelectionModel;
+import com.unyaunya.swing.JGrid;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.application.AbstractFileMenuHandler;
 import com.unyaunya.swing.application.IFileMenuHandler;
 
+@SuppressWarnings("serial")
 public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	private static Logger LOG = Logger.getLogger(AppWindow.class.getName());
-	private static final long serialVersionUID = 1L;
-	private GanttChart gantt; 
 
-	public static AppWindow instance;
-	
-	public static AppWindow GetInstance() {
-		if(instance == null) {
-			instance = new AppWindow();
-		}
-		return instance;
-	}
-	
-	private AppWindow() {
+	public AppWindow() {
 		super("çHíˆï\");
 		LOG.info("AppWindow()");
 	}
@@ -83,7 +81,9 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 
 	@Override
 	protected JComponent createMainComponent() {
-		return new GanttChart();
+		GanttChart gc = new GanttChart();
+		gc.getGrid().setGridEventHandler(new GridEventAdapter());
+		return gc;
 	}
 
 	private GanttChart getGanttChart() {
@@ -91,7 +91,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	}
 	
 	private JSpread getSpread() {
-		return gantt.getSpread();
+		return getGanttChart().getSpread();
 	}
 
 	//implementation of FileMenuHandler
@@ -176,4 +176,40 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 			}
 		}
 	}
+
+	protected JPopupMenu createPopupMenu() {
+		JPopupMenu menu = super.createPopupMenu();
+		menu.add(new JMenuItem(new AbstractAction("ï\é¶ÇµÇ»Ç¢") {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JSpread sp = getSpread();
+				Rows rows = sp.getRows();
+				IGridSelectionModel sm = sp.getGridSelectionModel();
+				ArrayList<IRange> srl = sm.getSelectedRangeList();
+				for(int i = 0; i < srl.size(); i++) {
+					IRange r = srl.get(i);
+					for(int j = r.getTop(); j <= r.getBottom(); j++) {
+						if(sm.isRowSelected(j)) {
+							rows.setHidden(j, false);
+						}
+					}
+				}
+			}
+		}));
+		menu.add(new JMenuItem(new AbstractAction("Ç∑Ç◊Çƒï\é¶Ç∑ÇÈ") {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JSpread sp = getSpread();
+				Rows rows = sp.getRows();
+				for(int i = 0; i < rows.getCount(); i++) {
+					rows.setHidden(i, true);
+				}
+			}
+		}));
+		menu.add(new JMenu("ssssss"));
+		menu.add(new JMenu("ssssss"));
+		return menu;
+	}
+
+
 }

@@ -175,4 +175,19 @@ public class GridModel implements IGridModel {
 			m.removeRow(row);
 		}
 	}
+
+	@Override
+	public int getLevel(int row) {
+		//派生クラスでオーバライドする。
+		return 0;
+	}
+
+	/**
+	 * ヘッダとして扱う行の数を返す。
+	 * 派生クラスでオーバライドする。
+	 * @return
+	 */
+	public int getHeaderRowCount() {
+		return 0;
+	}
 }

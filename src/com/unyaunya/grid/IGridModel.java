@@ -72,6 +72,19 @@ public interface IGridModel {
 	//@Override
 	public String getColumnName(int column);
 	
+	/**
+	 * 指定された行のレベルを取得する。
+	 * @param row
+	 * @return
+	 */
+	public int getLevel(int row);
+
+	/**
+	 * ヘッダとして扱う行の数を返す。
+	 * @return
+	 */
+	public int getHeaderRowCount();
+
 	//
 	//行・列の操作
 	//

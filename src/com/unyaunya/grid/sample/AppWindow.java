@@ -32,9 +32,9 @@ import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.application.AbstractFileMenuHandler;
 import com.unyaunya.swing.application.IFileMenuHandler;
 
+@SuppressWarnings("serial")
 public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	private static Logger LOG = Logger.getLogger(AppWindow.class.getName());
-	private static final long serialVersionUID = 1L;
 
 	public AppWindow() {
 		super("Sample");

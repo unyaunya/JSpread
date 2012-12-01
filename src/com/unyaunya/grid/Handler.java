@@ -67,11 +67,11 @@ public class Handler extends MouseInputAdapter {
 		if(col == -1) {
 			return -1;
 		}
-		int left = grid.getScrollModel().getColumnPosition(col);
+		int left = grid.getScrollModel().getColumns().getPosition(col);
 		if((col != 0) && ((pt.x - left) < RESIZE_ZONE_WIDTH)) {
 			return col;
 		}
-		int right = grid.getScrollModel().getColumnPosition(col+1);
+		int right = grid.getScrollModel().getColumns().getPosition(col+1);
 		if((right - pt.x) < RESIZE_ZONE_WIDTH) {
 			return col + 1;
 		}
@@ -85,11 +85,11 @@ public class Handler extends MouseInputAdapter {
 		if(row == -1) {
 			return -1;
 		}
-		int top = grid.getScrollModel().getRowPosition(row);
+		int top = grid.getRows().getPosition(row);
 		if((row != 0) && ((pt.y - top) < RESIZE_ZONE_WIDTH)) {
 			return row;
 		}
-		int bottom = grid.getScrollModel().getRowPosition(row+1);
+		int bottom = grid.getRows().getPosition(row+1);
 		if((bottom - pt.y) < RESIZE_ZONE_WIDTH) {
 			return row+1;
 		}
@@ -117,8 +117,8 @@ public class Handler extends MouseInputAdapter {
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		Point pt = e.getPoint();
-		int row = grid.rowAtViewPoint(pt);
-		int col = grid.columnAtViewPoint(pt);
+		int row = grid.getRows().rowAtViewPoint(pt);
+		int col = grid.getColumns().columnAtViewPoint(pt);
 		Cursor nextCursor = null;
 		resizeBorderIndex = -1;
 
@@ -214,21 +214,21 @@ public class Handler extends MouseInputAdapter {
 	public void mouseDragged(MouseEvent e) {
 		LOG.info("mouseDragged");
 		if(currentCursor == ROW_RESIZE_CURSOR) {
-			int width = e.getPoint().y - grid.getScrollModel().getRowPosition(resizeBorderIndex-1);
+			int width = e.getPoint().y - grid.getRows().getPosition(resizeBorderIndex-1);
 			LOG.info("行リサイズ:"+resizeBorderIndex+"=>"+width);
 			grid.getRows().setHeight(resizeBorderIndex-1, width);
 			grid.repaint();
 		}
 		else if(currentCursor == COLUMN_RESIZE_CURSOR) {
-			int height = e.getPoint().x - grid.getScrollModel().getColumnPosition(resizeBorderIndex-1);
+			int height = e.getPoint().x - grid.getColumns().getPosition(resizeBorderIndex-1);
 			LOG.info("列リサイズ:"+resizeBorderIndex+"=>"+height);
 			grid.getColumns().setWidth(resizeBorderIndex-1, height);
 			grid.repaint();
 		}
 		else {
 			Point pt = e.getPoint();
-			int row = grid.rowAtViewPoint(pt);
-			int col = grid.columnAtViewPoint(pt);
+			int row = grid.getRows().rowAtViewPoint(pt);
+			int col = grid.getColumns().columnAtViewPoint(pt);
 			if(currentCursor == COLUMN_SELECT_CURSOR) {
 				row = 0;
 				if(col == 0) {
@@ -251,20 +251,20 @@ public class Handler extends MouseInputAdapter {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if(e.getButton() != MouseEvent.BUTTON1) {
-			return;
-		}
-		if(e.getClickCount() != 2) {
-			return;
-		}
 		if(javax.swing.SwingUtilities.isRightMouseButton(e)){
 		    // 右クリック時の処理
-			
+			grid.getGridEventHandler().mouseClicked(e);
 		} else if(javax.swing.SwingUtilities.isLeftMouseButton(e)) {
+			if(e.getButton() != MouseEvent.BUTTON1) {
+				return;
+			}
+			if(e.getClickCount() != 2) {
+				return;
+			}
 			Point pt = e.getPoint();
 			//CellPosition cp = grid.getCellPositionFromView(pt);
-			int row = grid.rowAtViewPoint(pt);
-			int col = grid.columnAtViewPoint(pt);
+			int row = grid.getRows().rowAtViewPoint(pt);
+			int col = grid.getColumns().columnAtViewPoint(pt);
 			if(!grid.getGridModel().getTableModel().isCellEditable(row, col)) {
 				return;
 			}

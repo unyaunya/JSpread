@@ -43,7 +43,7 @@ public abstract class AppFrame extends JFrame {
 	public void init() {
 		if(!isInited) {
 			this.setLayout(new BorderLayout());
-			this.add(BorderLayout.NORTH, createMenuBar());
+			this.setJMenuBar(createMenuBar());
 			add(BorderLayout.CENTER, getMainComponent());
 			setSize(800,600);
 			setVisible(true);
@@ -128,8 +128,7 @@ public abstract class AppFrame extends JFrame {
 	}
 
 	protected JPopupMenu createPopupMenu() {
-		JPopupMenu popup = new JPopupMenu();
-		return popup;
+		return new JPopupMenu();
 	}
 
 	public JPopupMenu getPopupMenu() {
@@ -140,6 +139,9 @@ public abstract class AppFrame extends JFrame {
 	}
 	
 	public void showPopupMenu(MouseEvent e) {
+		if(getPopupMenu() == null) {
+			return;
+		}
 		getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
 	}
 }

@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.text.Format;
 import java.util.logging.Logger;
 
@@ -23,6 +24,7 @@ import com.unyaunya.grid.Columns;
 import com.unyaunya.grid.DefaultCellRenderer;
 import com.unyaunya.grid.Handler;
 import com.unyaunya.grid.ICell;
+import com.unyaunya.grid.IGridEventHandler;
 import com.unyaunya.grid.IPainter;
 import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.IGridCellRenderer;
@@ -54,7 +56,10 @@ public class JGrid extends JComponent implements TableModelListener {
 	private static final Logger LOG = Logger.getLogger(JGrid.class.getName());
 	public static final Color DEFAULT_HEADER_BACKGROUND_COLOR = new Color(0xF0,0xD0,0xD0);
 	public static final Color DEFAULT_SELECTION_BACKGROUND_COLOR = new Color(0xe0,0xe0,0xff);
-	public static final Color DEFAULT_FOREGROUND_COLOR = new Color(0x00,0x00,0x00);
+	public static final Color DEFAULT_FOREGROUND_COLOR = Color.BLACK;
+	public static final Color DEFAULT_BACKGROUND_COLOR = Color.WHITE;
+	
+	private boolean autoPaint;
  
 	protected Color selectionBackground = DEFAULT_SELECTION_BACKGROUND_COLOR;
 	protected Color selectionForeground = DEFAULT_FOREGROUND_COLOR;
@@ -66,10 +71,10 @@ public class JGrid extends JComponent implements TableModelListener {
 	private IGridSelectionModel selectionModel;
 	private ShapeList shapeList;
 	private Handler handler;
-	private IPainter foregroundPainter;	
+	private IPainter foregroundPainter;
+	private IGridEventHandler gridEventHandler;
+	private int treeCellColumn = -1;
 	transient private ScrollModel scrollModel;
-	transient private Columns columns;
-	transient private Rows rows;
 	transient private QuadrantPanel upperLeft;
 	transient private QuadrantPanel upperRight;
 	transient private QuadrantPanel lowerLeft;
@@ -84,13 +89,17 @@ public class JGrid extends JComponent implements TableModelListener {
 	//	this(null);
 	//}
 
+	class NullGridEventHandler implements IGridEventHandler {
+		NullGridEventHandler(){}
+		public void mouseClicked(MouseEvent e){}
+	}
+	
 	public JGrid(IGridModel model) {
 		this.setFocusable(true);
 		assert(model != null);
 		this.gridModel = model;
+		this.gridEventHandler = new NullGridEventHandler();
 		this.scrollModel = createScrollModel();
-		this.columns = new Columns(getScrollModel());
-		this.rows = new Rows(getScrollModel());
         this.actions = new Actions(this);
     	this.editorHandler = new EditorHandler(this);
     	this.shapeList = new ShapeList();
@@ -110,6 +119,7 @@ public class JGrid extends JComponent implements TableModelListener {
 
     	setCellRenderer(new DefaultCellRenderer());
 		setUI(new GridUI());
+		setAutoPaint(true);
 		init(model);
 	}
 
@@ -161,7 +171,15 @@ public class JGrid extends JComponent implements TableModelListener {
         return uiClassID;
     }
 
-	public QuadrantPanel getUpperLeft() {
+    public void setAutoPaint(boolean value) {
+    	this.autoPaint = value;
+    }
+    
+    public boolean getAutoPaint() {
+    	return this.autoPaint;
+    }
+
+    public QuadrantPanel getUpperLeft() {
 		return upperLeft;
 	}
 	public QuadrantPanel getUpperRight() {
@@ -172,6 +190,30 @@ public class JGrid extends JComponent implements TableModelListener {
 	}
 	public QuadrantPanel getLowerRight() {
 		return lowerRight;
+	}
+
+	/**
+	 * TreeCellRenderを表示するカラム
+	 * TreeceRendererを表示しない場合は、-1をセットしておく。
+	 * @return
+	 */
+	public int getTreeCellColumn() {
+		return this.treeCellColumn;
+	}
+	
+	/**
+	 * treeCellColumnをセットする
+	 * @return
+	 */
+	public void setTreeCellColumn(int value) {
+		if(this.treeCellColumn == value) {
+			return;
+		}
+		if(value < 0) {
+			value = -1;
+		}
+		this.treeCellColumn = value;
+		repaint();
 	}
 
 	private static QuadrantPanel createQuadrantPanel() {
@@ -204,6 +246,20 @@ public class JGrid extends JComponent implements TableModelListener {
 
 	public EditorHandler getEditorHandler() {
 		return editorHandler;
+	}
+
+	public void setGridEventHandler(IGridEventHandler newHandler) {
+		if(this.gridEventHandler == newHandler) {
+			return;
+		}
+		if(newHandler == null) {
+			newHandler = new NullGridEventHandler();
+		}
+		this.gridEventHandler = newHandler;
+	}
+
+	public IGridEventHandler getGridEventHandler() {
+		return this.gridEventHandler;
 	}
 
 	public void setForegroundPainter(IPainter painter) {
@@ -283,11 +339,11 @@ public class JGrid extends JComponent implements TableModelListener {
 	}
 
 	public Columns getColumns() {
-		return columns;
+		return getScrollModel().getColumns();
 	}
 
 	public Rows getRows() {
-		return rows;
+		return getScrollModel().getRows();
 	}
 
 	public IRange getCellRange(int row, int column) {
@@ -374,7 +430,7 @@ public class JGrid extends JComponent implements TableModelListener {
 		}
 		renderer.setBorder(border);
 		renderer.setForeground(foregroundColor);
-		renderer.setBackground(backgroundColor);
+		renderer.setBackground(backgroundColor == null ? DEFAULT_BACKGROUND_COLOR : backgroundColor);
 		renderer.setHorizontalAlignment(horizontalAlignment);
 		renderer.setVerticalAlignment(verticalAlignment);
 		return renderer.getGridCellRendererComponent(this, value, isSelected, hasFocus, row, col);
@@ -395,20 +451,19 @@ public class JGrid extends JComponent implements TableModelListener {
 			foregroundPainter.paint(g2d);
 		}
 	}
+	
+	@Override
+	public void repaint() {
+		if(getAutoPaint()) {
+			super.repaint();
+		}
+	}
 
 	/*
 	 * methods delegating to ScrollModel
 	 */
 	public CellPosition getCellPositionFromView(Point pt) {
 		return getScrollModel().getCellPositionFromView(pt);
-	}
-	
-	public int rowAtViewPoint(Point pt) {
-		return getScrollModel().rowAtViewPoint(pt);
-	}
-	
-	public int columnAtViewPoint(Point pt) {
-		return getScrollModel().columnAtViewPoint(pt);
 	}
 	
 	public void scrollToVisible(int rowIndex, int columnIndex) {

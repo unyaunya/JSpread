@@ -276,18 +276,18 @@ class SizeModel /*extends SizeSequence*/ {
 		return defaultSize;
 	}
 
-	public boolean isVisible(int index) {
+	public boolean isHidden(int index) {
 		//if(index < 0 || index >= a.length) {
 		//	return false;
 		//}
 		return this.visibility[index] == VISIBLE;
 	}
 
-	public void setVisible(int index, boolean bVisible ) {
-		if(bVisible == isVisible(index)) {
+	public void setHidden(int index, boolean bHidden ) {
+		if(bHidden == isHidden(index)) {
 			return;
 		}
-		if(bVisible) {
+		if(bHidden) {
 			setSize(index, visibility[index]);
 			visibility[index] = VISIBLE;
 		}

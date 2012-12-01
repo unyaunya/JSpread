@@ -1,22 +1,36 @@
 package com.unyaunya.grid;
 
+import java.awt.Point;
+
+import com.unyaunya.swing.JGrid;
+
 
 public class Rows extends RowOrColumn {
-	transient ScrollModel scrollModel;
+	public Rows(JGrid grid, ScrollRangeModel rangeModel) {
+		super(grid, rangeModel);
+	}
 	
-	public Rows(ScrollModel model) {
-		scrollModel = model;
+	public int getDefaultHeight() {
+		return rangeModel.getDefaultSize();
+	}
+	
+	public void setDefaultHeight(int height) {
+		super.setDefaultSize(height);
 	}
 
 	public void setHeight(int rowIndex, int height) {
-		scrollModel.setRowHeight(rowIndex, height);
+		super.setSize(rowIndex, height);
 	}
 
-	/**
-	 * çsêîÇéÊìæÇ∑ÇÈ
-	 * @return
-	 */
-	public int getCount() {
-		return scrollModel.getRowCount();
+	public int getHeight(int rowIndex) {
+		return rangeModel.getSize(rowIndex);
+	}
+
+	public int rowAtPoint(Point pt) {
+		return rangeModel.getIndex(pt.y);
+	}
+
+	public int rowAtViewPoint(Point pt) {
+		return rangeModel.getIndex(rangeModel.viewToModel(pt.y));
 	}
 }

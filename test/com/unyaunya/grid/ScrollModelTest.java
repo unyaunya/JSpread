@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.unyaunya.grid.ScrollModel;
+import com.unyaunya.grid.table.GridTableModel;
 import com.unyaunya.swing.JGrid;
 
 /**
@@ -40,7 +41,7 @@ public class ScrollModelTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		scrollModel = new ScrollModel(new JGrid(null), 0, 0);
+		scrollModel = new ScrollModel(new JGrid(new GridModel(new GridTableModel())), 0, 0);
 	}
 
 	/**
@@ -52,11 +53,10 @@ public class ScrollModelTest {
 
 	@Test
 	public void testScrollModel() {
-		scrollModel = new ScrollModel(new JGrid(null), 0, 0);
-		assertEquals(23, scrollModel.getDefaultRowHeight());
-		assertEquals(60, scrollModel.getDefaultColumnWidth());
-		assertEquals(0, scrollModel.getFixedRowNum());
-		assertEquals(0, scrollModel.getFixedColumnNum());
+		assertEquals(23, scrollModel.getRows().getDefaultHeight());
+		assertEquals(60, scrollModel.getColumns().getDefaultWidth());
+		assertEquals(0, scrollModel.getRows().getCountOfFixedPart());
+		assertEquals(0, scrollModel.getColumns().getCountOfFixedPart());
 	}
 	
 	

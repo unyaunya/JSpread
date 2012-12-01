@@ -36,20 +36,32 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	private ScrollRangeModel rowRangeModel;
 	private TableModel tableModel;
 	private JGrid component;
+	transient private Columns columns;
+	transient private Rows rows;
 	
 	private CellPosition defaultSplitPosition;
 
 	public ScrollModel(JGrid c, int columnHeaderheight, int rowHeaderWidth) {
-		this(columnHeaderheight, rowHeaderWidth, 23, 60);
-		setComponent(c);
+		this(c, columnHeaderheight, rowHeaderWidth, 23, 60);
 	}
 
-	private ScrollModel(int columnHeaderheight, int rowHeaderWidth, int defaultRowHeight, int defaultColumnWidth) {
+	private ScrollModel(JGrid grid, int columnHeaderheight, int rowHeaderWidth, int defaultRowHeight, int defaultColumnWidth) {
 		this.defaultSplitPosition = new CellPosition(0,0);
 		this.rowRangeModel = new ScrollRangeModel(columnHeaderheight);
 		this.colRangeModel = new ScrollRangeModel(rowHeaderWidth);
-		this.setDefaultRowHeight(defaultRowHeight);
-		this.setDefaultColumnWidth(defaultColumnWidth);
+		this.columns = new Columns(grid, colRangeModel);
+		this.rows = new Rows(grid, rowRangeModel);
+		this.getRows().setDefaultHeight(defaultRowHeight);
+		this.getColumns().setDefaultWidth(defaultColumnWidth);
+		setComponent(grid);
+	}
+
+	public Columns getColumns() {
+		return this.columns;
+	}
+
+	public Rows getRows() {
+		return this.rows;
 	}
 
 	/**
@@ -105,22 +117,6 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 		tableChanged(new TableModelEvent(tableModel));
 	}
 	
-	/**
-	 * テーブルの行数を取得する
-	 * @return
-	 */
-	public int getRowCount() {
-		return tableModel.getRowCount();
-	}
-	
-	/**
-	 * テーブルの列数を取得する
-	 * @return
-	 */
-	public int getColumnCount() {
-		return tableModel.getColumnCount();
-	}
-
 	@Override
 	public void tableChanged(TableModelEvent e) {
 		LOG.info("TableModelEvent:type=" + e.getType());
@@ -185,9 +181,9 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 		int bottom = r.getBottom();
 		int right = r.getRight();
 		Rectangle cellRect = new Rectangle();
-		cellRect.y = getRowPosition(top);
+		cellRect.y = getRows().getPosition(top);
 		cellRect.height = rowRangeModel.getDistance(top, bottom+1);
-		cellRect.x = getColumnPosition(left);
+		cellRect.x = getColumns().getPosition(left);
 		cellRect.width = colRangeModel.getDistance(left, right+1);
 		return cellRect;
 	}
@@ -198,67 +194,15 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 				rowRangeModel.getPreferredSize());
 	}
 
-	public int getRowPosition(int rowIndex) {
-		return rowRangeModel.getPosition(rowIndex);
-	}
-
-	public int getDefaultRowHeight() {
-		return rowRangeModel.getDefaultSize();
-	}
-	public void setDefaultRowHeight(int height) {
-		rowRangeModel.setDefaultSize(height);
-	}
-	public int getDefaultColumnWidth() {
-		return colRangeModel.getDefaultSize();
-	}
-	public void setDefaultColumnWidth(int width) {
-		colRangeModel.setDefaultSize(width);
-	}
-	public int getRowHeight(int rowIndex) {
-		return rowRangeModel.getSize(rowIndex);
-	}
-	
-	public void setRowHeight(int rowIndex, int height) {
-		rowRangeModel.setSize(rowIndex, height);
-	}
-
-	public int getColumnPosition(int columnIndex) {
-		return colRangeModel.getPosition(columnIndex);
-	}
-	public int getColumnWidth(int columnIndex) {
-		return colRangeModel.getSize(columnIndex);
-	}
-
-	public void setColumnWidth(int colIndex, int width) {
-		colRangeModel.setSize(colIndex, width);
-	}
-	
-	public int rowAtViewPoint(Point pt) {
-		return rowRangeModel.getIndex(rowRangeModel.viewToModel(pt.y));
-	}
-	public int rowAtPoint(Point pt) {
-		return rowRangeModel.getIndex(pt.y);
-	}
-	
-	public int columnAtViewPoint(Point pt) {
-		return colRangeModel.getIndex(colRangeModel.viewToModel(pt.x));
-	}
-	public int columnAtPoint(Point pt) {
-		return colRangeModel.getIndex(pt.x);
-	}
-
 	public CellPosition getCellPosition(Point pt) {
 		CellPosition cp = new CellPosition();
-		cp.setRow(rowAtPoint(pt));
-		cp.setRow(columnAtPoint(pt));
+		cp.setRow(rowRangeModel.getIndex(pt.y));
+		cp.setRow(colRangeModel.getIndex(pt.x));
 		return cp;
 	}
 
 	public CellPosition getCellPositionFromView(Point pt) {
-		CellPosition cp = new CellPosition();
-		cp.setRow(rowAtViewPoint(pt));
-		cp.setRow(columnAtViewPoint(pt));
-		return cp;
+		return getCellPosition(new Point(rowRangeModel.viewToModel(pt.y), colRangeModel.viewToModel(pt.x)));
 	}
 
 	public Point modelToView(Point pt) {
@@ -275,22 +219,6 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 		rc.width = rect.width;
 		rc.height = rect.height;
 		return rc;
-	}
-
-	public int getFixedRowNum() {
-		return rowRangeModel.getFixedPartNum();
-	}
-
-	public void setFixedRowNum(int num) {
-		rowRangeModel.setFixedPartNum(num);
-	}
-
-	public int getFixedColumnNum() {
-		return colRangeModel.getFixedPartNum();
-	}
-
-	public void setFixedColumnNum(int num) {
-		colRangeModel.setFixedPartNum(num);
 	}
 
 	public int getFixedAreaHeight() {
@@ -320,22 +248,6 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	 */
 	public int getColumnScrollAmount() {
 		return colRangeModel.getScrollAmount();
-	}
-
-	/**
-	 * TODO:クリッピング領域の考慮がなされていない。
-	 * 
-	 * @param row
-	 * @return
-	 */
-	public boolean isVisibleRow(int row) {
-		if(row < getFixedRowNum()) {
-			return true;
-		}
-		else if(row < getFixedRowNum() + rowRangeModel.getValue()) {
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -375,10 +287,10 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 	}
 
 	public boolean arePanesFreezed() {
-		if(this.getFixedRowNum()!=getDefaultSplitPosition().getRow()) {
+		if(this.getRows().getCountOfFixedPart()!=getDefaultSplitPosition().getRow()) {
 			return true;
 		}
-		if( this.getFixedColumnNum()!=getDefaultSplitPosition().getColumn()) {
+		if( this.getColumns().getCountOfFixedPart()!=getDefaultSplitPosition().getColumn()) {
 			return true;
 		}
 		return false;

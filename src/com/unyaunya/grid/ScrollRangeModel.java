@@ -128,6 +128,10 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 		}
 		return sizeModel.getSize(index);
 	}
+
+	public int getCount() {
+		return sizeModel.getLength();
+	}
 	
 	/**
 	 * indexで指定された行または列の高さ/幅を設定する。
@@ -137,7 +141,15 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	public void setSize(int index, int width) {
 		sizeModel.setSize(index, width);
 	}
+
+	public void setHidden(int index, boolean bHidden ) {
+		sizeModel.setHidden(index, bHidden);
+	}
 	
+	public boolean isHidden(int index) {
+		return sizeModel.isHidden(index);
+	}
+
 	/**
 	 * 行または列のデフォルトの高さ/幅を設定する。
 	 * @param width　行または列のデフォルトの高さ/幅

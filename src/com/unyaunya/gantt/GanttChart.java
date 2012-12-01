@@ -21,6 +21,7 @@ public class GanttChart extends JGridPane {
 		super(new JSpread());
 		GanttChartModel gcm = new GanttChartModel();
 		getGrid().setGridModel(gcm);
+		getGrid().setTreeCellColumn(2);
 		getGrid().setCellEditor(new GanttCellEditor(getGrid()));
 		int headerRowCount = getGanttChartModel().getGanttTableModel().getHeaderRowCount();
 		getGrid().getScrollModel().setDefaultSplitPosition(new CellPosition(headerRowCount, 0));
@@ -29,8 +30,6 @@ public class GanttChart extends JGridPane {
 		
 		getSpread().getConfig().setRowInsertionSuppoorted(true);
 		getGrid().setForegroundPainter(new GanttPainter(getGrid().getScrollModel(), gcm.getGanttTableModel()));
-		getGrid().setCellRenderer(new GanttCellRenderer());
-
 		init();
 	}
 
