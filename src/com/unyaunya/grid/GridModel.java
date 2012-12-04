@@ -183,6 +183,15 @@ public class GridModel implements IGridModel {
 	}
 
 	/**
+	 * 指定された行の子要素が展開されているかどうかを返す。
+	 * @param row
+	 * @return
+	 */
+	public boolean isExpanded(int row) {
+		return true;
+	}
+
+	/**
 	 * ヘッダとして扱う行の数を返す。
 	 * 派生クラスでオーバライドする。
 	 * @return

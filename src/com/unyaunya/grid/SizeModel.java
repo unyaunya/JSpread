@@ -8,11 +8,17 @@ package com.unyaunya.grid;
 /**
  * @author wata
  *　行高さまたは列幅を管理するクラス
+ *　TBD:グループ情報も管理するよう拡張する。
  */
 class SizeModel /*extends SizeSequence*/ {
 	private static int[] emptyArray = new int[0];
 	private static int VISIBLE = -1;
 	
+	/**
+	 * 行高さまたは列幅の情報を保持する。
+	 * （各行・列の高さ・幅そのものを保持しているのではなく、二分探索的に効率的に検索、更新できるように工夫されている。
+	 * 　詳しくはパクリ元のSizeSequenceの説明を参照。）
+	 */
 	private int a[];
 	
 	/**
@@ -21,6 +27,11 @@ class SizeModel /*extends SizeSequence*/ {
 	 * 非表示の場合は、表示状態の行高さまたは列幅を格納する。
 	 */
 	private int visibility[];
+
+	/**
+	 * グループ情報を保持する。
+	 */
+	private int groupingLevel[];
 	
 	/**
 	 * 
@@ -31,9 +42,12 @@ class SizeModel /*extends SizeSequence*/ {
 	 * 
 	 */
 	public SizeModel() {
-		a = emptyArray;
-		initVisibility(0);
-		assert(a.length == this.visibility.length);
+		this.a = emptyArray;
+		this.groupingLevel = emptyArray;
+		this.visibility = emptyArray;
+
+		//initVisibility(0);
+		//assert(a.length == this.visibility.length);
 	}
 
 	/**
@@ -63,17 +77,19 @@ class SizeModel /*extends SizeSequence*/ {
 	public void setSizes(int[] sizes) {
 		if (a.length != sizes.length) {
 			a = new int[sizes.length];
+			groupingLevel = new int[sizes.length];
 		}
 		setSizesInternally(0, sizes.length, sizes);
 	}
 
-	void setSizes(int length, int size) {
+	/*
+	private void setSizes(int length, int size) {
 		if (a.length != length) {
 			a = new int[length];
 		}
 		setSizesInternally(0, length, size);
 	}
-
+	
 	private int setSizesInternally(int from, int to, int size) {
 		if (to <= from) {
 			return 0;
@@ -82,6 +98,7 @@ class SizeModel /*extends SizeSequence*/ {
 		a[m] = size + setSizesInternally(from, m, size);
 		return a[m] + setSizesInternally(m + 1, to, size);
 	}
+	*/
 
 	private void _setSizes(int[] sizes) {
 		if (a.length != sizes.length) {
@@ -201,18 +218,49 @@ class SizeModel /*extends SizeSequence*/ {
         }
         _setSizes(a);
         //
-        sizes = new int[a.length];
+        if(false) {
+            int new_visibility[] = new int[a.length];
+            for (int i = 0; i < start; i++) {
+            	new_visibility[i] = visibility[i] ;
+            }
+            for (int i = start; i < end; i++) {
+            	new_visibility[i] = VISIBLE ;
+            }
+            for (int i = end; i < n; i++) {
+            	new_visibility[i] = visibility[i-length] ;
+            }
+            visibility = new_visibility;
+        }
+        else {
+            visibility = insert(visibility, start, length, VISIBLE);
+        }
+		assert(a.length == this.visibility.length);
+    }
+
+	/**
+	 * array[start]の位置からlength個のエントリを挿入した配列を作成して返す。
+	 * 挿入されたエントリの値はすべてvalueにセットする。
+	 * 
+	 * @param array
+	 * @param start
+	 * @param length
+	 * @param value
+	 * @return
+	 */
+	private static int[] insert(int array[], int start, int length, int value) {
+        int end = start + length;
+        int new_length = array.length + length;
+        int new_array[] = new int[new_length];
         for (int i = 0; i < start; i++) {
-        	sizes[i] = visibility[i] ;
+        	new_array[i] = array[i] ;
         }
         for (int i = start; i < end; i++) {
-        	sizes[i] = VISIBLE ;
+        	new_array[i] = value ;
         }
-        for (int i = end; i < n; i++) {
-        	sizes[i] = visibility[i-length] ;
+        for (int i = end; i < new_length; i++) {
+        	new_array[i] = array[i-length] ;
         }
-        visibility = sizes;
-		assert(a.length == this.visibility.length);
+        return new_array;
     }
 	
     public void removeEntries(int start, int length) {
@@ -240,6 +288,7 @@ class SizeModel /*extends SizeSequence*/ {
     }
  
     //----------------------------------------
+    /*
 	private void initVisibility(int numEntries) {
 		if(numEntries == 0) {
 			this.visibility = emptyArray;
@@ -251,6 +300,7 @@ class SizeModel /*extends SizeSequence*/ {
 			}
 		}
 	}
+	*/
 
 	public int getLength() {
 		assert(a.length == this.visibility.length);
@@ -296,5 +346,4 @@ class SizeModel /*extends SizeSequence*/ {
 			setSize(index, 0);
 		}
 	}
-
 }

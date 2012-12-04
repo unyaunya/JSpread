@@ -178,7 +178,9 @@ public class Handler extends MouseInputAdapter {
 			LOG.info("列リサイズ開始");
 		}
 		else {
-			getSelectionModel().onMousePressed(e);
+			if(e.getButton() == e.BUTTON1) {
+				getSelectionModel().onMousePressed(e);
+			}
 		}
 	}
 

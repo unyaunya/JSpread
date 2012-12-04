@@ -80,6 +80,13 @@ public interface IGridModel {
 	public int getLevel(int row);
 
 	/**
+	 * 指定された行の子要素が展開されているかどうかを返す。
+	 * @param row
+	 * @return
+	 */
+	public boolean isExpanded(int row);
+	
+	/**
 	 * ヘッダとして扱う行の数を返す。
 	 * @return
 	 */

@@ -9,6 +9,7 @@ import java.text.Format;
 import java.util.logging.Logger;
 
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -18,12 +19,15 @@ import com.unyaunya.swing.JGrid;
 
 @SuppressWarnings("serial")
 class TreeCellRenderer extends JPanel {
+	public static final int ICON_NONE = 0;
+	public static final int ICON_EXPAND = 1;
+	public static final int ICON_COLLAPSE = 2;
+			
 	private static Logger LOG = Logger.getLogger(TreeCellRenderer.class.getName());
 	private JLabel indentLabel;
 	private JLabel iconLabel;
 	private Component mainComponent;
 	private ImageIcon expandIcon ;
-	@SuppressWarnings("unused")
 	private ImageIcon collapseIcon;
 
 	TreeCellRenderer() {
@@ -33,7 +37,7 @@ class TreeCellRenderer extends JPanel {
 		collapseIcon = new ImageIcon("./icons/minus.png");
 		this.indentLabel = new JLabel();
 		//this.indentLabel.setSize(32, 23);
-		this.iconLabel = new JLabel(expandIcon);
+		this.iconLabel = new JLabel();
 		this.iconLabel.setOpaque(false);
 		this.add(indentLabel);
 		this.add(iconLabel);
@@ -77,6 +81,22 @@ class TreeCellRenderer extends JPanel {
 		}
 		indentLabel.setText(indent);
 	}
+
+	public void setIcon(int iconType) {
+		Icon icon;
+		switch(iconType) {
+		case ICON_EXPAND:
+			icon = expandIcon;
+			break;
+		case ICON_COLLAPSE:
+			icon = collapseIcon;
+			break;
+		default:
+			icon = null;
+			break;
+		}
+		this.iconLabel.setIcon(icon);
+	}
 }
 
 /**
@@ -112,6 +132,12 @@ public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
 			JComponent jc = (JComponent)c;
 			panel.setBorder(this.getBorder());
 			panel.setBackground(this.getBackground());
+			if(grid.getGridModel().isExpanded(row)) {
+				panel.setIcon(TreeCellRenderer.ICON_COLLAPSE);
+			}
+			else {
+				panel.setIcon(TreeCellRenderer.ICON_EXPAND);
+			}
 			return panel;
 		}
 		else {
