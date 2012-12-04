@@ -107,4 +107,10 @@ public class GanttChartModel extends GridModel {
 		getGanttTableModel().setDocument(document);
 		return this;
 	}
+
+	@Override
+	public void insertRow(int row) {
+		getGanttTableModel().insertTask(row);
+	}
+
 }

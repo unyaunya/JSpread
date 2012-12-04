@@ -200,4 +200,10 @@ public class GanttTableModel extends AbstractTableModel {
 		int delta = (int)CalendarUtil.getDiffInDate(date, getStartDate());
 		return getDataColumnCount() + delta;
 	}
+
+	public void insertTask(int row) {
+		Task task = new Task();
+		getDocument().insertTask(row - getHeaderRowCount(), task);
+		this.fireTableRowsInserted(row, row);
+	}
 }

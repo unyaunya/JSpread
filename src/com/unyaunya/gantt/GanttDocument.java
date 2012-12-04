@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -19,6 +20,8 @@ class NullTask extends Task {
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "GanttDocument")
 public class GanttDocument {
+    private static final Logger LOG = Logger.getLogger(GanttDocument.class.getName());
+
 	private static String[] columnName = {"ID", "階層", "タスク名", "開始日", "終了日", "進捗率", "sss"};
 	public static Task NULL = new NullTask();
 	
@@ -29,7 +32,7 @@ public class GanttDocument {
 
 	@XmlElementWrapper(name = "Tasks")
     @XmlElement(name = "Task")
-	protected List<Task> tasks;
+	protected ArrayList<Task> tasks;
 
 	/**
 	 * デフォルトコンストラクタ
@@ -68,6 +71,16 @@ public class GanttDocument {
 		tasks.add(task);
 	}
 
+	public void insertTask(int index, Task task) {
+		if(index > tasks.size()) {
+			for(int i = tasks.size(); i < index; i++) {
+				LOG.info("i=" + i);
+				tasks.add(new Task());
+			}
+		}
+		tasks.add(index, task);
+	}
+	
 	public Date getStartDate() {
 		return this.startDate;
 	}

@@ -6,8 +6,10 @@ import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 
+import com.unyaunya.grid.table.IEditableTableModel;
+
 @SuppressWarnings("serial")
-public class CsvTable extends DefaultTableModel {
+public class CsvTable extends DefaultTableModel implements IEditableTableModel {
 	public CsvTable(List<String[]> data) {
 		setCsvData(data);
 	}
@@ -49,5 +51,17 @@ public class CsvTable extends DefaultTableModel {
 			data.add(row);
 		}
 		return data;
+	}
+
+	@Override
+	public void insertColumn(int row, Object[] columnData) {
+		// TODO 自動生成されたメソッド・スタブ
+		
+	}
+
+	@Override
+	public void removeColumn(int column) {
+		// TODO 自動生成されたメソッド・スタブ
+		
 	}
 }
