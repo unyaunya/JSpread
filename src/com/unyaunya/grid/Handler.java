@@ -61,9 +61,11 @@ public class Handler extends MouseInputAdapter {
 	 * マウスカーソル付近のリサイズ境界位置を取得する。
 	 */
 	private int getNearbyResizeColumnBorderIndex(Point pt, int row, int col) {
+		//カーソル位置が行ヘッダ内であれば、列リサイズは行わない。
 		if(row != -1) {
 			return -1;
 		}
+		//列ヘッダ左端の近傍にあるかをチェックする。
 		if(col == -1) {
 			return -1;
 		}
@@ -71,6 +73,7 @@ public class Handler extends MouseInputAdapter {
 		if((col != 0) && ((pt.x - left) < RESIZE_ZONE_WIDTH)) {
 			return col;
 		}
+		//列ヘッダ右端の近傍にあるかをチェックする。
 		int right = grid.getScrollModel().getColumns().getPosition(col+1);
 		if((right - pt.x) < RESIZE_ZONE_WIDTH) {
 			return col + 1;
@@ -79,6 +82,7 @@ public class Handler extends MouseInputAdapter {
 	}
 
 	private int getNearbyResizeRowBorderIndex(Point pt, int row, int col) {
+		//カーソル位置が列ヘッダ内であれば、行リサイズは行わない。
 		if(col != -1) {
 			return -1;
 		}
@@ -216,15 +220,15 @@ public class Handler extends MouseInputAdapter {
 	public void mouseDragged(MouseEvent e) {
 		LOG.info("mouseDragged");
 		if(currentCursor == ROW_RESIZE_CURSOR) {
-			int width = e.getPoint().y - grid.getRows().getPosition(resizeBorderIndex-1);
-			LOG.info("行リサイズ:"+resizeBorderIndex+"=>"+width);
-			grid.getRows().setHeight(resizeBorderIndex-1, width);
+			int height = Math.max(0, e.getPoint().y - grid.getRows().getPosition(resizeBorderIndex-1));
+			LOG.info("行リサイズ:"+resizeBorderIndex+"=>"+height);
+			grid.getRows().setHeight(resizeBorderIndex-1, height);
 			grid.repaint();
 		}
 		else if(currentCursor == COLUMN_RESIZE_CURSOR) {
-			int height = e.getPoint().x - grid.getColumns().getPosition(resizeBorderIndex-1);
-			LOG.info("列リサイズ:"+resizeBorderIndex+"=>"+height);
-			grid.getColumns().setWidth(resizeBorderIndex-1, height);
+			int width = Math.max(0, e.getPoint().x - grid.getColumns().getPosition(resizeBorderIndex-1));
+			LOG.info("列リサイズ:"+resizeBorderIndex+"=>"+width);
+			grid.getColumns().setWidth(resizeBorderIndex-1, width);
 			grid.repaint();
 		}
 		else {
