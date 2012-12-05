@@ -103,7 +103,7 @@ public class JSpread extends JGrid  {
 	}
 
 	public void removeRow() {
-		removeRow(getGridSelectionModel().getFocusedRow()-1, true);
+		removeRow(getGridSelectionModel().getFocusedRow(), true);
 	}
 	public void removeRow(int row) {
 		removeRow(row, true);

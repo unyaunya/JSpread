@@ -217,23 +217,7 @@ class SizeModel /*extends SizeSequence*/ {
         	a[i] = sizes[i-length] ;
         }
         _setSizes(a);
-        //
-        if(false) {
-            int new_visibility[] = new int[a.length];
-            for (int i = 0; i < start; i++) {
-            	new_visibility[i] = visibility[i] ;
-            }
-            for (int i = start; i < end; i++) {
-            	new_visibility[i] = VISIBLE ;
-            }
-            for (int i = end; i < n; i++) {
-            	new_visibility[i] = visibility[i-length] ;
-            }
-            visibility = new_visibility;
-        }
-        else {
-            visibility = insert(visibility, start, length, VISIBLE);
-        }
+        visibility = insert(visibility, start, length, VISIBLE);
 		assert(a.length == this.visibility.length);
     }
 
@@ -276,14 +260,14 @@ class SizeModel /*extends SizeSequence*/ {
         }
         _setSizes(a);
         //
-        sizes = new int[a.length];
+        int new_array[] = new int[a.length];
         for (int i = 0; i < start; i++) {
-        	sizes[i] = visibility[i] ;
+        	new_array[i] = visibility[i] ;
         }
         for (int i = start; i < n; i++) {
-        	sizes[i] = visibility[i+length] ;
+        	new_array[i] = visibility[i+length] ;
         }
-        visibility = sizes;
+        visibility = new_array;
 		assert(a.length == this.visibility.length);
     }
  
