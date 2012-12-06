@@ -1,6 +1,7 @@
 package com.unyaunya.gantt;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
@@ -8,6 +9,8 @@ import javax.swing.Action;
 
 import com.unyaunya.grid.CellPosition;
 import com.unyaunya.grid.Columns;
+import com.unyaunya.grid.IRange;
+import com.unyaunya.grid.selection.IGridSelectionModel;
 import com.unyaunya.swing.JGridPane;
 import com.unyaunya.swing.JSpread;
 
@@ -72,6 +75,14 @@ public class GanttChart extends JGridPane {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				LOG.info("LevelUp");
+				JSpread sp = getSpread();
+				IGridSelectionModel sm = sp.getGridSelectionModel();
+				ArrayList<IRange> srl = sm.getSelectedRangeList();
+				for(int i = 0; i < srl.size(); i++) {
+					IRange r = srl.get(i);
+					sp.getRows().levelUp(r.getTop(), r.getBottom() - r.getTop() + 1);
+				}
+				sp.repaint();
 			}
 		};
 	}
@@ -81,7 +92,15 @@ public class GanttChart extends JGridPane {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				LOG.info("LevelUp");
+				LOG.info("LevelDown");
+				JSpread sp = getSpread();
+				IGridSelectionModel sm = sp.getGridSelectionModel();
+				ArrayList<IRange> srl = sm.getSelectedRangeList();
+				for(int i = 0; i < srl.size(); i++) {
+					IRange r = srl.get(i);
+					sp.getRows().levelDown(r.getTop(), r.getBottom() - r.getTop() + 1);
+				}
+				sp.repaint();
 			}
 		};
 	}

@@ -42,12 +42,7 @@ class SizeModel /*extends SizeSequence*/ {
 	 * 
 	 */
 	public SizeModel() {
-		this.a = emptyArray;
-		this.groupingLevel = emptyArray;
-		this.visibility = emptyArray;
-
-		//initVisibility(0);
-		//assert(a.length == this.visibility.length);
+		removeAll();
 	}
 
 	/**
@@ -217,7 +212,8 @@ class SizeModel /*extends SizeSequence*/ {
         	a[i] = sizes[i-length] ;
         }
         _setSizes(a);
-        visibility = insert(visibility, start, length, VISIBLE);
+        this.visibility = insert(visibility, start, length, VISIBLE);
+        this.groupingLevel = insert(this.groupingLevel, start, length, start > 0 ? this.groupingLevel[start-1] : 0);
 		assert(a.length == this.visibility.length);
     }
 
@@ -260,16 +256,30 @@ class SizeModel /*extends SizeSequence*/ {
         }
         _setSizes(a);
         //
-        int new_array[] = new int[a.length];
-        for (int i = 0; i < start; i++) {
-        	new_array[i] = visibility[i] ;
-        }
-        for (int i = start; i < n; i++) {
-        	new_array[i] = visibility[i+length] ;
-        }
-        visibility = new_array;
+        this.visibility = remove(this.visibility, start, length);
+        this.groupingLevel = remove(this.groupingLevel, start, length);
 		assert(a.length == this.visibility.length);
     }
+
+	/**
+	 * array[start]の位置からlength個のエントリを削除した配列を作成して返す。
+	 * 
+	 * @param array
+	 * @param start
+	 * @param length
+	 * @return
+	 */
+    private static int[] remove(int array[], int start, int length) {
+        int new_length = array.length - length;
+        int new_array[] = new int[new_length];
+        for (int i = 0; i < start; i++) {
+        	new_array[i] = array[i] ;
+        }
+        for (int i = start; i < new_length; i++) {
+        	new_array[i] = array[i+length] ;
+        }
+		return new_array;
+	}
  
     //----------------------------------------
     /*
@@ -292,8 +302,9 @@ class SizeModel /*extends SizeSequence*/ {
 	}
 
 	private void removeAll() {
+		this.a = emptyArray;
+		this.groupingLevel = emptyArray;
 		this.visibility = emptyArray;
-		this.setSizes(visibility);
 	}
 
 	public void reset(int count, int defaultSize) {
@@ -308,6 +319,59 @@ class SizeModel /*extends SizeSequence*/ {
 
 	public int getDefaultSize() {
 		return defaultSize;
+	}
+
+	public int getLevel(int index) {
+		return this.groupingLevel[index] % 65536;
+	}
+
+	public boolean isExpanded(int index) {
+		return this.groupingLevel[index] < 65536;
+	}
+
+	public boolean isLeaf(int index) {
+		if(index < 0 || index >= a.length-1) {
+			return false;
+		}
+		return this.getLevel(index) >= this.getLevel(index+1);
+	}
+
+	public boolean levelDown(int start, int length) {
+		if(start < 0 || length < 0) {
+			return false;
+		}
+		int end = start + length -1;
+		if(a.length <= end) {
+			return false;
+		}
+		for(int i = start; i <= end; i++) {
+			if(isExpanded(i)) {
+				this.groupingLevel[i] = this.getLevel(i)+1;
+			}
+			else {
+				this.groupingLevel[i] = this.getLevel(i)+1+65536;
+			}
+		}
+		return true;
+	}
+	
+	public boolean levelUp(int start, int length) {
+		if(start < 0 || length < 0) {
+			return false;
+		}
+		int end = start + length -1;
+		if(a.length <= end) {
+			return false;
+		}
+		for(int i = start; i <= end; i++) {
+			if(isExpanded(i)) {
+				this.groupingLevel[i] = Math.max(0, this.groupingLevel[i]-1);
+			}
+			else {
+				this.groupingLevel[i] = Math.max(0, this.groupingLevel[i]-1)+65536;
+			}
+		}
+		return true;
 	}
 
 	public boolean isHidden(int index) {

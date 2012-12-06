@@ -74,6 +74,19 @@ class RowOrColumn {
 		return rangeModel.getPosition(index);
 	}
 
+	public int getLevel(int index) {
+		return rangeModel.getLevel(index);
+	}
+
+	public boolean levelDown(int start, int length) {
+		return rangeModel.levelDown(start, length);
+	}
+	
+	public boolean levelUp(int start, int length) {
+		return rangeModel.levelUp(start, length);
+	}
+
+
 	protected void repaint() {
 		grid.repaint();
 	}

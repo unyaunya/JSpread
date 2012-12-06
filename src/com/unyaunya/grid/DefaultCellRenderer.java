@@ -128,7 +128,7 @@ public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
 		int tcc = grid.getTreeCellColumn();
 		if(column == tcc && row >= grid.getGridModel().getHeaderRowCount()) {
 			panel.setMainComponent(c);
-			panel.setIndent(grid.getGridModel().getLevel(row));
+			panel.setIndent(grid.getRows().getLevel(row));
 			JComponent jc = (JComponent)c;
 			panel.setBorder(this.getBorder());
 			panel.setBackground(this.getBackground());

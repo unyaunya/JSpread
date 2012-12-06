@@ -206,8 +206,8 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 				}
 			}
 		}));
-		menu.add(new JMenu("ssssss"));
-		menu.add(new JMenu("ssssss"));
+		menu.add(new JMenuItem(getGanttChart().getLevelUpAction()));
+		menu.add(new JMenuItem(getGanttChart().getLevelDownAction()));
 		return menu;
 	}
 

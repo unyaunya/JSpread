@@ -150,6 +150,18 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 		return sizeModel.isHidden(index);
 	}
 
+	public int getLevel(int index) {
+		return sizeModel.getLevel(index);
+	}
+
+	public boolean levelDown(int start, int length) {
+		return sizeModel.levelDown(start, length);
+	}
+	
+	public boolean levelUp(int start, int length) {
+		return sizeModel.levelUp(start, length);
+	}
+
 	/**
 	 * 行または列のデフォルトの高さ/幅を設定する。
 	 * @param width　行または列のデフォルトの高さ/幅
