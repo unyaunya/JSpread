@@ -5,6 +5,8 @@ package com.unyaunya.grid;
 
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.Format;
 import java.util.logging.Logger;
 
@@ -169,5 +171,12 @@ public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
 	@Override
 	public Format getFormat() {
 		return format;
+	}
+	
+	class ExpandHandler extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			System.out.println("FFFFFFFFFFFFFFFFFF");
+		}
 	}
 }

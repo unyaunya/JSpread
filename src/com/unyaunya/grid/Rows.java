@@ -23,7 +23,7 @@ public class Rows extends RowOrColumn {
 	}
 
 	public int getHeight(int rowIndex) {
-		return rangeModel.getSize(rowIndex);
+		return rangeModel.getDisplaySize(rowIndex);
 	}
 
 	public int rowAtPoint(Point pt) {

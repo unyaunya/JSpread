@@ -173,6 +173,9 @@ public class JGrid extends JComponent implements TableModelListener {
 
     public void setAutoPaint(boolean value) {
     	this.autoPaint = value;
+    	if(this.autoPaint) {
+    		repaint();
+    	}
     }
     
     public boolean getAutoPaint() {
@@ -454,9 +457,9 @@ public class JGrid extends JComponent implements TableModelListener {
 	
 	@Override
 	public void repaint() {
-		if(getAutoPaint()) {
+		//if(getAutoPaint()) {
 			super.repaint();
-		}
+		//}
 	}
 
 	/*

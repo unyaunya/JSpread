@@ -30,7 +30,7 @@ public class Columns extends RowOrColumn {
 	}
 
 	public int getWidth(int columnIndex) {
-		return rangeModel.getSize(columnIndex);
+		return rangeModel.getDisplaySize(columnIndex);
 	}
 
 	public int columnAtPoint(Point pt) {

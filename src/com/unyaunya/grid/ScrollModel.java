@@ -165,8 +165,8 @@ public class ScrollModel implements ComponentListener, TableModelListener, Seria
 		return new Rectangle(
 					colRangeModel.getPosition(colIndex),
 					rowRangeModel.getPosition(rowIndex),
-					colRangeModel.getSize(colIndex),
-					rowRangeModel.getSize(rowIndex));
+					colRangeModel.getDisplaySize(colIndex),
+					rowRangeModel.getDisplaySize(rowIndex));
 	}
 
 	/**

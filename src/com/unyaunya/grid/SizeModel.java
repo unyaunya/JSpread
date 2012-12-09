@@ -12,26 +12,27 @@ package com.unyaunya.grid;
  */
 class SizeModel /*extends SizeSequence*/ {
 	private static int[] emptyArray = new int[0];
-	private static int VISIBLE = -1;
+	private final static int COLLAPSED = 0x10000;
+	private final static int HIDDEN = 0x20000;
+	private final static int PARENT_COLLAPSED = 0x40000;
 	
 	/**
-	 * 行高さまたは列幅の情報を保持する。
+	 * 行または列の高さ・幅と位置を混合した情報を保持する。
 	 * （各行・列の高さ・幅そのものを保持しているのではなく、二分探索的に効率的に検索、更新できるように工夫されている。
 	 * 　詳しくはパクリ元のSizeSequenceの説明を参照。）
 	 */
-	private int a[];
+	private int internal[];
 	
 	/**
-	 * 各行または列の表示・非表示を記録する。
-	 * デフォルトの表示状態にある場合は、VISIBLEが格納されている。
-	 * 非表示の場合は、表示状態の行高さまたは列幅を格納する。
+	 * 各行または列のサイズを記録する。
 	 */
-	private int visibility[];
+	private int sizes[];
 
 	/**
-	 * グループ情報を保持する。
+	 * グループ情報等を保持する。
+	 * 	 flags = [HIDDEN] + [COLLAPSED] + level
 	 */
-	private int groupingLevel[];
+	private int flags[];
 	
 	/**
 	 * 
@@ -68,80 +69,97 @@ class SizeModel /*extends SizeSequence*/ {
 		super();
 		setSizes(sizes);
 	}
-	
-	public void setSizes(int[] sizes) {
-		if (a.length != sizes.length) {
-			a = new int[sizes.length];
-			groupingLevel = new int[sizes.length];
+
+	public int getLength() {
+		return this.internal.length;
+	}
+
+	private void removeAll() {
+		this.sizes = emptyArray;
+		this.internal = emptyArray;
+		this.flags = emptyArray;
+		//this.visibility = emptyArray;
+	}
+
+	public void reset(int count, int defaultSize) {
+		removeAll();
+		setDefaultSize(defaultSize);
+		if(count > 0) {
+			insertEntries(0, count, getDefaultSize());
 		}
-		setSizesInternally(0, sizes.length, sizes);
+	}
+	
+	public void setDefaultSize(int defaultSize) {
+		this.defaultSize = defaultSize;
+	}
+
+	public int getDefaultSize() {
+		return defaultSize;
+	}
+
+	public void setSizes(int[] sizes) {
+		if (getLength() != sizes.length) {
+			this.sizes = new int[sizes.length];
+			this.internal = new int[sizes.length];
+			this.flags = new int[sizes.length];
+		}
+		for(int i = 0; i < sizes.length; i++) {
+			this.sizes[i] = sizes[i];
+		}
+		setInternal(0, sizes.length, sizes);
+	}
+
+	private int setInternal(int from, int to, int[] sizes) {
+		if (to <= from) {
+			return 0;
+		}
+		int m = (from + to)/2;
+		internal[m] = sizes[m] + setInternal(from, m, sizes);
+		return internal[m] + setInternal(m + 1, to, sizes);
+	}
+	
+	private void setInternal(int[] sizes) {
+		if (internal.length != sizes.length) {
+			internal = new int[sizes.length];
+		}
+		setInternal(0, sizes.length, sizes);
+	}
+
+	public int[] getSizes() {
+		int[] sizes = new int[getLength()];
+		for(int i = 0; i < sizes.length; i++) {
+			sizes[i] = this.sizes[i];
+		}
+		return sizes;
+	}
+
+	public int getDisplaySize(int index) {
+		return getPosition(index + 1) - getPosition(index);
+	}	
+
+	public int getSize(int index) {
+		return this.sizes[index];
 	}
 
 	/*
-	private void setSizes(int length, int size) {
-		if (a.length != length) {
-			a = new int[length];
-		}
-		setSizesInternally(0, length, size);
-	}
-	
-	private int setSizesInternally(int from, int to, int size) {
-		if (to <= from) {
-			return 0;
-		}
-		int m = (from + to)/2;
-		a[m] = size + setSizesInternally(from, m, size);
-		return a[m] + setSizesInternally(m + 1, to, size);
-	}
-	*/
-
-	private void _setSizes(int[] sizes) {
-		if (a.length != sizes.length) {
-			a = new int[sizes.length];
-		}
-		setSizesInternally(0, sizes.length, sizes);
-	}
-
-/*
- * 	@Override
-	public void setSizes(int[] sizes) {
-		super.setSizes(sizes);
-		if (this.visibility.length != sizes.length) {
-			this.visibility = new int[sizes.length];
-		}
-		for(int i = 0; i < sizes.length; i++) {
-			this.visibility[i] = sizes[i];
-		}
-	}
- */
-
-	private int setSizesInternally(int from, int to, int[] sizes) {
-		if (to <= from) {
-			return 0;
-		}
-		int m = (from + to)/2;
-		a[m] = sizes[m] + setSizesInternally(from, m, sizes);
-		return a[m] + setSizesInternally(m + 1, to, sizes);
-	}
-	
 	public int[] getSizes() {
-		int n = a.length;
+		int n = internal.length;
 		int[] sizes = new int[n];
 		getSizes(0, n, sizes);
 		return sizes;
 	}
-	
 	private int getSizes(int from, int to, int[] sizes) {
 		if (to <= from) {
 			return 0;
 		}
 		int m = (from + to)/2;
-		sizes[m] = a[m] - getSizes(from, m, sizes);
-		return a[m] + getSizes(m + 1, to, sizes);
+		sizes[m] = internal[m] - getSizes(from, m, sizes);
+		return internal[m] + getSizes(m + 1, to, sizes);
 	}
+	 */	
 	
 	public int getPosition(int index) {
-		return getPosition(0, a.length, index);
+		return getPosition(0, internal.length, index);
 	}
 	
 	private int getPosition(int from, int to, int index) {
@@ -153,12 +171,12 @@ class SizeModel /*extends SizeSequence*/ {
 			return getPosition(from, m, index);
 		}
 		else {
-		    return a[m] + getPosition(m + 1, to, index);
+		    return internal[m] + getPosition(m + 1, to, index);
 		}
 	}
 	
 	public int getIndex(int position) {
-		return getIndex(0, a.length, position);
+		return getIndex(0, internal.length, position);
 	}
 	
 	private int getIndex(int from, int to, int position) {
@@ -166,7 +184,7 @@ class SizeModel /*extends SizeSequence*/ {
 			return from;
 		}
 		int m = (from + to)/2;
-		int pivot = a[m];
+		int pivot = internal[m];
 		if (position < pivot) {
 			return getIndex(from, m, position);
 		}
@@ -175,46 +193,36 @@ class SizeModel /*extends SizeSequence*/ {
 		}
 	}
 	
-	public int getSize(int index) {
-		return getPosition(index + 1) - getPosition(index);
-	}
-	
 	public void setSize(int index, int size) {
-		changeSize(0, a.length, index, size - getSize(index));
+		if(!isDisplayed(index)) {
+			this.setInternal(index, size);
+		}
+		this.sizes[index] = size;
 	}
 	
-	private void changeSize(int from, int to, int index, int delta) {
+	private void setInternal(int index, int size) {
+		changeInternal(0, internal.length, index, size - getDisplaySize(index));
+	}
+	
+	private void changeInternal(int from, int to, int index, int delta) {
 		if (to <= from) {
 			return;
 		}
 		int m = (from + to)/2;
 		if (index <= m) {
-			a[m] += delta;
-			changeSize(from, m, index, delta);
+			internal[m] += delta;
+			changeInternal(from, m, index, delta);
 		}
 		else {
-			changeSize(m + 1, to, index, delta);
+			changeInternal(m + 1, to, index, delta);
 		}
 	}
 	
 	public void insertEntries(int start, int length, int value) {
-        int sizes[] = getSizes();
-        int end = start + length;
-        int n = this.a.length + length;
-        a = new int[n];
-        for (int i = 0; i < start; i++) {
-        	a[i] = sizes[i] ;
-        }
-        for (int i = start; i < end; i++) {
-        	a[i] = value ;
-        }
-        for (int i = end; i < n; i++) {
-        	a[i] = sizes[i-length] ;
-        }
-        _setSizes(a);
-        this.visibility = insert(visibility, start, length, VISIBLE);
-        this.groupingLevel = insert(this.groupingLevel, start, length, start > 0 ? this.groupingLevel[start-1] : 0);
-		assert(a.length == this.visibility.length);
+        this.sizes = insert(this.sizes, start, length, value);
+        //this.visibility = insert(visibility, start, length, HIDDEN);
+        this.flags = insert(this.flags, start, length, start > 0 ? this.flags[start-1] : 0);
+        setInternal(this.sizes);
     }
 
 	/**
@@ -244,21 +252,9 @@ class SizeModel /*extends SizeSequence*/ {
     }
 	
     public void removeEntries(int start, int length) {
-        int sizes[] = getSizes();
-        //int end = start + length;
-        int n = visibility.length - length;
-        a = new int[n];
-        for (int i = 0; i < start; i++) {
-             a[i] = sizes[i] ;
-        }
-        for (int i = start; i < n; i++) {
-            a[i] = sizes[i+length] ;
-        }
-        _setSizes(a);
-        //
-        this.visibility = remove(this.visibility, start, length);
-        this.groupingLevel = remove(this.groupingLevel, start, length);
-		assert(a.length == this.visibility.length);
+        this.sizes = remove(this.sizes, start, length);
+        this.flags = remove(this.flags, start, length);
+        setInternal(this.sizes);
     }
 
 	/**
@@ -281,56 +277,20 @@ class SizeModel /*extends SizeSequence*/ {
 		return new_array;
 	}
  
-    //----------------------------------------
-    /*
-	private void initVisibility(int numEntries) {
-		if(numEntries == 0) {
-			this.visibility = emptyArray;
-		}
-		else {
-			this.visibility = new int[numEntries];
-			for(int i = 0; i < visibility.length; i++) {
-				this.visibility[i] = VISIBLE;
-			}
-		}
-	}
-	*/
-
-	public int getLength() {
-		assert(a.length == this.visibility.length);
-		return this.visibility.length;
-	}
-
-	private void removeAll() {
-		this.a = emptyArray;
-		this.groupingLevel = emptyArray;
-		this.visibility = emptyArray;
-	}
-
-	public void reset(int count, int defaultSize) {
-		removeAll();
-		setDefaultSize(defaultSize);
-		insertEntries(0, count, getDefaultSize());
-	}
+	//
+	//グルーピング関係
+	//
 	
-	public void setDefaultSize(int defaultSize) {
-		this.defaultSize = defaultSize;
-	}
-
-	public int getDefaultSize() {
-		return defaultSize;
-	}
-
 	public int getLevel(int index) {
-		return this.groupingLevel[index] % 65536;
+		return this.flags[index] % COLLAPSED;
 	}
 
 	public boolean isExpanded(int index) {
-		return this.groupingLevel[index] < 65536;
+		return (this.flags[index] & COLLAPSED) == 0;
 	}
 
 	public boolean isLeaf(int index) {
-		if(index < 0 || index >= a.length-1) {
+		if(index < 0 || index > (getLength()-1)) {
 			return false;
 		}
 		return this.getLevel(index) >= this.getLevel(index+1);
@@ -341,16 +301,11 @@ class SizeModel /*extends SizeSequence*/ {
 			return false;
 		}
 		int end = start + length -1;
-		if(a.length <= end) {
+		if(getLength() <= end) {
 			return false;
 		}
 		for(int i = start; i <= end; i++) {
-			if(isExpanded(i)) {
-				this.groupingLevel[i] = this.getLevel(i)+1;
-			}
-			else {
-				this.groupingLevel[i] = this.getLevel(i)+1+65536;
-			}
+			setLevel(i, this.getLevel(i)+1);
 		}
 		return true;
 	}
@@ -360,25 +315,124 @@ class SizeModel /*extends SizeSequence*/ {
 			return false;
 		}
 		int end = start + length -1;
-		if(a.length <= end) {
+		if(getLength() <= end) {
 			return false;
 		}
 		for(int i = start; i <= end; i++) {
-			if(isExpanded(i)) {
-				this.groupingLevel[i] = Math.max(0, this.groupingLevel[i]-1);
-			}
-			else {
-				this.groupingLevel[i] = Math.max(0, this.groupingLevel[i]-1)+65536;
-			}
+			setLevel(i, this.getLevel(i)-1);
 		}
 		return true;
+	}
+
+	public void collapse(int index) {
+		if(index < 0 || index >= getLength()) {
+			return;
+		}
+		if(!isLeaf(index)) {
+			setFlag(index, COLLAPSED);
+			collapseSubordinates(index);
+		}
+	}
+
+	/**
+	 * indexで指定した行およびそれに従属する行を非表示にする。
+	 * @param index
+	 * @return
+	 */
+	private int collapseSubordinates(int index) {
+		int currentLevel = getLevel(index);
+		int i = index + 1;
+		while(i < getLength()) {
+			int level = getLevel(i);
+			if(level <= currentLevel) {
+				return i;
+			}
+			if(isLeaf(i)) {
+				if(isDisplayed(i)) {
+					setInternal(i, 0);
+				}
+				setFlag(i, PARENT_COLLAPSED);
+				i++;
+			}
+			else {
+				setFlag(i, PARENT_COLLAPSED);
+				i = collapseSubordinates(i);
+			}
+		}
+		return i;
+	}
+
+	public void expand(int index) {
+		if(index < 0 || index >= getLength()) {
+			return;
+		}
+		if(!isLeaf(index)) {
+			resetFlag(index, COLLAPSED);
+			expandSubordinates(index);
+		}
+	}
+
+	private int expandSubordinates(int index) {
+		int currentLevel = getLevel(index);
+		int i = index + 1;
+		while(i < getLength()) {
+			int level = getLevel(i);
+			if(level <= currentLevel) {
+				return i;
+			}
+			resetFlag(i, PARENT_COLLAPSED);
+			if(isDisplayed(i)) {
+				setInternal(i, getSize(i));
+			}
+			if((this.flags[index] & COLLAPSED) == 0) {
+				i = expandSubordinates(i);
+			}
+			else {
+				i = nextSiblingOrUncle(i);
+			}
+		}
+		return i;
+	}
+
+	private int nextSiblingOrUncle(int index) {
+		int currentLevel = getLevel(index);
+		int i = index + 1;
+		while(i < getLength()) {
+			int level = getLevel(i);
+			if(level <= currentLevel) {
+				return i;
+			}
+			i++;
+		}
+		return i;
+	}
+
+	private void setFlag(int index, int flag) {
+		this.flags[index] |= flag;
+	}
+	private void resetFlag(int index, int flag) {
+		this.flags[index] &= ~flag;
+	}
+	private void setLevel(int index, int level) {
+		this.flags[index] = (this.flags[index] & (~0xFFFF)) | Math.max(0,  Math.min(0xFFFF, level));
+	}
+	
+	//
+	//非表示機能関連
+	//
+	
+	public boolean isDisplayed(int index) {
+		//if(index < 0 || index >= getLength()) {
+		//	return false;
+		//}
+		return (this.flags[index] & (HIDDEN+PARENT_COLLAPSED)) == 0;
 	}
 
 	public boolean isHidden(int index) {
 		//if(index < 0 || index >= a.length) {
 		//	return false;
 		//}
-		return this.visibility[index] == VISIBLE;
+		return (this.flags[index] & HIDDEN) != 0;
 	}
 
 	public void setHidden(int index, boolean bHidden ) {
@@ -386,12 +440,14 @@ class SizeModel /*extends SizeSequence*/ {
 			return;
 		}
 		if(bHidden) {
-			setSize(index, visibility[index]);
-			visibility[index] = VISIBLE;
+			this.setFlag(index, HIDDEN);
+			this.setInternal(index, 0);
 		}
 		else {
-			visibility[index] = getSize(index);
-			setSize(index, 0);
+			this.resetFlag(index, HIDDEN);
+			if(isDisplayed(index)) {
+				this.setInternal(index, getSize(index));
+			}
 		}
 	}
 }

@@ -122,11 +122,11 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	 * @param index　行または列のインデックス
 	 * @return
 	 */
-	public int getSize(int index) {
+	public int getDisplaySize(int index) {
 		if(index < 0) {
 			return headerSize;
 		}
-		return sizeModel.getSize(index);
+		return sizeModel.getDisplaySize(index);
 	}
 
 	public int getCount() {
@@ -147,7 +147,7 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	}
 	
 	public boolean isHidden(int index) {
-		return sizeModel.isHidden(index);
+		return sizeModel.isDisplayed(index);
 	}
 
 	public int getLevel(int index) {
@@ -160,6 +160,14 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 	
 	public boolean levelUp(int start, int length) {
 		return sizeModel.levelUp(start, length);
+	}
+
+	public void collapse(int index) {
+		sizeModel.collapse(index);
+	}
+
+	public void expand(int index) {
+		sizeModel.expand(index);
 	}
 
 	/**
@@ -432,7 +440,7 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 			setValue(index - getFixedPartNum());
 		}
 		//可変領域のサイズが、セル自体のサイズよりも小さい場合
-		else if(getScrollPartSize() <= sizeModel.getSize(index)) {
+		else if(getScrollPartSize() <= sizeModel.getDisplaySize(index)) {
 			LOG.info("getScrollPartSize() <= size");
 			setValue(index - getFixedPartNum());
 		}
@@ -442,7 +450,7 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 			LOG.info("scrollToVisible:getScrollPartSize() - (sizeModel.getPosition(index+1) - sizeModel.getPosition(getFixedPartNum() + getValue())) = " + gap);
 			int n = 0;
 			while(gap < 0) {
-				gap += sizeModel.getSize(getFixedPartNum() + getValue()+n);
+				gap += sizeModel.getDisplaySize(getFixedPartNum() + getValue()+n);
 				n++;
 			}
 			setValue(getValue()+n);

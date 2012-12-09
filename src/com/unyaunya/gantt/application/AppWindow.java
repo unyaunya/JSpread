@@ -186,14 +186,17 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 				Rows rows = sp.getRows();
 				IGridSelectionModel sm = sp.getGridSelectionModel();
 				ArrayList<IRange> srl = sm.getSelectedRangeList();
+				boolean bAutoPaint = sp.getAutoPaint();
+				sp.setAutoPaint(false);
 				for(int i = 0; i < srl.size(); i++) {
 					IRange r = srl.get(i);
 					for(int j = r.getTop(); j <= r.getBottom(); j++) {
 						if(sm.isRowSelected(j)) {
-							rows.setHidden(j, false);
+							rows.setHidden(j, true);
 						}
 					}
 				}
+				sp.setAutoPaint(bAutoPaint);
 			}
 		}));
 		menu.add(new JMenuItem(new AbstractAction("‚·‚×‚Ä•\Ž¦‚·‚é") {
@@ -201,9 +204,52 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				JSpread sp = getSpread();
 				Rows rows = sp.getRows();
+				boolean bAutoPaint = sp.getAutoPaint();
+				sp.setAutoPaint(false);
 				for(int i = 0; i < rows.getCount(); i++) {
-					rows.setHidden(i, true);
+					rows.setHidden(i, false);
 				}
+				sp.setAutoPaint(bAutoPaint);
+			}
+		}));
+		menu.add(new JMenuItem(new AbstractAction("Collapse") {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JSpread sp = getSpread();
+				Rows rows = sp.getRows();
+				IGridSelectionModel sm = sp.getGridSelectionModel();
+				ArrayList<IRange> srl = sm.getSelectedRangeList();
+				boolean bAutoPaint = sp.getAutoPaint();
+				sp.setAutoPaint(false);
+				for(int i = 0; i < srl.size(); i++) {
+					IRange r = srl.get(i);
+					for(int j = r.getTop(); j <= r.getBottom(); j++) {
+						if(sm.isRowSelected(j)) {
+							rows.collapse(j);
+						}
+					}
+				}
+				sp.setAutoPaint(bAutoPaint);
+			}
+		}));
+		menu.add(new JMenuItem(new AbstractAction("Expand") {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JSpread sp = getSpread();
+				Rows rows = sp.getRows();
+				IGridSelectionModel sm = sp.getGridSelectionModel();
+				ArrayList<IRange> srl = sm.getSelectedRangeList();
+				boolean bAutoPaint = sp.getAutoPaint();
+				sp.setAutoPaint(false);
+				for(int i = 0; i < srl.size(); i++) {
+					IRange r = srl.get(i);
+					for(int j = r.getTop(); j <= r.getBottom(); j++) {
+						if(sm.isRowSelected(j)) {
+							rows.expand(j);
+						}
+					}
+				}
+				sp.setAutoPaint(bAutoPaint);
 			}
 		}));
 		menu.add(new JMenuItem(getGanttChart().getLevelUpAction()));

@@ -86,6 +86,13 @@ class RowOrColumn {
 		return rangeModel.levelUp(start, length);
 	}
 
+	public void collapse(int index) {
+		rangeModel.collapse(index);
+	}
+
+	public void expand(int index) {
+		rangeModel.expand(index);
+	}
 
 	protected void repaint() {
 		grid.repaint();
