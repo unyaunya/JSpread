@@ -33,4 +33,12 @@ public class Rows extends RowOrColumn {
 	public int rowAtViewPoint(Point pt) {
 		return rangeModel.getIndex(rangeModel.viewToModel(pt.y));
 	}
+	
+	public boolean isLeaf(int index) {
+		return rangeModel.isLeaf(index);
+	}
+
+	public boolean isExpanded(int index) {
+		return rangeModel.isExpanded(index);
+	}
 }

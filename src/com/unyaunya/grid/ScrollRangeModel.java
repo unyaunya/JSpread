@@ -154,6 +154,14 @@ class ScrollRangeModel implements BoundedRangeModel, Serializable {
 		return sizeModel.getLevel(index);
 	}
 
+	public boolean isLeaf(int index) {
+		return sizeModel.isLeaf(index);
+	}
+
+	public boolean isExpanded(int index) {
+		return sizeModel.isExpanded(index);
+	}
+
 	public boolean levelDown(int start, int length) {
 		return sizeModel.levelDown(start, length);
 	}

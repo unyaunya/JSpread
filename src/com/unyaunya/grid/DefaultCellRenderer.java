@@ -134,11 +134,16 @@ public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
 			JComponent jc = (JComponent)c;
 			panel.setBorder(this.getBorder());
 			panel.setBackground(this.getBackground());
-			if(grid.getGridModel().isExpanded(row)) {
-				panel.setIcon(TreeCellRenderer.ICON_COLLAPSE);
+			if(grid.getRows().isLeaf(row)) {
+				panel.setIcon(TreeCellRenderer.ICON_NONE);
 			}
 			else {
-				panel.setIcon(TreeCellRenderer.ICON_EXPAND);
+				if(grid.getRows().isExpanded(row)) {
+					panel.setIcon(TreeCellRenderer.ICON_COLLAPSE);
+				}
+				else {
+					panel.setIcon(TreeCellRenderer.ICON_EXPAND);
+				}
 			}
 			return panel;
 		}
