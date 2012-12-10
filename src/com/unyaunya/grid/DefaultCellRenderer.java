@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.text.Format;
 import java.util.logging.Logger;
 
@@ -45,6 +46,10 @@ class TreeCellRenderer extends JPanel {
 		this.add(iconLabel);
 	}
 
+	public void setMouseListener(MouseListener l) {
+		this.iconLabel.addMouseListener(l);
+	}
+	
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
@@ -107,15 +112,44 @@ class TreeCellRenderer extends JPanel {
  */
 @SuppressWarnings("serial")
 public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
+	private static Logger LOG = Logger.getLogger(DefaultCellRenderer.class.getName());
+
 	private Format format;
 	private TreeCellRenderer panel;
-
+	private MouseAdapter mouseAdapter;
+	private JGrid grid;
+	private int row;
+	
 	public DefaultCellRenderer() {
     	super();
     	setOpaque(true);
 		panel = new TreeCellRenderer();
+		this.mouseAdapter = new MouseAdapter() {
+			/*
+			public void mouseClicked(MouseEvent e) {
+				processMoseClicked();
+			}
+			*/
+			public void mousePressed(MouseEvent e) {
+				LOG.info(e.toString());
+				//processMoseClicked();
+			}
+		};
+		panel.setMouseListener(mouseAdapter);
     }
 
+	private void processMoseClicked() {
+		if(grid != null) {
+			if(!grid.getRows().isLeaf(row)) {
+				if(grid.getRows().isExpanded(row)) {
+					grid.getRows().collapse(row);
+				}
+				else {
+					grid.getRows().expand(row);
+				}
+			}
+		}
+	}
 
 	protected String getValueString(JGrid grid, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		return value.toString();
@@ -126,9 +160,11 @@ public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
 	 */
 	@Override
 	public Component getGridCellRendererComponent(JGrid grid, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-		Component c = _getGridCellRendererComponent(grid, value, isSelected, hasFocus, row, column);
+		this.grid = grid;
+		this.row = row;
 		int tcc = grid.getTreeCellColumn();
 		if(column == tcc && row >= grid.getGridModel().getHeaderRowCount()) {
+			Component c = _getGridCellRendererComponent(grid, value, isSelected, hasFocus, row, column);
 			panel.setMainComponent(c);
 			panel.setIndent(grid.getRows().getLevel(row));
 			JComponent jc = (JComponent)c;
@@ -148,6 +184,7 @@ public class DefaultCellRenderer extends JLabel implements IGridCellRenderer {
 			return panel;
 		}
 		else {
+			Component c = _getGridCellRendererComponent(grid, value, isSelected, hasFocus, row, column);
 			panel.setMainComponent(null);
 			c.setLocation(0, 0);
 			return c;

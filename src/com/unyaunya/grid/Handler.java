@@ -254,23 +254,41 @@ public class Handler extends MouseInputAdapter {
 			grid.getGridSelectionModel().onMouseDragged(e);
 		}
 	}
-
+	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if(javax.swing.SwingUtilities.isRightMouseButton(e)){
 		    // 右クリック時の処理
 			grid.getGridEventHandler().mouseClicked(e);
 		} else if(javax.swing.SwingUtilities.isLeftMouseButton(e)) {
-			if(e.getButton() != MouseEvent.BUTTON1) {
-				return;
-			}
-			if(e.getClickCount() != 2) {
-				return;
-			}
+			//if(e.getButton() != MouseEvent.BUTTON1) {
+			//	return;
+			//}
 			Point pt = e.getPoint();
 			//CellPosition cp = grid.getCellPositionFromView(pt);
 			int row = grid.getRows().rowAtViewPoint(pt);
 			int col = grid.getColumns().columnAtViewPoint(pt);
+			///
+			if(col == grid.getTreeCellColumn()) {
+				if(!grid.getRows().isLeaf(row)) {
+					int level = grid.getRows().getLevel(row);
+					int dx = pt.x - grid.getColumns().getPosition(col);
+					if((level*10+32) > dx) {
+						if(grid.getRows().isExpanded(row)) {
+							grid.getRows().collapse(row);
+						}
+						else {
+							grid.getRows().expand(row);
+						}
+						grid.repaint();
+						return;
+					}
+				}
+			}
+			///
+			if(e.getClickCount() != 2) {
+				return;
+			}
 			if(!grid.getGridModel().getTableModel().isCellEditable(row, col)) {
 				return;
 			}
