@@ -194,7 +194,7 @@ class SizeModel /*extends SizeSequence*/ {
 	}
 	
 	public void setSize(int index, int size) {
-		if(!isDisplayed(index)) {
+		if(isDisplayed(index)) {
 			this.setInternal(index, size);
 		}
 		this.sizes[index] = size;
@@ -296,21 +296,42 @@ class SizeModel /*extends SizeSequence*/ {
 		return this.getLevel(index) >= this.getLevel(index+1);
 	}
 
+	public int levelDown(int index) {
+		return changeLevel(index, 1);
+	}
+
+	public int levelUp(int index) {
+		return changeLevel(index, -1);
+	}
+
+	private int changeLevel(int index, int delta) {
+		if(index < 0 || index >= getLength()) {
+			return -1;
+		}
+		int currentLevel = getLevel(index);
+		int i = index;
+		setLevel(i, this.getLevel(i)+delta);
+		i++;
+		while(i < getLength()) {
+			int level = getLevel(i);
+			if(level <= currentLevel) {
+				return i;
+			}
+			setLevel(i, this.getLevel(i)+delta);
+			i++;
+		}
+		return i;
+	}
+
 	public boolean levelDown(int start, int length) {
-		if(start < 0 || length < 0) {
-			return false;
-		}
-		int end = start + length -1;
-		if(getLength() <= end) {
-			return false;
-		}
-		for(int i = start; i <= end; i++) {
-			setLevel(i, this.getLevel(i)+1);
-		}
-		return true;
+		return changeLevel(start, length, 1);
 	}
 	
 	public boolean levelUp(int start, int length) {
+		return changeLevel(start, length, -1);
+	}
+
+	private boolean changeLevel(int start, int length, int delta) {
 		if(start < 0 || length < 0) {
 			return false;
 		}
@@ -318,8 +339,9 @@ class SizeModel /*extends SizeSequence*/ {
 		if(getLength() <= end) {
 			return false;
 		}
-		for(int i = start; i <= end; i++) {
-			setLevel(i, this.getLevel(i)-1);
+		int i = start;
+		while(i >= 0 && i <= end) {
+			i = changeLevel(i, delta);
 		}
 		return true;
 	}
@@ -347,10 +369,10 @@ class SizeModel /*extends SizeSequence*/ {
 			if(level <= currentLevel) {
 				return i;
 			}
+			if(isDisplayed(i)) {
+				setInternal(i, 0);
+			}
 			if(isLeaf(i)) {
-				if(isDisplayed(i)) {
-					setInternal(i, 0);
-				}
 				setFlag(i, PARENT_COLLAPSED);
 				i++;
 			}
@@ -384,7 +406,7 @@ class SizeModel /*extends SizeSequence*/ {
 			if(isDisplayed(i)) {
 				setInternal(i, getSize(i));
 			}
-			if((this.flags[index] & COLLAPSED) == 0) {
+			if((this.flags[i] & COLLAPSED) == 0) {
 				i = expandSubordinates(i);
 			}
 			else {
