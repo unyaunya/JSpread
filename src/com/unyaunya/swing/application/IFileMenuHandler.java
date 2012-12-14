@@ -32,17 +32,6 @@ public interface IFileMenuHandler {
 	public IDocument getCurrentDocument();
 
 	/**
-	 * カレントドキュメントが変更されているかを取得する
-	 * @return
-	 */
-	public boolean isModified();
-	/**
-	 * カレントドキュメントが変更されているかを設定する
-	 * @return
-	 */
-	public void setModified(boolean isModified);
-
-	/**
 	 * ドキュメントを新規作成する。
 	 * @return
 	 */

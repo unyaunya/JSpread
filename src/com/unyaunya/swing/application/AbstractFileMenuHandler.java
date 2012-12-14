@@ -14,7 +14,6 @@ public abstract class AbstractFileMenuHandler implements IFileMenuHandler {
 
 	private IDocument currentDocument = null;
 	private File	currentFile = null;
-	private boolean modified = false;
 	transient JFileChooser fileChooser;
 	transient private Action openAction = null;
 	transient private Action saveAsAction = null;
@@ -38,19 +37,9 @@ public abstract class AbstractFileMenuHandler implements IFileMenuHandler {
 		return currentDocument;
 	}
 
-	@Override
-	public boolean isModified() {
-		return modified;
-	}
-
-	@Override
-	public void setModified(boolean isModified) {
-		this.modified = isModified;
-	}
-
 	protected void setCurrentDocument(IDocument document) {
-		this.currentDocument = (IDocument)document;
-		setModified(false);
+		this.currentDocument = document;
+		this.currentDocument.setModified(false);
 	}
 	
 	/**
@@ -119,7 +108,7 @@ public abstract class AbstractFileMenuHandler implements IFileMenuHandler {
 	@Override
 	public void onFileExit() {
     	LOG.info("onExit() called.");
-    	if(isModified()) {
+    	if(this.getCurrentDocument().isModified()) {
     		int ret = JOptionPane.showConfirmDialog(null,
     						"ドキュメントは変更されています。保存しますか？",
     						"title", JOptionPane.YES_NO_OPTION);
