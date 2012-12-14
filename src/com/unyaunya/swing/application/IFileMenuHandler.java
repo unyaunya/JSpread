@@ -29,7 +29,7 @@ public interface IFileMenuHandler {
 	 * カレントドキュメント(現在、編集対象となっているドキュメント)を取得する。
 	 * @return
 	 */
-	public Object getCurrentDocument();
+	public IDocument getCurrentDocument();
 
 	/**
 	 * カレントドキュメントが変更されているかを取得する
@@ -46,5 +46,5 @@ public interface IFileMenuHandler {
 	 * ドキュメントを新規作成する。
 	 * @return
 	 */
-	public Object createNewDocument();
+	public IDocument createNewDocument();
 }

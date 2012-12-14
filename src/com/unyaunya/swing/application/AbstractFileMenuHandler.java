@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
 public abstract class AbstractFileMenuHandler implements IFileMenuHandler {
 	private static Logger LOG = Logger.getLogger(AbstractFileMenuHandler.class.getName());
 
-	private Object currentDocument = null;
+	private IDocument currentDocument = null;
 	private File	currentFile = null;
 	private boolean modified = false;
 	transient JFileChooser fileChooser;
@@ -34,7 +34,7 @@ public abstract class AbstractFileMenuHandler implements IFileMenuHandler {
 	}
 
 	@Override
-	public Object getCurrentDocument() {
+	public IDocument getCurrentDocument() {
 		return currentDocument;
 	}
 
@@ -48,8 +48,8 @@ public abstract class AbstractFileMenuHandler implements IFileMenuHandler {
 		this.modified = isModified;
 	}
 
-	protected void setCurrentDocument(Object document) {
-		this.currentDocument = document;
+	protected void setCurrentDocument(IDocument document) {
+		this.currentDocument = (IDocument)document;
 		setModified(false);
 	}
 	
@@ -58,7 +58,7 @@ public abstract class AbstractFileMenuHandler implements IFileMenuHandler {
 	 * @param file
 	 * @return
 	 */
-	abstract protected Object openDocument(File file);
+	abstract protected IDocument openDocument(File file);
 
 	/**
 	 * 指定したドキュメントをファイルに保存する

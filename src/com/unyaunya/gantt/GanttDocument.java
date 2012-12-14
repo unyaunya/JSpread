@@ -13,17 +13,20 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.unyaunya.swing.application.IDocument;
+
 class NullTask extends Task {
 	
 }
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "GanttDocument")
-public class GanttDocument {
+public class GanttDocument implements IDocument {
     private static final Logger LOG = Logger.getLogger(GanttDocument.class.getName());
 
 	private static String[] columnName = {"ID", "階層", "タスク名", "開始日", "終了日", "進捗率", "sss"};
 	public static Task NULL = new NullTask();
+	private boolean modified;	
 	
 	@XmlAttribute(name = "start-date")
 	private Date startDate;
@@ -114,4 +117,14 @@ public class GanttDocument {
 			tasks.remove(tasks.size()-1);
 		}
 	}
+	
+	@Override
+	public boolean isModified() {
+		return modified;
+	}
+
+	@Override
+	public void setModified(boolean isModified) {
+		modified = isModified;
+	}	
 }

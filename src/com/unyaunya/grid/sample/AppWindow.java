@@ -23,6 +23,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
+import com.unyaunya.grid.GridDocument;
 import com.unyaunya.grid.GridModel;
 import com.unyaunya.grid.IGridModel;
 import com.unyaunya.grid.action.SpreadActionProvider;
@@ -30,6 +31,7 @@ import com.unyaunya.grid.table.GridTableModel;
 import com.unyaunya.swing.JGridPane;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.application.AbstractFileMenuHandler;
+import com.unyaunya.swing.application.IDocument;
 import com.unyaunya.swing.application.IFileMenuHandler;
 
 @SuppressWarnings("serial")
@@ -117,8 +119,8 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		MyDocumentFileHandler() {}
 
 		@Override
-		public Object createNewDocument() {
-			GridModel tmp = new GridModel(new GridTableModel());
+		public IDocument createNewDocument() {
+			GridDocument tmp = new GridDocument(new GridTableModel());
 			tmp.setTableModel(new CsvTable(createSampleData()));
     	    return tmp;
 		}
@@ -148,11 +150,11 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		 * @param file
 		 * @return
 		 */
-		protected Object openDocument(File file) {
+		protected IDocument openDocument(File file) {
 	    	if(ssdFilter.accept(file)) {
 		    	try {
 			    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-			    	IGridModel tmp = (IGridModel)ois.readObject();
+			    	GridDocument tmp = (GridDocument)ois.readObject();
 			    	ois.close();
 			    	return tmp;
 				} catch (IOException e) {
@@ -166,7 +168,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		    		CSVReader reader = new CSVReader(new FileReader(file));
 		    	    List<String[]> myEntries = reader.readAll();
 		    	    reader.close();
-		    	    GridModel tmp = new GridModel(new CsvTable(myEntries));
+		    	    GridDocument tmp = new GridDocument(new CsvTable(myEntries));
 		    	    return tmp;
 		    	} catch (IOException e) {
 					e.printStackTrace();

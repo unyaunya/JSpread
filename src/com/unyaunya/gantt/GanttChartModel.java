@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import javax.swing.SwingConstants;
 
 import com.unyaunya.grid.CellRange;
-import com.unyaunya.grid.GridModel;
+import com.unyaunya.grid.GridDocument;
 import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.format.CellFormatModel;
 import com.unyaunya.grid.format.CellSpanModel;
@@ -14,7 +14,7 @@ import com.unyaunya.grid.format.RangedColor;
 import com.unyaunya.grid.format.RangedFormat;
 import com.unyaunya.grid.format.RangedInteger;
 
-public class GanttChartModel extends GridModel {
+public class GanttChartModel extends GridDocument {
 	public GanttChartModel() {
 		super(new GanttTableModel(new GanttDocument()));
 		initHeader();

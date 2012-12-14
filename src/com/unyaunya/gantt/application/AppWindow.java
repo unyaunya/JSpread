@@ -28,6 +28,7 @@ import com.unyaunya.grid.selection.IGridSelectionModel;
 import com.unyaunya.swing.JGrid;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.application.AbstractFileMenuHandler;
+import com.unyaunya.swing.application.IDocument;
 import com.unyaunya.swing.application.IFileMenuHandler;
 
 @SuppressWarnings("serial")
@@ -117,7 +118,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		}
 
 		@Override
-		public Object createNewDocument() {
+		public IDocument createNewDocument() {
 			return new GanttDocument();
 		}
 		
@@ -136,7 +137,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		}
 
 		@Override
-		protected Object openDocument(File file) {
+		protected IDocument openDocument(File file) {
 	    	if(!ssdFilter.accept(file)) {
 	    		return null;
 	    	}
