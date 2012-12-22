@@ -14,18 +14,15 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.xml.bind.JAXBException;
-
 
 import com.unyaunya.gantt.GanttChart;
 import com.unyaunya.gantt.GanttDocument;
+import com.unyaunya.gantt.GanttDocumentHandler;
 import com.unyaunya.grid.IGridModel;
 import com.unyaunya.grid.IRange;
 import com.unyaunya.grid.Rows;
 import com.unyaunya.grid.action.SpreadActionProvider;
 import com.unyaunya.grid.selection.IGridSelectionModel;
-import com.unyaunya.swing.JGrid;
 import com.unyaunya.swing.JSpread;
 import com.unyaunya.swing.application.AbstractFileMenuHandler;
 import com.unyaunya.swing.application.IDocument;
@@ -104,8 +101,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	}
 
 	class MyFileMenuHandler extends AbstractFileMenuHandler {
-		private FileNameExtensionFilter ssdFilter = new FileNameExtensionFilter(
-		        "ガントチャート(.xml)", "xml");
+		private GanttDocumentHandler documentHandler = new GanttDocumentHandler();
 		
 		MyFileMenuHandler(){}
 
@@ -113,7 +109,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		public JFileChooser createFileChooser() {
 			JFileChooser fc = super.createFileChooser();
 			fc.setAcceptAllFileFilterUsed(false);
-			fc.addChoosableFileFilter(ssdFilter);			
+			fc.addChoosableFileFilter(documentHandler.ssdFilter);			
 			return fc;
 		}
 
@@ -121,7 +117,6 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		public IDocument createNewDocument() {
 			return new GanttDocument();
 		}
-		
 		
 		@Override
 		public void onFileOpen(JFileChooser fc) {
@@ -138,21 +133,17 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 
 		@Override
 		protected IDocument openDocument(File file) {
-	    	if(!ssdFilter.accept(file)) {
-	    		return null;
-	    	}
 			try {
-				GanttDocument doc = (GanttDocument)JAXBUtil.read(GanttDocument.class, file);
-				getGanttChart().getGanttChartModel().readDocument(doc);
-				getGanttChart().repaint();
+				GanttDocument doc = (GanttDocument)documentHandler.load(file);
+				if(doc != null)  {
+					getGanttChart().getGanttChartModel().readDocument(doc);
+					getGanttChart().repaint();
+				}
 	    		return doc;
 			} catch (IOException e) {
 				LOG.info(e.getMessage());
-			} catch (JAXBException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	    		return null;
 			}
-    		return null;
 		}
 
 		public boolean isXmlFile(File file) {
@@ -161,18 +152,9 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		
 		@Override
 		protected void saveDocument(Object document, File file) {
-			if(!file.getPath().endsWith(".xml")) {
-				file = new File(file.getPath()+".xml");
-			}
-	    	if(!ssdFilter.accept(file)) {
-	    		throw new RuntimeException("!ssdFilter.accept(file)");
-	    	}
 			try {
-				JAXBUtil.save(document, file);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			} catch (JAXBException e) {
-				// TODO Auto-generated catch block
+				documentHandler.save((GanttDocument)document, file);
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}

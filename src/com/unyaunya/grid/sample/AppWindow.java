@@ -2,13 +2,7 @@ package com.unyaunya.grid.sample;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -18,13 +12,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.CSVWriter;
 
 import com.unyaunya.grid.GridDocument;
-import com.unyaunya.grid.GridModel;
+import com.unyaunya.grid.GridDocumentHandler;
 import com.unyaunya.grid.IGridModel;
 import com.unyaunya.grid.action.SpreadActionProvider;
 import com.unyaunya.grid.table.GridTableModel;
@@ -111,10 +101,7 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 	}
 
 	class MyDocumentFileHandler extends AbstractFileMenuHandler {
-		private FileNameExtensionFilter csvFilter = new FileNameExtensionFilter(
-		        "CSV & TXT", "csv", "txt");
-		private FileNameExtensionFilter ssdFilter = new FileNameExtensionFilter(
-		        "スプレッドシート", "ssd");
+		GridDocumentHandler documentHandler = new GridDocumentHandler();
 
 		MyDocumentFileHandler() {}
 
@@ -129,8 +116,8 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		public JFileChooser createFileChooser() {
 			JFileChooser fc = super.createFileChooser();
 			fc.setAcceptAllFileFilterUsed(false);
-			fc.addChoosableFileFilter(ssdFilter);			
-			fc.addChoosableFileFilter(csvFilter);			
+			fc.addChoosableFileFilter(documentHandler.ssdFilter);			
+			fc.addChoosableFileFilter(documentHandler.csvFilter);			
 			return fc;
 		}
 
@@ -150,31 +137,14 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		 * @param file
 		 * @return
 		 */
+		@Override
 		protected IDocument openDocument(File file) {
-	    	if(ssdFilter.accept(file)) {
-		    	try {
-			    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-			    	GridDocument tmp = (GridDocument)ois.readObject();
-			    	ois.close();
-			    	return tmp;
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-	    	}
-	    	else if(csvFilter.accept(file)) {
-		    	try {
-		    		CSVReader reader = new CSVReader(new FileReader(file));
-		    	    List<String[]> myEntries = reader.readAll();
-		    	    reader.close();
-		    	    GridDocument tmp = new GridDocument(new CsvTable(myEntries));
-		    	    return tmp;
-		    	} catch (IOException e) {
-					e.printStackTrace();
-				}
-	    	}
-			return null;
+    		try {
+    			return documentHandler.load(file);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
 		}
 
 		/**
@@ -182,41 +152,13 @@ public class AppWindow extends com.unyaunya.swing.application.AppFrame {
 		 * @param file
 		 * @return
 		 */
+		@Override
 		protected void saveDocument(Object document, File file) {
-			GridModel doc = (GridModel)document;
-	    	if(ssdFilter.accept(file)) {
-				try {
-			        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
-			    	oos.writeObject(doc);
-			    	oos.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-	    	}
-	    	else if(csvFilter.accept(file)) {
-		    	CSVWriter writer;
-				List<String[]> data = new ArrayList<String[]>();
-				for(int i = 1; i < doc.getRowCount(); i++) {
-					String[] row = new String[doc.getColumnCount()-1];
-					for(int j = 1; j < doc.getColumnCount(); j++) {
-						Object value = doc.getValueAt(i, j);
-						if(value != null) {
-							row[j-1] = value.toString();
-						}
-						else {
-							row[j-1] = null;
-						}
-					}
-					data.add(row);
-				}
-				try {
-					writer = new CSVWriter(new FileWriter(file));
-			        writer.writeAll(data);
-			        writer.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-	    	}
+			try {
+				documentHandler.save((IDocument)document, file);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		}
 	}
 }
