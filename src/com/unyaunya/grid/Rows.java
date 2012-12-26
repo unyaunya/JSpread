@@ -2,9 +2,15 @@ package com.unyaunya.grid;
 
 import java.awt.Point;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlType;
+
 import com.unyaunya.swing.JGrid;
 
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "")
 public class Rows extends RowOrColumn {
 	public Rows(JGrid grid, ScrollRangeModel rangeModel) {
 		super(grid, rangeModel);
